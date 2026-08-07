@@ -1,0 +1,18 @@
+---
+description: Forces the Hokuten design pipeline for all UI/UX, styling, motion, brand, and copy work
+globs: site/app/**, site/components/**, site/content/**, site/lib/motion.ts, site/scripts/**, site/public/brand/**
+alwaysApply: false
+---
+
+# Hokuten Design Pipeline
+
+Read `.agents/skills/hokuten-design-director/SKILL.md` first and use its command verbs (`study` / `spec` / `redesign` / `implement-readiness` / `audit` / `polish`). Specs must be `approved` before implementation; audits append to `docs/design/AUDIT_LOG.md`.
+
+Non-negotiables restated so they apply even without the skill loaded:
+- Three type voices only: Fraunces (display), Inter (UI/body), IBM Plex Mono (data/micro-labels). 2–4 sizes per section; body ≥16px; deal data always mono tabular-nums.
+- Warm neutrals only — page canvas `--paper`, never pure white; dark sections are `--dark`/`--black`, never gray. Gold (`--gold` #B8902E) is scarce: CTAs, badges, one accent word, thin rules.
+- One signature effect per viewport (the ASCII hero owns its screen). Transform/opacity-only animation, reveals fire once, no bounce easing, `prefers-reduced-motion` always has a designed static state.
+- 44px tap targets, visible focus, WCAG AA (check gold-on-dark), no hover-only information on touch.
+- Lucide icons only; no emoji; no stock/AI photography — real track-record hotels, B&W→color on hover/tap.
+- Anti-AI-slop: no centered-gradient hero + three cards, no purple glow, no uniform pill grids, no fake metrics, no "Learn more"/"Get started" CTAs.
+- Perf gates: LCP <2.5s, CLS <0.02, INP <200ms, landing JS ≤180KB gzip, 60fps hero; Calendly/intl-tel-input/us-cities lazy-load on interaction.

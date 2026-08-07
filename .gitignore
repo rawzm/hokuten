@@ -1,0 +1,14 @@
+# Private — never commit (team chat, contains sensitive context)
+chat-context.md
+
+# System
+.DS_Store
+
+# Env & deploy
+.env*
+.vercel/
+node_modules/
+
+# Local tool state
+.claude/settings.local.json
+*.log

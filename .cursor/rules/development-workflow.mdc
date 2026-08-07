@@ -1,0 +1,21 @@
+---
+description: Hokuten development workflow — memory protocol, data contracts, porting rules, deploy rules. Apply when writing code, integrating data sources, committing, or deploying
+globs: site/**
+alwaysApply: false
+---
+
+# Development Workflow
+
+Stack (locked 2026-08-07): Next.js App Router + TypeScript + Tailwind v4, `motion/react`, Lenis (desktop pointer only), shadcn/ui restyled primitives, `next/font` self-hosted fonts, Vercel hosting. Verify framework APIs against `node_modules` docs, not memory.
+
+Data rules:
+- Phase 1 content is static + typed in `site/content/*.ts` (closings, listings, team, stats, methodology, faq) — seeded from the kwc repo (`~/Documents/Dino/dino-sites/kwc-dinomonteverde/`, read-only). Design the `Listing` type to the a100arms public-feed field allowlist so Phase 2 swaps static→live without touching components.
+- Never read or expose the a100arms `a100_DealSnapshot` nested object (confidential off-market data) in any future feed work. Listing links must pass the Crexi trust check (`/^https:\/\/(www\.)?crexi\.com\//i` — keep the `i` flag; source is case-insensitive).
+- FRED proxy: `site/app/api/ticker-data/route.ts`, env `FRED_API_KEY` (Vercel, server-side only), series DGS10/SOFR/DPRIME/DFEDTARU/DFEDTARL, edge cache `s-maxage=3600, stale-while-revalidate=86400`, always respond 200 with dash-degradable shape.
+- Forms: Web3Forms with a NEW Hokuten access key (client-side key is public by design); honeypot + TCPA consent fields ported byte-exact.
+
+Porting rules: calculator `CONFIG`/`TYPICAL`/`OCC_BAND`/`ADR_BAND`/`REVPAR_BAND`/`ADVICE` port as frozen typed config in `site/lib/valuation.ts` with unit tests locking outputs to the kwc implementation before any restyle.
+
+Git/deploy: repo root = workspace root; `chat-context.md`, `.env*`, `.vercel` gitignored; commits authored as rawzm with no Co-Authored-By/AI-attribution trailers; deploy only via GitHub → Vercel integration (never Vercel CLI on client accounts); public launch blocked until the KW/Forward Wilshire paperwork gate clears.
+
+Before every push: dated PROJECT-MEMORY.md entry + QA greps from design-skill reference 07 + `next build` clean.

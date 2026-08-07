@@ -1,0 +1,17 @@
+---
+description: The Hokuten Group platform — identity, guardrails, and read order for all work in this workspace
+alwaysApply: true
+---
+
+# Hokuten Project
+
+THE HOKUTEN GROUP ("northern sky") — luxury hotel/hospitality investment-sales brokerage website. Next.js app in `site/`, deployed on Vercel. Audience: 40+ hotel owners/buyers who use Crexi/LoopNet/CoStar — familiar patterns, luxury execution.
+
+Read order for any task: `AGENTS.md` → `PROJECT-MEMORY.md` (standing decisions) → the relevant skill in `.agents/skills/` → `docs/PHASE-1-IMPLEMENTATION.md`.
+
+Hard guardrails (full list in AGENTS.md):
+- Spelling is HOKUTEN, never "Hakuten". Hokuten-first branding; KW Commercial only as footer compliance mark with the verbatim disclosure line.
+- Website gold `#B8902E`; kit gold `#B8943D` never appears in code. All other hex values only in the design skill's reference 01 and `site/app/globals.css`.
+- Calculator `CONFIG` math/defaults are a frozen port; no Sarhan branding; no secrets in the repo (`FRED_API_KEY` = Vercel env, server-side only); `chat-context.md` never committed.
+- Every decision/scope change gets a dated entry in PROJECT-MEMORY.md before push.
+- Public claims (stats, awards, testimonials) require `verified-current` status in the design skill's claims register.
