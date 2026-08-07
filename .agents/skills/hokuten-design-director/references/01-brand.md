@@ -57,8 +57,9 @@ OG image (1200×630): rebuild per the cover recipe — black panel, centered sta
 ## Motif system
 
 North-star / compass-point glyph: the site mark accent; usable as bullet, section stamp, loading indicator.
-北天 hanko seal (gold square seal-stamp): favicon + OG corner stamp. Status: `exploring` — build one candidate, get Razim's approval before shipping.
+北天 hanko seal (gold square seal-stamp): SHIPS in Phase 1 at full strength (decision 2026-08-07: "push it like it's final") — favicon, OG corner stamp, footer seal, section stamps where the anatomy calls for them. Team may rework after internal review; do not build it half-way.
 Star-grain texture: faint grain + hairline orbital arcs on dark sections only (Aurelian ref). Never on light chrome.
+Franchise-flag marks (Marriott, Hilton, IHG, Wyndham, Choice, Hyatt, Best Western, Radisson, Sonesta…) are third-party trademarks: grayscale only, uniform optical size, inside the `#brands` marquee only, with the trademark disclaimer microcopy from [06-content-and-proof.md](06-content-and-proof.md). Never colorized, never implying endorsement, never adjacent to the Hokuten lockup.
 ASCII/dither art: the signature image treatment — charset built from HOKUTEN + 北天/ホクテン + digits + `・.:-=+*#`; one seam row resolves into THE HOKUTEN GROUP. Full spec in [05-motion.md](05-motion.md) and the Phase 1 plan.
 Photography: real hotels from the track record, B&W at rest → color on hover/tap (kwc's touch-reveal pattern). No stock.
 

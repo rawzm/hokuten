@@ -47,11 +47,11 @@
 **Exit:** deployed preview showing tokened type/color specimens.
 
 ### M1 — Content modules & assets
-Copy from kwc repo: 6 closing photos, hero video (if reused), `us-cities.min.json`, KW footer mark; export brand lockups → `site/public/brand/`. Author `content/{closings,listings,team,stats,methodology,faq}.ts` per §5. Port `privacy` + `sms-terms` pages with brand-string rules from skill ref 06.
+Copy from kwc repo: 6 closing photos, hero video (if reused), `us-cities.min.json`, KW footer mark; export brand lockups → `site/public/brand/`; source franchise-logo vectors per PHASE-1-EXECUTION §4.3 (license manifest required). Author `content/{closings,listings,team,stats,methodology,mandates,faq}.ts` per §5. Port `privacy` + `sms-terms` pages with brand-string rules from skill ref 06.
 **Exit:** all seed content typed, no `any`, QA greps pass.
 
 ### M2 — Sections (order = build order)
-Nav + numbered menu overlay → `#stats` → `#closings` → `#listings` (static seed + empty state) → `#method` (dark chapter) → `#doors` → `#team` (provisional generic bios per skill ref 06 — Dino verbatim from source; Razim/William in the same format, pending team's real bios) → `#faq` → footer + compliance. Each section: spec via design skill `spec` verb → `approved` → build → `audit`.
+Nav + numbered menu overlay → `#stats` → `#brands` (franchise-flag marquee) → `#closings` → `#listings` (static seed + empty state) → `#method` (dark chapter) → `#doors` → `#mandates` (condensed capital & mandates, dark) → `#team` (provisional generic bios per skill ref 06 — Dino verbatim from source; Razim/William in the same format, pending team's real bios) → `#faq` → footer + compliance. Each section: spec via design skill `spec` verb → `approved` → build → `audit`.
 **Exit:** full page scrolls with placeholder hero; JS-off pass shows all content.
 
 ### M3 — ASCII hero
@@ -75,7 +75,7 @@ DNS: thehokutengroup.com → Vercel (Dino's GoDaddy; DNS-only change, no builder
 
 ## 4. Section specs
 
-Authoritative anatomy: design-skill reference 04 (nav, 11 sections, modals, footer, mobile rules). Specs are written per-section during M2–M5 with the skill's `spec` verb and live in `docs/design/specs/`.
+Authoritative anatomy: design-skill reference 04 (nav, 13 sections incl. `#brands` + `#mandates` added 2026-08-07, modals, footer, mobile rules). Specs are written per-section during M2–M5 with the skill's `spec` verb and live in `docs/design/specs/`. Execution detail for the implementing agent: [PHASE-1-EXECUTION.md](PHASE-1-EXECUTION.md).
 
 ## 5. Data contracts (`site/content/`, `site/lib/types.ts`)
 
@@ -87,7 +87,7 @@ type Listing = {
   city: string; stateCode: string;
   roomCount?: number;         // meta line: "City, ST · service · N keys"
   serviceLevel?: string; brand?: string;
-  price?: string;             // display string "$11.00M"; undefined/"$0" → "Price on request"
+  price?: string;             // display string "$11.00M"; undefined/"$0" → "Price on Request" (feed's exact string — render as-is)
   displayCapRate?: string;    // render only if a positive number parses
   status: 'exclusive' | 'off-market' | 'in-contract' | 'closed' | 'listed'; // 'listed' renders the EXCLUSIVE badge (feed is Listed-stage only)
   crexiUrl?: string;          // must pass ^https://(www\.)?crexi\.com/
@@ -99,6 +99,7 @@ type Closing = { name: string; location: string; keys?: number; segment: string;
 type TeamMember = { name: string; role: string; bio: string | { status: 'blocked: bios-needed' };
   email: string; phone?: string; dre?: string; photo: string };
 type Stat = { value: string; label: string; detail?: string }; // "3×", "CoStar Power Broker", "Q3 '25 · Q1 '26 · Q2 '26"
+type Mandate = { headline: string; criteria: string; source: 'kwc-marketplace' }; // #mandates cards — claims must have verified-current rows in skill ref 06
 ```
 
 Seed rows (verbatim from kwc source — full table in skill ref 06): closings Carte $61.49M / Renaissance Reno $50.1M / Last Hotel $13.2M / HIE Brooklyn $20.0M / Radisson McAllen $14.0M / Rohnert Park $14.0M; listings The Lodge at Split Rock Resort, Pocono Mountain Hotel and Spa, Developer Inn Highway Kissimmee, Developer Inn Downtown Orlando, Baymont Jacksonville Airport (display names + Crexi URLs must come from the `CREXI_LINKS` map / Crexi listings, not shorthand); stats $200M+ / 12 / 836K+ / 3× CoStar.
@@ -123,4 +124,4 @@ Route handler port of `api/ticker-data.js`: FRED `series/observations`, `sort_or
 
 ## 9. Phase 2 preview (not in scope)
 
-Hokuten-scoped a100arms feed (Razim owns the backend; mirror `kwc-listings` allowlist pattern + photo-sync spec in `_archive/a100-photo-sync-spec.md`), live listings swap, Calendly team URL, bios, testimonials permission run, ~$1B narrative verification, marketplace port. Parking lot: BRAINSTORM.md.
+Hokuten-scoped a100arms feed — recipe verified against the a100 codebase (`/Users/razim/D/DePaul/SHG/A100arms/website/`, 2026-08-07): clone two files, `src/app/api/public/kwc-listings/route.ts` → `hokuten-listings/route.ts` and `src/lib/kwcListings.ts` → `hokutenListings.ts`; change only the `KWC_BROKER_NAME` team-filter constant (see the Team-column filter in `kwcListings.ts` — the a100 repo is the authority) and the CORS origin allowlist (add Hokuten apex+www, keep `Vary: Origin`); keep the `Listed`+`Onboarded` gates and the allowlist projection byte-identical. Photos: `src/lib/listingPhotoSync.ts` is Dino-scoped — widen its predicate or feed returns `photoUrl: undefined`. Consumer needs zero credentials. **This work is performed inside the a100arms project under its own repo/rules (Razim-owned backend) — never from this workspace; A100arms remains read-only here.** Also Phase 2+: live listings swap, Calendly team URL, real bios, testimonials permission run, ~$1B narrative verification, marketplace port. Parking lot: BRAINSTORM.md.

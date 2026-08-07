@@ -54,7 +54,7 @@ Dark sections may carry star-grain + hairline orbital arcs (imagery layer, max o
 
 ## Imagery
 
-Real hotels from the track record only; no stock, no AI-generated photography.
+Real hotels from the track record only; no stock, no AI-generated photography (the ban covers photography — commissioned/generated single-stroke line-art illustration, e.g. the `#method` engraving, is permitted).
 Cards: grayscale at rest → color on hover; touch devices use the kwc `tapped` toggle pattern.
 Signature art: ASCII/dither renders per [01-brand.md](01-brand.md) motif spec — pre-rendered assets, not runtime filters, except the hero canvas.
 Every image through `next/image` with explicit dimensions; hero art gets `priority`; alt text describes the hotel, not the treatment.

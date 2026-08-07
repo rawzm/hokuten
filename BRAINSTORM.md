@@ -26,7 +26,7 @@
 ## 3. Hokuten identity (Japanese / Northern Sky / FF)
 
 - `approved` **North star, not video game** — the FF Order of the Northern Sky nod stays sub-visual: a small north-star / compass-point glyph as the site's mark accent, star-grain texture on dark sections (Aurelian ref). No game imagery — audience is 50-something hotel owners.
-- `exploring` **北天 hanko seal** — a gold square seal-stamp glyph (favicon, section stamps, OG image corner). Classy, ownable, explains the name in one mark.
+- `building` **北天 hanko seal** — a gold square seal-stamp glyph (favicon, section stamps, OG image corner). Classy, ownable, explains the name in one mark. 2026-08-07: Razim — ship everything full-strength in Phase 1 ("push it like it's final"); team reworks after if needed.
 - `exploring` "Northern Sky" as copy motif: "We navigate by fixed points: data, discretion, closed deals."
 - `exploring` **Japan desk is real business, not theming** — marketplace already carries a Japanese fund ($2M–$300M mandate), onsen resort land mandates, Niseko ~$73M + Hakuba ¥3.3B deals, and Dino's LLC is Mitsukaido Holdings. A JP-flagged section (later a /japan route, EN/JP toggle like StoneInvestment's EN/FR) is differentiation no other US hotel brokerage has.
 - `parked` Tasteful easter egg for Dino: konami-code → the Order of the Northern Sky wiki link in a console message. Zero UI cost.
@@ -38,6 +38,8 @@
 - `approved` Consent/inquiry modal per Razim's filename spec: outside click does NOT close — dialog shakes (+`navigator.vibrate` where supported); only explicit buttons dismiss.
 - `approved` Mono deal-data everywhere (cap rate, keys, ADR, $/key) — reads "financial-grade" to CoStar users.
 - `approved` Trust architecture (Mira skeleton): metrics band, CoStar Power Broker strip, named humans with faces, diligence-grade FAQ (1031, NDA process, off-market access).
+- `building` Franchise-flag marquee (`#brands`, 2026-08-07): grayscale major-brand logos floating left→right, economy → upper-upscale coverage, trademark disclaimer; spec in skill ref 04.
+- `building` Condensed Capital & Mandates dark section (`#mandates`, 2026-08-07) with PRIVATE ACCESS ghost CTA; full marketplace page stays Phase 3.
 - `exploring` Dark "process chapter" with white engraved line-art of a hotel + vertical stepper (Golden-Gate-wireframe ref) for the 5-phase methodology.
 - `exploring` Stat moments: oversized numerals on grain cards ("$200M+", "12", "836K+ SF") with dimmed/white two-tone captions (Moltgage ref).
 - `parked` Liquid-glass sticky nav (`liquid-dom` star) — **study-only quarantine** until a perf/a11y spike passes (house rule).

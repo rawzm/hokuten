@@ -35,6 +35,13 @@ Logos/testimonials additionally need written permission noted in PROJECT-MEMORY.
 | Dino bio (creds line) | verbatim from kwc source `team-creds` | `verified-current` |
 | Razim / William / Jae / Donna bios | provisional generic bios below | `verified-current` as written (no unverified claims); replace when real bios land |
 | Any KW corporate award (Forbes etc.) | — | `prohibited` — not the team's awards (Sarhan-site anti-pattern) |
+| `#brands` marquee ("Flags we transact across") | Marriott, IHG, Radisson, Choice, Wyndham evidenced in closed deals/listings; Hilton, Hyatt, Best Western, Sonesta et al. included as market-coverage statement (decision 2026-08-07) | `verified-current` as a coverage claim — label must say "flags we transact across", never "partners" or "clients" |
+| Mandate: Japanese fund, US portfolio build, $2M–$300M per asset | kwc `marketplace.html` "Capital Deploying" | `verified-current` |
+| Mandate: $1B+ family-office JV capital, luxury/mixed-use, $50M project min | kwc `marketplace.html` "Capital Deploying" | `verified-current` |
+| Mandate: select-service portfolio criteria ($200M+, RevPAR ~$100) | kwc `marketplace.html` standing requirements | `verified-current` |
+| Mandate: management-company acquisitions, 8x–10x EBITDA | kwc `marketplace.html` standing requirements | `verified-current` |
+
+Trademark microcopy for `#brands` (render in `type.micro` under the marquee): "All trademarks are the property of their respective owners and are shown to indicate franchise systems within which we broker transactions. No affiliation or endorsement is implied."
 
 ## Seed content sources (Phase 1 — static, from the kwc repo)
 
@@ -68,4 +75,4 @@ Micro-labels: `[ 01 — TRACK RECORD ]` mono uppercase — section index is part
 Data lines: value · separator dots · unit, mono: `96% LP/SP · 74 days · $61.49M`.
 CTAs: verb-first, specific: "Request a written BOV" / "See the track record" / "Email me this estimate" — never "Learn more", "Get started", "Submit".
 Confidentiality is a feature: "Confidential" replaces missing numbers proudly, never "N/A".
-Price fallback: "$0"/blank → "Price on request".
+Price fallback: "$0"/blank → "Price on Request" (the a100 feed's exact string — one vocabulary across both platforms).

@@ -9,7 +9,7 @@ alwaysApply: false
 Stack (locked 2026-08-07): Next.js App Router + TypeScript + Tailwind v4, `motion/react`, Lenis (desktop pointer only), shadcn/ui restyled primitives, `next/font` self-hosted fonts, Vercel hosting. Verify framework APIs against `node_modules` docs, not memory.
 
 Data rules:
-- Phase 1 content is static + typed in `site/content/*.ts` (closings, listings, team, stats, methodology, faq) — seeded from the kwc repo (`~/Documents/Dino/dino-sites/kwc-dinomonteverde/`, read-only). Design the `Listing` type to the a100arms public-feed field allowlist so Phase 2 swaps static→live without touching components.
+- Phase 1 content is static + typed in `site/content/*.ts` (closings, listings, team, stats, methodology, mandates, faq) — seeded from the kwc repo (`~/Documents/Dino/dino-sites/kwc-dinomonteverde/`, read-only). Design the `Listing` type to the a100arms public-feed field allowlist so Phase 2 swaps static→live without touching components.
 - Never read or expose the a100arms `a100_DealSnapshot` nested object (confidential off-market data) in any future feed work. Listing links must pass the Crexi trust check (`/^https:\/\/(www\.)?crexi\.com\//i` — keep the `i` flag; source is case-insensitive).
 - FRED proxy: `site/app/api/ticker-data/route.ts`, env `FRED_API_KEY` (Vercel, server-side only), series DGS10/SOFR/DPRIME/DFEDTARU/DFEDTARL, edge cache `s-maxage=3600, stale-while-revalidate=86400`, always respond 200 with dash-degradable shape.
 - Forms: Web3Forms with a NEW Hokuten access key (client-side key is public by design); honeypot + TCPA consent fields ported byte-exact.
