@@ -43,6 +43,10 @@
 
 ## 4. Log
 
+### 2026-08-07 — FRED key provisioned + executor entry point clarified (night)
+- FRED_API_KEY set on the `hokuten` Vercel project (Production/Preview/Development) — retrieved from Dino's project via his agent; same key shared with kwc + a100arms. Value lives in Vercel env only, never in repo/docs. Known gotcha (from kwc): dashboard env changes take effect only on next deploy. Workspace root `vercel link`ed to `hokuten1/hokuten` (.vercel gitignored). Note: `vercel env add ... preview` non-interactive mode loops on a git-branch prompt bug — worked around via the REST API (`POST /v10/projects/:id/env`, target preview).
+- **Executor entry point: `docs/PHASE-1-EXECUTION.md` is THE brief OPUS-5 implements.** PHASE-1-IMPLEMENTATION.md stays authoritative for milestones/contracts and is inherited through the brief's read order — never handed to the executor alone.
+
 ### 2026-08-07 — Hokuten Blue dual-theme program + Vercel ops (evening)
 - **Dual-theme decision (Razim):** ship TWO complete color keys as two live URLs for team comparison — Theme G "Kit Gold" (existing palette, dark heritage hero, `main`/production) and Theme B "**Hokuten Blue**" (northern-sky blue, light Coronal plate-chassis hero, branch `theme-blue` with zero code diff via branch-scoped `NEXT_PUBLIC_HOKUTEN_THEME=blue`). Components consume semantic `--accent*` tokens only; blue rebuilds of wordmark/hanko/OG (KW kit rasters never recolored; KW footer mark keeps original colors in both themes). Blue ramp anchors + program: skill ref 01; Coronal video digested into skill ref 02; ambient morph loop ("ASCII as gif") specced in skill ref 05.
 - Source of the blue direction: `Ref/Praveen_Kumar_-_New_Health_Tech_Branding_Exploration_tZBENZ.mp4` (Coronal — morphing indigo dot-matrix art, plate chassis with registration marks, white data card). Razim: "I love it, we need something like this integrated."
@@ -90,7 +94,7 @@
 
 - [ ] Real team bios replace the provisional generic set (skill ref 06); confirm Razim/William titles internally
 - [ ] KW / Forward Wilshire paperwork status → gate for public launch under Hokuten name (previews stay password-protected)
-- [ ] **Razim: paste the FRED API key** (from Dino's Vercel dashboard, or mint a fresh free one) — then `site/.env.local` + `vercel env add FRED_API_KEY` prod+preview
+- [x] ~~FRED API key~~ provisioned 2026-08-07 — set in the `hokuten` Vercel project (Production + Preview + Development) via CLI/API; same key the kwc site and a100arms share; local dev pulls via `vercel env pull site/.env.local`. Gotcha: env changes require a redeploy to take effect
 - [ ] Provision: new Web3Forms access key + team Calendly URL (`blocked: calendly-url`)
 - [ ] Vercel: set Root Directory = `site` in project settings once M0 scaffolds (dashboard or CLI)
 - [ ] Team review: compare the two theme URLs (gold vs Hokuten Blue) once live → pick the flagship or keep both
