@@ -47,7 +47,13 @@ Translate inspiration into principles; never clone a reference.
 - Hokuten translation: "The Owner / The Investor" doors; tiers map to Full-Service / Select-Service / Boutique-Resort.
 - Acceptance check: both audiences find their door within one viewport of the hero.
 
-## Ref-folder images (`Ref/`, 14 files) — synthesis
+### Coronal video — `Ref/Praveen_Kumar_-_New_Health_Tech_Branding_Exploration_tZBENZ.mp4` (added 2026-08-07; Razim: "I love it, we need something like this integrated")
+- Borrow: the **living dot-matrix artwork** — a 12s slowly-morphing indigo halftone cloud/bloom/ring, luminance-layered (wash → mid → deep ink-blue); the **plate chassis** — cool-white poster panel with hairline frame + print registration marks (corner circles/crosses), quiet gray grotesk caption top-left, white knockout plate carrying the wordmark + mono version tag centered over the art; the **data-card grammar** — white rounded card floating on art: micro-label, big black numerals ($4.7M–$8.2M), thin line chart, lavender chip badge with icon, mono taxonomy row (AI · ANALYTICS · PATTERN), blue primary + black secondary buttons; the ensō-like ring study as a standalone brand mark moment.
+- Avoid: sci-fi copy voice ("synaptic match", "sever link"); pure cool grays for body text (we keep our ink ramp).
+- Hokuten translation: this IS Theme B ("Hokuten Blue" = northern sky, literal). The ASCII/dither art program renders in the blue ramp on the plate chassis for the light hero; the morphing loop becomes our **ambient art loop** (pre-rendered frames, spec in [05-motion.md](05-motion.md)); the data card = the calculator result card and listing-card grammar (chip badge = our status pill with `--accent-chip` bg); registration marks join the light-mode chrome vocabulary (hairline + corner marks on plate sections); the ring study informs a blue ensō treatment of the hanko/north-star mark.
+- Acceptance check: Theme B hero reads as a living print-proof plate — art morphs, chrome never moves; card numerals stay black/ink (not blue); registration marks appear only on plate-framed sections.
+
+## Ref-folder images (`Ref/`, 14 files + 1 video) — synthesis
 
 - Borrow: "heritage through a digital sieve" — classical subjects in ASCII/dither/engraving; low density, one idea per screen; index numbers everywhere (01–07 menus, numbered steps, page footers); dimmed-gray copy with selective white emphasis; small-caps value rail on hero edge; fixed chassis with swappable hero art (runcycle proof); split photo + dark panel; wireframe line-art on black for dark chapters (Golden Gate ref → hotel engraving); oversized stat numerals on grain cards (Moltgage "20x" ref); Aurelian dark hero (star grain, hairline arcs, right-rail caps values) compresses cleanly to mobile.
 - Avoid: applying texture to UI chrome — texture lives in imagery only.

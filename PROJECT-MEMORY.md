@@ -43,6 +43,13 @@
 
 ## 4. Log
 
+### 2026-08-07 — Hokuten Blue dual-theme program + Vercel ops (evening)
+- **Dual-theme decision (Razim):** ship TWO complete color keys as two live URLs for team comparison — Theme G "Kit Gold" (existing palette, dark heritage hero, `main`/production) and Theme B "**Hokuten Blue**" (northern-sky blue, light Coronal plate-chassis hero, branch `theme-blue` with zero code diff via branch-scoped `NEXT_PUBLIC_HOKUTEN_THEME=blue`). Components consume semantic `--accent*` tokens only; blue rebuilds of wordmark/hanko/OG (KW kit rasters never recolored; KW footer mark keeps original colors in both themes). Blue ramp anchors + program: skill ref 01; Coronal video digested into skill ref 02; ambient morph loop ("ASCII as gif") specced in skill ref 05.
+- Source of the blue direction: `Ref/Praveen_Kumar_-_New_Health_Tech_Branding_Exploration_tZBENZ.mp4` (Coronal — morphing indigo dot-matrix art, plate chassis with registration marks, white data card). Razim: "I love it, we need something like this integrated."
+- **Vercel verified:** team `Hokuten` (`hokuten1`), project `hokuten` → hokuten.vercel.app, GitHub-linked auto-deploy; CLI authed locally as `razim-kw`. CLI now allowed for link/env/branch config under `--scope hokuten1` only (whoami check first; other teams off-limits) — AGENTS.md guardrail updated. Razim enabled Analytics + Speed Insights on the dashboard; code-side install added to M0.
+- **FRED key:** confirmed NOT retrievable from this machine (lives in Dino's Vercel team `dino-kwc`, different org; no local .env anywhere). Open item: Razim pastes it → `site/.env.local` + `vercel env add` (prod+preview). Ticker degrades to dashes meanwhile.
+- **DRE team-name posture (Razim):** use the fictitious name as-is for now — site is internal-only to the three of them, not marketed; registration stays in the pre-marketing gate.
+
 ### 2026-08-07 — OPUS-5 execution brief authored + three design decisions locked
 - **New doc: [docs/PHASE-1-EXECUTION.md](docs/PHASE-1-EXECUTION.md)** — the self-contained handoff brief for the implementing agent (OPUS-5): design thesis (heritage × trading-desk × hospitality), full typography program (weights/italic/slim/tracked-caps usage matrix), signature-art program (ASCII pipeline, hanko, engraved line-art, franchise logos), 13-section build notes, compliance pack (WCAG 2.1 AA per the ADA.gov rule + CA Unruh exposure; CA DRE §10140.6 + team-name registration flag; CalOPPA/CCPA placeholders; trademark rules), reference-DNA map (filmfully/SPR/Hustl/kwc/a100arms), 6-workflow orchestration playbook with max-concurrency mandate, demo script, out-of-scope list.
 - Razim's decisions (Q&A): `#brands` franchise-logo marquee (grayscale, floating, economy→upper-upscale flags, trademark microcopy) · 北天 hanko + Japanese accents ship FULL-STRENGTH as final ("push it like it's final") · condensed `#mandates` dark section on the landing (full marketplace stays Phase 3). Anatomy is now 13 sections; menu overlay is 8 items.
@@ -83,8 +90,10 @@
 
 - [ ] Real team bios replace the provisional generic set (skill ref 06); confirm Razim/William titles internally
 - [ ] KW / Forward Wilshire paperwork status → gate for public launch under Hokuten name (previews stay password-protected)
-- [ ] Provision: new Web3Forms access key + new FRED API key (into Razim's Vercel project) + team Calendly URL (`blocked: calendly-url`)
-- [ ] Connect Vercel project to `rawzm/hokuten` with Root Directory = `site` (after M0 scaffold)
+- [ ] **Razim: paste the FRED API key** (from Dino's Vercel dashboard, or mint a fresh free one) — then `site/.env.local` + `vercel env add FRED_API_KEY` prod+preview
+- [ ] Provision: new Web3Forms access key + team Calendly URL (`blocked: calendly-url`)
+- [ ] Vercel: set Root Directory = `site` in project settings once M0 scaffolds (dashboard or CLI)
+- [ ] Team review: compare the two theme URLs (gold vs Hokuten Blue) once live → pick the flagship or keep both
 - [ ] Confirm exact live domain (thehokutengroup.com assumed) + Vercel DNS on Dino's GoDaddy
 - [ ] Phase 2: Hokuten-scoped a100arms public feed (Razim owns backend; mirror kwc-listings allowlist + photo-sync spec)
 - [ ] Monday CRM: decide what (if anything) syncs to the site vs. stays internal

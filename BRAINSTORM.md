@@ -18,6 +18,7 @@
 ## 2. Hero concepts (ASCII / signature art)
 
 - `approved` **"Heritage through a digital sieve"** — the Ref-folder aesthetic: a tier-1 city hotel rendered as an ASCII/dither character grid on the dark cover-panel (black/charcoal, gold+ivory characters), clean editorial chrome around it.
+- `building` **Hokuten Blue theme + ambient morph loop** (2026-08-07, from the Coronal video Razim loves): full second color key — northern-sky blue, light plate-chassis hero with registration marks, morphing dot-art loop ("ASCII as gif"). Two live URLs, team picks. Spec: skill refs 01/02/05 + exec brief §2a.
 - `approved` **Brand-glyph charset** — the character ramp isn't generic: it's built from `HOKUTEN`, `北天` / `ホクテン`, digits, and `・.:-=+*#`. One seam row resolves legibly into `THE HOKUTEN GROUP` (Razim's "numbers hidden in the drawing" idea, made ours).
 - `exploring` **Subject** — default: NYC hotel/skyline (we closed Holiday Inn Express Brooklyn — real proof, relatable). Chassis supports swappable art (the runcycle pattern from Ref): SD Carte Hotel variant, Reno variant, Niseko/Hakuba variant for the Japan desk.
 - `exploring` razim-co archive concept, ready-made: "a hotel silhouette dissolves into a transaction graph."

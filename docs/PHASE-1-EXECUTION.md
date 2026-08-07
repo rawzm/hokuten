@@ -27,7 +27,29 @@ Trust these; re-verification wastes budget. Sources are on disk.
 | Brand palette/lockups | Skill ref 01. Website gold `#B8902E`. Linear-lockup-on-charcoal is defective — never use |
 | a100arms | Public feed contract + live-design digest in skill ref 02 ("Own properties"); feed integration is **Phase 2 — do not build**; reference a100 only as the "PRIVATE ACCESS" channel |
 | Privacy/terms source | `privacy.html` + `sms-terms.html` in the kwc repo — port as placeholders (§8.3) |
-| Repo/hosting | `github.com/rawzm/hokuten` main; Vercel project exists (Razim's); Root Directory = `site`; previews password-protected until launch gate clears |
+| Repo/hosting | `github.com/rawzm/hokuten` main; **Vercel: team `Hokuten` (slug `hokuten1`), project `hokuten` → hokuten.vercel.app, GitHub-linked, auto-deploys on push; CLI authed on this machine as `razim-kw`** (verified 2026-08-07). Root Directory = `site`. Site is internal-only for now (team of 3, no marketing) — password protection optional, launch gate still applies to public marketing |
+| Vercel CLI safety | Before ANY `vercel` command: `vercel whoami` must return `razim-kw` and the command must target scope `hokuten1` / project `hokuten` (pass `--scope hokuten1`; verify `site/.vercel/project.json` after linking). Never touch any other team/project (Dino's `dino-kwc` lives on a different team — off-limits). CLI is for linking, env vars, and branch config; production deploys happen via git push only |
+| FRED key status | NOT on this machine — it lives in Dino's Vercel team, which this CLI cannot access. Razim must paste it (from Dino's dashboard or a fresh free key at fred.stlouisfed.org). Then: add to `site/.env.local` (gitignored) + `vercel env add FRED_API_KEY production --scope hokuten1` and same for `preview`. Ticker degrades to dashes until then — never block on it |
+
+## 2a. Dual-theme program (decision 2026-08-07 — deliver BOTH)
+
+Razim wants two complete color keys of the same site, as two live Vercel URLs, for team comparison. Same content, same anatomy, massively different feel:
+
+| | **Theme G — Kit Gold** | **Theme B — Hokuten Blue** |
+|---|---|---|
+| Accent | gold `--accent=#B8902E` | Hokuten Blue `--accent=#2F4FA3` (+ deep/mid/wash/chip ramp, skill ref 01) |
+| Hero | dark cover-panel: black + gold/ivory ASCII | light **Coronal plate chassis**: cool-white plate, hairline frame + registration marks, white knockout wordmark plate over morphing blue dot-art (skill ref 02 → Coronal video digest) |
+| Dark sections | `#16181B` charcoal | `#12172B` indigo |
+| Branding | existing gold lockups/hanko | wordmark line + hanko + OG rebuilt in blue (SVG/text rebuild — NEVER recolor the KW kit rasters; KW footer mark keeps original colors in both) |
+| Where it lives | `main` → production + preview | branch `theme-blue` → auto preview URL |
+
+Mechanics (build once, theme everywhere):
+1. All components consume semantic tokens (`--accent`, `--accent-dim`, `--accent-wash`, `--accent-chip`, `--paper`, `--dark`) — a P0 audit gate; `--gold`/blue hexes appear only in the theme definitions in `globals.css`.
+2. `NEXT_PUBLIC_HOKUTEN_THEME` (`gold` default | `blue`) selects the theme binding at build; it also switches the hero chassis component and logo/hanko/OG asset set.
+3. Branch `theme-blue` carries ZERO code diff from `main` — it exists to hold the branch-scoped env var and a stable preview URL. Set it via CLI: `vercel env add NEXT_PUBLIC_HOKUTEN_THEME preview theme-blue --scope hokuten1` (value `blue`), and add the `gold` default for production + preview. After each milestone merge `main` → `theme-blue` (always fast-forward) and push — both URLs auto-deploy.
+4. The ASCII art pipeline takes the palette as a parameter: gold/ivory-on-black frames for G, blue-ramp-on-cool-white frames for B; the ambient morph loop (skill ref 05) ships in both.
+5. Audit both themes: every W6 gate (contrast! blue-on-white and gold-on-dark differ) runs against BOTH preview URLs; findings logged per theme.
+Deliverable: two URLs side-by-side in PROJECT-MEMORY + a short comparison note for the team's internal review.
 
 ## 2. Design thesis — the blend
 
@@ -96,7 +118,7 @@ Breakpoints: **375 floor (iPhone SE — a mandated QA viewport)**, 640, 768, 102
 
 ## 7. Data & engineering
 
-Contracts, seed rows, ticker spec, calculator port + golden vitest cases: PHASE-1-IMPLEMENTATION §5–§7 — unchanged, follow exactly. Structure: `site/` app (App Router, TS strict, pnpm), `content/*.ts` typed modules, `lib/valuation.ts` frozen config + pure functions, `lib/motion.ts` tokens, `app/api/ticker-data/route.ts`. SEO: per-page metadata, OG image via cover recipe (black panel, gold rule, stacked hierarchy, hanko corner stamp), JSON-LD `RealEstateAgent` + `Person` per broker, sitemap, robots. Analytics: Vercel Analytics + Speed Insights. Env vars (Vercel dashboard, never committed): `FRED_API_KEY`, `NEXT_PUBLIC_WEB3FORMS_KEY` (public-class), Calendly URL constant `blocked: calendly-url` with `#bov` fallback wired.
+Contracts, seed rows, ticker spec, calculator port + golden vitest cases: PHASE-1-IMPLEMENTATION §5–§7 — unchanged, follow exactly. Structure: `site/` app (App Router, TS strict, pnpm), `content/*.ts` typed modules, `lib/valuation.ts` frozen config + pure functions, `lib/motion.ts` tokens, `app/api/ticker-data/route.ts`. SEO: per-page metadata, OG image via cover recipe (black panel, gold rule, stacked hierarchy, hanko corner stamp), JSON-LD `RealEstateAgent` + `Person` per broker, sitemap, robots. Analytics: Razim enabled **Vercel Analytics + Speed Insights on the dashboard (2026-08-07)** — the code side is on you in M0: `pnpm add @vercel/analytics @vercel/speed-insights`, then `<Analytics />` (`@vercel/analytics/next`) and `<SpeedInsights />` (`@vercel/speed-insights/next`) in the root `app/layout.tsx`; verify data arrives on the dashboard after the first deploy. Env plumbing (M0): create `site/.env.example` (documented names, no values) + `site/.env.local` (gitignored) and register vars via CLI under `--scope hokuten1`: `FRED_API_KEY` (value from Razim — see §1 FRED row), `NEXT_PUBLIC_WEB3FORMS_KEY` (public-class), `NEXT_PUBLIC_HOKUTEN_THEME` (gold on production/preview; blue branch-scoped to `theme-blue`). Calendly URL constant `blocked: calendly-url` with `#bov` fallback wired. Vercel ops per the §1 CLI-safety row: whoami check first, always `--scope hokuten1`, deploys via git push only.
 
 ## 8. Compliance pack (Larchmont, CA sponsoring brokerage — all four bind)
 
@@ -113,7 +135,7 @@ Razim's cited standard: DOJ's ADA rule on web accessibility (ada.gov fact sheet,
 
 ### 8.2 CA DRE advertising (B&P §10140.6, §10159.5–7)
 - Every page: the byte-exact two-sentence disclosure (skill ref 06). Dino's name never appears in a broker capacity without his DRE # nearby (team card includes it).
-- ⚠️ **Team-name flag (surface to Razim, do not resolve yourself):** CA team names must generally include the surname of a licensed team member; "The Hokuten Group" contains none, so it likely requires DRE fictitious-business-name/team-name registration through the responsible broker (Forward Wilshire). This is part of the existing "KW/Forward Wilshire papers the name" launch gate in PROJECT-MEMORY — the site stays password-protected until cleared. Note it in PLACEHOLDERS.md.
+- ⚠️ **Team-name flag (logged, testing posture approved):** CA team names must generally include the surname of a licensed team member; "The Hokuten Group" contains none, so it likely requires DRE fictitious-business-name/team-name registration through the responsible broker (Forward Wilshire). Razim's call (2026-08-07): use the fictitious name as-is for now — the site is internal-only to the three of them, not marketed. The registration item remains part of the "KW/Forward Wilshire papers the name" gate that must clear BEFORE any public marketing. Keep it in PLACEHOLDERS.md; do not resolve it yourself.
 - No performance guarantees, no unlicensed-activity language (Razim's card avoids brokerage verbs — "Buyer Relations & Platform Technology").
 
 ### 8.3 Privacy & terms — port kwc as placeholders
@@ -136,17 +158,17 @@ Razim's cited standard: DOJ's ADA rule on web accessibility (ada.gov fact sheet,
 
 ## 10. Orchestration playbook (Workflow-tool runs)
 
-- **W1 — Scaffold & system** (~4 agents): scaffold `site/` · fonts+`@theme` tokens+signature utilities · shadcn primitives restyle · motion tokens + transitions.dev vendoring. Verify: token-specimen page audit.
-- **W2 — Art program** (~4 agents, parallel with W1 tail): ascii-gen script + frames · canvas component · hanko seal set · engraved line-art + star-grain. Verify: perf harness (throttled frame-times) + Razim-visible art preview page.
+- **W1 — Scaffold & system** (~4 agents): scaffold `site/` · fonts+`@theme` **semantic tokens with BOTH theme bindings** (§2a) + signature utilities · shadcn primitives restyle · motion tokens + transitions.dev vendoring · Vercel link + env registration + `theme-blue` branch setup. Verify: token-specimen page audited in both themes.
+- **W2 — Art program** (~5 agents, parallel with W1 tail): ascii-gen script (palette-parameterized, gold + blue frame sets) + ambient morph loop frames · canvas component (shimmer + loop playback) · hanko seal set (gold + blue) + blue wordmark/OG rebuild · Coronal plate-chassis hero component (Theme B) · engraved line-art + star-grain. Verify: perf harness (throttled frame-times) + Razim-visible art preview page showing both themes.
 - **W3 — Sections fan-out** (the big one; ~10–13 builders + verifiers): pipeline per section — spec-writer → builder (worktree isolation per section to avoid conflicts) → design-audit agent (skill `audit` verb) → a11y agent (axe + keyboard). No barrier: sections verify as they finish.
 - **W4 — Calculator** (~4 agents): `lib/valuation.ts` frozen port · golden-test writer (locks outputs to kwc for every type×tier + adjusters + rounding) · wizard UI · side-by-side cross-check agent vs live kwc on 5 scenarios.
 - **W5 — Data/forms/routes** (~4 agents): ticker route + bar · BOV form + consent modal · privacy/sms-terms/accessibility placeholder pages + PLACEHOLDERS.md · SEO/OG/JSON-LD.
-- **W6 — Adversarial ship gate** (~6 agents): full audit sweep (P0 gates) · perf (LCP/CLS/INP/bundle/60fps) · a11y (axe + Lighthouse ≥95) · content-fidelity vs kwc source · compliance checklist vs §8 · anti-AI-slop + vibecoded-tells pass. All must pass; findings loop back to fixes, re-run until clean, then a dry run of skill ref 07's QA grep script.
+- **W6 — Adversarial ship gate** (~8 agents): full audit sweep (P0 gates incl. semantic-token gate) · perf (LCP/CLS/INP/bundle/60fps) · a11y (axe + Lighthouse ≥95) · content-fidelity vs kwc source · compliance checklist vs §8 · anti-AI-slop + vibecoded-tells pass — **each run against BOTH theme URLs** (contrast profiles differ). All must pass; findings loop back to fixes, re-run until clean, then a dry run of skill ref 07's QA grep script.
 Between workflows, commit + push + memory entry. Use `budget`-aware loops if a token target is set.
 
 ## 11. Definition of done & demo script
 
-DoD = PHASE-1-IMPLEMENTATION §8, plus: PLACEHOLDERS.md complete; compliance §8 checklist green (for the §8.2 team-name item, green = flag surfaced to Razim + logged in PLACEHOLDERS.md — resolution stays with the launch gate); hanko + ASCII shipped full-strength; `#brands` + `#mandates` live.
+DoD = PHASE-1-IMPLEMENTATION §8, plus: PLACEHOLDERS.md complete; compliance §8 checklist green (for the §8.2 team-name item, green = logged in PLACEHOLDERS.md — registration stays with the pre-marketing gate); hanko + ASCII shipped full-strength; `#brands` + `#mandates` live; **both theme URLs live and recorded in PROJECT-MEMORY (production/`main` = gold, `theme-blue` branch preview = blue) with a short comparison note for the team**.
 **Demo prerequisite:** the FRED API key and new Web3Forms key must be provisioned by Razim (PROJECT-MEMORY open items) — request them at kickoff, not at demo time; both features degrade gracefully until then.
 **Demo script (what the preview must show Razim's team):** load thehokutengroup preview on a phone and a laptop → ASCII hero resolves, seam row reads THE HOKUTEN GROUP, shimmer follows the pointer → scroll: stats count up, flags drift by, closings show real numbers, listing cards link to Crexi → run the calculator on a 120-key select-service suburban hotel and get the same range kwc gives → watch the live 10-Yr rate in the ticker → click outside the consent modal and watch it refuse with a shake → submit a test BOV and receive the email → tab through the entire page without a mouse.
 

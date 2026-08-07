@@ -4,6 +4,7 @@
 Color roles · Type ramp · Spacing & layout · Surfaces & borders · Imagery · Iconography · Components
 
 Hex values live only in [01-brand.md](01-brand.md); implementation of record is `site/app/globals.css` (Tailwind v4 `@theme`). Rules here use token names.
+**Dual-theme rule (2026-08-07): components consume semantic tokens (`--accent`, `--accent-dim`, `--accent-wash`, `--accent-chip`, `--paper`, `--dark`) — never `--gold`/blue hexes directly.** Theme G (gold) and Theme B (Hokuten Blue) bind them per 01-brand.md; `NEXT_PUBLIC_HOKUTEN_THEME` selects at build. Every "gold" rule below reads as an "accent" rule. Theme B additions: plate sections may carry hairline frames + corner registration marks (Coronal chassis) — light chrome only, never on dark.
 
 ## Color roles
 

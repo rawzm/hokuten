@@ -14,7 +14,9 @@
 - Seed content (closings ×6 with photos, listings ×5 with Crexi URLs, methodology, reach stats, bio, compliance text) itemized in design-skill reference 06 and §5 below; asset files confirmed present in the kwc repo.
 - Brand assets: `The_Hokuten_Group_Brand_Addon_2/` — palette + lockups verified; website gold `#B8902E` mandated; linear-on-charcoal lockup is defective (do not use).
 - Domain purchased (GoDaddy, Dino's account, 2026-08-06): thehokutengroup — kwc-dinomonteverde.com will point at it later. GoDaddy account has MFA (password-rotation item closed 2026-08-07).
-- GitHub repo created by Razim (2026-08-07): `https://github.com/rawzm/hokuten.git` — workspace root pushes here. Vercel project also opened by Razim; connect it to the repo with Root Directory = `site` once M0 scaffolds.
+- GitHub repo created by Razim (2026-08-07): `https://github.com/rawzm/hokuten.git` — workspace root pushes here. Vercel verified 2026-08-07: team `Hokuten` (`hokuten1`), project `hokuten` → hokuten.vercel.app, GitHub-linked with auto-deploy on push; CLI authed locally as `razim-kw` (allowed for link/env/branch config under `--scope hokuten1` only — see PHASE-1-EXECUTION §1). Root Directory = `site`.
+- Dual-theme decision (2026-08-07): Theme G (Kit Gold, `main`/production) + Theme B (Hokuten Blue, branch `theme-blue` via branch-scoped `NEXT_PUBLIC_HOKUTEN_THEME=blue`) — same content, two live URLs for team comparison. Full program: PHASE-1-EXECUTION §2a; blue ramp + Coronal video digest in skill refs 01/02.
+- FRED key: not on this machine (lives in Dino's Vercel team, inaccessible from `razim-kw` CLI) — Razim pastes it, then it goes into `site/.env.local` + `vercel env add FRED_API_KEY` (production + preview, `--scope hokuten1`). Ticker degrades gracefully until then.
 - Content source of record for all ported copy/data/assets: the kwc source code at `~/Documents/Dino` (read-only) — always refer to source directly, not to summaries.
 
 ## 1. Hard guardrails — do not change
@@ -43,8 +45,8 @@
 ## 3. Milestones
 
 ### M0 — Repo & scaffold
-~~git init~~ Done 2026-08-07: repo initialized at workspace root, `.gitignore` (chat-context.md, .env*, .vercel, node_modules, .DS_Store), pushed to `rawzm/hokuten` main. Remaining: `create-next-app` in `site/` (TS, App Router, Tailwind); fonts via `next/font`; tokens into `globals.css` `@theme` from skill ref 01; `site/lib/motion.ts` tokens; shadcn/ui init + restyle Button/Input/Select/Dialog/Accordion; connect Razim's existing Vercel project to the repo (Root Directory = `site`, password-protected previews).
-**Exit:** deployed preview showing tokened type/color specimens.
+~~git init~~ Done 2026-08-07: repo initialized at workspace root, `.gitignore` (chat-context.md, .env*, .vercel, node_modules, .DS_Store), pushed to `rawzm/hokuten` main; Vercel project GitHub-linked by Razim (auto-deploys). Remaining: `create-next-app` in `site/` (TS, App Router, Tailwind); fonts via `next/font`; semantic tokens + BOTH theme bindings into `globals.css` `@theme` (skill ref 01); `site/lib/motion.ts` tokens; shadcn/ui init + restyle Button/Input/Select/Dialog/Accordion; `vercel link` (`--scope hokuten1`, project `hokuten`, Root Directory `site`); env registration (`.env.example`, `.env.local`, `vercel env add` — FRED_API_KEY when Razim provides, WEB3FORMS key, HOKUTEN_THEME incl. branch-scoped blue); create `theme-blue` branch; install `@vercel/analytics` + `@vercel/speed-insights` and mount `<Analytics />` + `<SpeedInsights />` in `app/layout.tsx` (dashboard side already enabled by Razim 2026-08-07 — verify data flows after first deploy).
+**Exit:** deployed preview showing tokened type/color specimens in both themes at two URLs.
 
 ### M1 — Content modules & assets
 Copy from kwc repo: 6 closing photos, hero video (if reused), `us-cities.min.json`, KW footer mark; export brand lockups → `site/public/brand/`; source franchise-logo vectors per PHASE-1-EXECUTION §4.3 (license manifest required). Author `content/{closings,listings,team,stats,methodology,mandates,faq}.ts` per §5. Port `privacy` + `sms-terms` pages with brand-string rules from skill ref 06.
@@ -71,7 +73,7 @@ Perf gates (skill ref 05): LCP <2.5s, CLS <0.02, INP <200ms, landing JS ≤180KB
 **Exit:** AUDIT_LOG.md entry with verdict `pass`.
 
 ### M7 — Launch gate
-DNS: thehokutengroup.com → Vercel (Dino's GoDaddy; DNS-only change, no builder). Keep password protection until the paperwork gate clears, then remove; kwc-dinomonteverde.com redirect is Dino's call later. PROJECT-MEMORY.md launch entry.
+Two theme URLs recorded for the team's internal comparison (production = gold; `theme-blue` preview = blue); site remains internal-only (team of 3, no marketing) until the KW/Forward Wilshire + DRE team-name paperwork clears. Then: DNS thehokutengroup.com → Vercel (Dino's GoDaddy; DNS-only change, no builder); kwc-dinomonteverde.com redirect is Dino's call later. PROJECT-MEMORY.md launch entry.
 
 ## 4. Section specs
 

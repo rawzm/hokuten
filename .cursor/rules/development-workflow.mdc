@@ -16,6 +16,6 @@ Data rules:
 
 Porting rules: calculator `CONFIG`/`TYPICAL`/`OCC_BAND`/`ADR_BAND`/`REVPAR_BAND`/`ADVICE` port as frozen typed config in `site/lib/valuation.ts` with unit tests locking outputs to the kwc implementation before any restyle.
 
-Git/deploy: repo root = workspace root; `chat-context.md`, `.env*`, `.vercel` gitignored; commits authored as rawzm with no Co-Authored-By/AI-attribution trailers; deploy only via GitHub → Vercel integration (never Vercel CLI on client accounts); public launch blocked until the KW/Forward Wilshire paperwork gate clears.
+Git/deploy: repo root = workspace root; `chat-context.md`, `.env*`, `.vercel` gitignored; commits authored as rawzm with no Co-Authored-By/AI-attribution trailers; deploy only via GitHub → Vercel integration (auto-deploy; never CLI-deploy). Vercel CLI (authed `razim-kw`) only for link/env/branch config with `--scope hokuten1` on project `hokuten` after a `vercel whoami` check — other teams (Dino's dino-kwc, a100arms) are off-limits. Dual theme: semantic tokens + `NEXT_PUBLIC_HOKUTEN_THEME`; `main` = gold, `theme-blue` branch (zero code diff, branch-scoped env) = blue preview URL; merge main→theme-blue after each milestone. Site is internal-only until the KW/Forward Wilshire + DRE paperwork gate clears public marketing.
 
 Before every push: dated PROJECT-MEMORY.md entry + QA greps from design-skill reference 07 + `next build` clean.

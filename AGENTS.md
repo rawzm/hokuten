@@ -36,7 +36,8 @@ Working rules for every agent (Claude Code, Cursor, or human) in this workspace.
 - Hokuten-first branding; KW Commercial only as footer compliance mark + verbatim disclosure line; compliance/TCPA blocks are byte-exact ports.
 - Calculator math, defaults, and cap-rate `CONFIG` are a frozen port from the kwc site — changes require a dated PROJECT-MEMORY.md decision.
 - No Sarhan Hotel Group branding anywhere on the new site.
-- Secrets: `FRED_API_KEY` is a Vercel env var, server-side only. Never commit `.env*`. Never use Dino's Vercel/a100arms accounts from a local CLI; deploys go through GitHub → Vercel integration.
+- Secrets: `FRED_API_KEY` is a Vercel env var, server-side only. Never commit `.env*`.
+- Vercel: deploys go through GitHub → Vercel integration (auto-deploy on push; never CLI-deploy). Local CLI (authed as `razim-kw`) is allowed ONLY for link/env/branch config on team `hokuten1`, project `hokuten` — run `vercel whoami` first and pass `--scope hokuten1` on every command. Dino's `dino-kwc` and the a100arms projects are on other teams: off-limits from this machine.
 - Do not deploy publicly under the Hokuten name until the KW / Forward Wilshire paperwork gate clears (tracked in PROJECT-MEMORY.md open items).
 - git: repo root is this folder; remote is `https://github.com/rawzm/hokuten.git` (branch `main`); `chat-context.md` stays gitignored. Commits authored as rawzm. **No Co-Authored-By or any AI/co-author attribution trailers in commit messages — ever** (Razim, 2026-08-07).
 

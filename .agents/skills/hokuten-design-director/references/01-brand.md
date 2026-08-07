@@ -12,6 +12,14 @@ Brand hierarchy on official assets reads: KW COMMERCIAL / THE HOKUTEN GROUP / HO
 On the website the hierarchy inverts: Hokuten first; KW Commercial is a footer compliance mark only (decision 2026-08-07).
 The spelling is HOKUTEN everywhere. "Hakuten" is a typo that survives only in the local folder name.
 
+## Dual-theme program (decision 2026-08-07)
+
+Phase 1 ships TWO complete theme variants — same content, same anatomy, massively different color key — as two Vercel preview links for team comparison:
+- **Theme G — "Kit Gold"**: the palette below as-is. Dark heritage hero (cover-panel black, gold/ivory ASCII). Production default on `main`.
+- **Theme B — "Hokuten Blue"**: the blue ramp below; 北天 "northern sky" rendered literally. Light volumetric hero on the Coronal plate chassis (see [02-reference-digest.md](02-reference-digest.md) → Coronal video). Lives on branch `theme-blue` via `NEXT_PUBLIC_HOKUTEN_THEME=blue` (branch-scoped Vercel env), zero code diff from main.
+Mechanics: components consume **semantic tokens only** (`--accent`, `--accent-dim`, `--accent-wash`, `--accent-chip`, canvas/dark tokens). Themes bind them. Every gold rule in this file reads as an `--accent` rule; "gold is scarce" = "accent is scarce" in both themes.
+Theme B branding: rebuild the THE HOKUTEN GROUP tracked-caps line, hanko seal, and OG/cover recipe in Hokuten Blue (SVG/text rebuild — never recolor the KW kit rasters). The KW Commercial footer compliance mark keeps its own original colors in BOTH themes, isolated on its own surface.
+
 ## Palette (the only place hex values live)
 
 | Role | Token | Hex | Use |
@@ -29,6 +37,20 @@ The spelling is HOKUTEN everywhere. "Hakuten" is a typo that survives only in th
 | Dark | `--dark` | `#16181B` | Dark section surface |
 | Panel black | `--black` | `#000000` | Hero/cover panel only (matches cover assets) |
 | Brick | `--brick` | `#A33B2C` | Form errors only. Not a brand color |
+
+**Hokuten Blue ramp (Theme B)** — anchors sampled from the Coronal reference video (`Ref/Praveen_Kumar_-_New_Health_Tech_Branding_Exploration_tZBENZ.mp4`); executor verifies by sampling extracted frames and may fine-tune ±5% lightness, logging final values here:
+
+| Role | Token binding | Hex | Use |
+|---|---|---|---|
+| Hokuten Blue | `--accent` (Theme B) | `#2F4FA3` | CTAs, accent words, badges, rules — everywhere Theme G uses gold |
+| Blue deep | `--accent-deep` | `#1F3C8C` | Dense art strokes, hover states, dark-section accent |
+| Blue mid | `--accent-dim` | `#7E96D0` | Art mid-tones, secondary accents |
+| Blue wash | `--accent-wash` | `#C9D4EE` | Art light wash, tinted fills |
+| Blue chip | `--accent-chip` | `#DCE3F7` | Pill/chip backgrounds (Coronal "SYNAPTIC MATCH" pattern) with `--accent` text |
+| Cool paper | `--paper` (Theme B) | `#F7F8F5` | Canvas cools slightly; Theme G keeps `#F7F4ED` |
+| Indigo dark | `--dark` (Theme B) | `#12172B` | Dark sections shift indigo; hero panel may stay `#000` or use this |
+
+Theme G binds: `--accent = #B8902E`, `--accent-dim = #C9A04A`, `--accent-wash = #E2DCCC`, `--accent-chip = #EFE9DA`.
 
 Light mode is the site; dark is a section treatment (hero, process chapter, footer), not a theme toggle.
 Gold is scarce: CTAs, one accent word per headline, badges, thin rules. If gold exceeds ~5% of a viewport, it's wrong.
