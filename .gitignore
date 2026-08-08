@@ -13,3 +13,10 @@ node_modules/
 .claude/settings.local.json
 *.log
 .vercel
+
+# Next.js app
+site/.next/
+site/out/
+site/node_modules/
+site/next-env.d.ts
+site/.turbo/

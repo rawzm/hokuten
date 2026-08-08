@@ -1,0 +1,677 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   THE HOKUTEN GROUP — token sheet (implementation of record)
+
+   Law: hex values live ONLY here and in .agents/skills/hokuten-design-director/
+   references/01-brand.md. Components consume SEMANTIC tokens only
+   (--accent*, --fg*, --hairline, --paper, --dark) — never a raw hex, never
+   --gold/blue directly. That is a P0 audit gate.
+
+   Dual-theme: [data-theme="gold"] (Theme G, production/main) and
+   [data-theme="blue"] (Theme B, branch theme-blue) bind the same semantic
+   tokens. NEXT_PUBLIC_HOKUTEN_THEME selects the binding at build time.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   1. Static design tokens (fonts, ramp, rhythm, motion)
+   --------------------------------------------------------------------------- */
+@theme {
+  /* — Type voices. Three, no more. — */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), Arial, Helvetica, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* — Type ramp (ref 03). Max 4 sizes per section. Body floor 16px. — */
+  --text-display1: clamp(2.5rem, 1.2rem + 5.6vw, 6rem);
+  --text-display1--line-height: 1.02;
+  --text-display1--letter-spacing: -0.02em;
+
+  --text-display2: clamp(2rem, 1.25rem + 3.2vw, 3.5rem);
+  --text-display2--line-height: 1.06;
+  --text-display2--letter-spacing: -0.015em;
+
+  --text-heading: clamp(1.375rem, 1.2rem + 0.75vw, 1.75rem);
+  --text-heading--line-height: 1.2;
+  --text-heading--letter-spacing: -0.01em;
+
+  --text-body-lg: clamp(1.125rem, 1.05rem + 0.25vw, 1.25rem);
+  --text-body-lg--line-height: 1.6;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+
+  --text-data: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+  --text-data--line-height: 1.45;
+
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.4;
+  --text-micro--letter-spacing: 0.14em;
+
+  /* Tracked-caps brand line — headers/footers only */
+  --tracking-brand: 0.35em;
+  --tracking-micro: 0.14em;
+
+  /* — Radii (ref 03): 0 for art, 2px for cards/inputs, pill for CTAs/badges — */
+  --radius-none: 0px;
+  --radius-card: 2px;
+  --radius-pill: 999px;
+
+  /* — Shadows: floating elements only, ink-tinted, never gray halos — */
+  --shadow-overlay: 0 24px 64px -24px rgb(26 28 31 / 0.28), 0 2px 8px -2px rgb(26 28 31 / 0.12);
+  --shadow-bar: 0 -1px 0 0 var(--hairline), 0 -8px 24px -12px rgb(26 28 31 / 0.18);
+
+  /* — Motion (ref 05). Exactly two easings sitewide. No bounce, ever. — */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-in: cubic-bezier(0.65, 0, 0.35, 1); /* alias — never introduce a third curve */
+
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-reveal: 600ms;
+  --duration-slow: 900ms;
+
+  --animate-marquee: hk-marquee 45s linear infinite;
+  --animate-marquee-brands: hk-marquee 40s linear infinite;
+  --animate-shake: hk-shake 300ms cubic-bezier(0.65, 0, 0.35, 1) 1;
+
+  @keyframes hk-marquee {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @keyframes hk-shake {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    20% {
+      transform: translate3d(-8px, 0, 0);
+    }
+    40% {
+      transform: translate3d(7px, 0, 0);
+    }
+    60% {
+      transform: translate3d(-5px, 0, 0);
+    }
+    80% {
+      transform: translate3d(3px, 0, 0);
+    }
+  }
+
+  @keyframes hk-press-in {
+    from {
+      transform: scale(1.06);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   2. Raw palette + theme bindings
+       Theme G — Kit Gold      (production / main)
+       Theme B — Hokuten Blue  (branch theme-blue)
+   Contrast for every pair below is computed and recorded in
+   docs/design/CONTRAST.md — do not change a value without re-running it.
+   --------------------------------------------------------------------------- */
+:root {
+  /* Neutral ink ramp — shared by both themes */
+  --ink: #1a1c1f;
+  --ink-muted: #4a4d52;
+  --meta: #6e6862; /* accessible tertiary text: 5.01:1 on --paper */
+  --meta-soft: #8b8680; /* brand ivory-gray — DECORATIVE ONLY, never text (3.29:1) */
+  --card: #ffffff;
+  --black: #000000;
+  --brick: #a33b2c; /* form errors only */
+
+  /* Layout rhythm */
+  --nav-h: 88px;
+  --ticker-h: 44px;
+  --ticker-h-mobile: 32px;
+  --container: 1200px;
+  --container-wide: 1440px;
+
+  /* Motion mirrors (readable from JS via getComputedStyle / lib/motion.ts) */
+  --dur-fast: 150ms;
+  --dur-base: 300ms;
+  --dur-reveal: 600ms;
+  --dur-slow: 900ms;
+  --stagger: 70ms;
+}
+
+/* ── Theme G — Kit Gold ─────────────────────────────────────────────────── */
+:root,
+[data-theme="gold"] {
+  --paper: #f7f4ed;
+  --surface-deep: #efe9da;
+  --rule: #e2dccc;
+  --dark: #16181b;
+
+  /* Brand gold. --accent is the decorative/brand accent (rules, fills, art,
+     focus on dark). It FAILS AA as text on light — use --accent-ink there. */
+  --accent: #b8902e; /* website gold — README mandate */
+  --accent-dim: #c9a04a; /* hover / secondary on dark        7.29:1 on --dark */
+  --accent-deep: #816520; /* dense art strokes, pressed states */
+  --accent-ink: #816520; /* ACCENT AS TEXT ON LIGHT  5.01 paper / 4.54 deep / 5.50 card */
+  --accent-on-dark: #b8902e; /* ACCENT AS TEXT ON DARK   5.99:1 on --dark, 7.07:1 on --black */
+  --accent-wash: #e2dccc;
+  --accent-chip: #efe9da;
+  --on-accent: #16181b; /* text on an --accent fill          5.99:1 */
+
+  --art-ink: #b8902e; /* ASCII/dither art: dense end of ramp */
+  --art-mid: #c9a04a;
+  --art-light: #f7f4ed; /* ivory characters */
+  --art-ground: #000000; /* Theme G art sits on the cover panel */
+
+  --hero-ground: #000000;
+  --hero-fg: #f7f4ed;
+}
+
+/* ── Theme B — Hokuten Blue ─────────────────────────────────────────────── */
+[data-theme="blue"] {
+  --paper: #f7f8f5; /* canvas cools */
+  --surface-deep: #eceef4;
+  --rule: #dcdfe8;
+  --dark: #12172b; /* indigo */
+
+  --accent: #2f4fa3; /* Hokuten Blue — passes AA on light directly */
+  --accent-dim: #7e96d0; /* also the on-dark text accent      6.05:1 on --dark */
+  --accent-deep: #1f3c8c;
+  --accent-ink: #2f4fa3; /* 7.12 paper / 7.59 card / 5.92 chip */
+  --accent-on-dark: #7e96d0;
+  --accent-wash: #c9d4ee;
+  --accent-chip: #dce3f7;
+  --on-accent: #f7f8f5; /* 7.12:1 */
+
+  --art-ink: #1f3c8c; /* blue ramp on cool-white plate */
+  --art-mid: #7e96d0;
+  --art-light: #c9d4ee;
+  --art-ground: #f7f8f5;
+
+  --hero-ground: #f7f8f5; /* Coronal plate chassis: light hero */
+  --hero-fg: #1a1c1f;
+}
+
+/* ---------------------------------------------------------------------------
+   3. Surface scopes — the mechanism that makes every component theme- AND
+   surface-agnostic. A component says text-fg / border-hairline / text-accent-text
+   and is correct on paper, on card, and on the dark chapter, in both themes.
+   --------------------------------------------------------------------------- */
+:root,
+.surface-paper {
+  --surface: var(--paper);
+  --fg: var(--ink);
+  --fg-muted: var(--ink-muted);
+  --fg-meta: var(--meta);
+  --hairline: var(--rule);
+  --accent-text: var(--accent-ink);
+  --focus: var(--accent-ink);
+  --field: var(--card);
+}
+
+.surface-deep {
+  --surface: var(--surface-deep);
+  --fg: var(--ink);
+  --fg-muted: var(--ink-muted);
+  --fg-meta: var(--meta);
+  --hairline: var(--rule);
+  --accent-text: var(--accent-ink);
+  --focus: var(--accent-ink);
+  --field: var(--card);
+}
+
+.surface-card {
+  --surface: var(--card);
+  --fg: var(--ink);
+  --fg-muted: var(--ink-muted);
+  --fg-meta: var(--meta);
+  --hairline: var(--rule);
+  --accent-text: var(--accent-ink);
+  --focus: var(--accent-ink);
+  --field: var(--card);
+}
+
+.surface-dark {
+  --surface: var(--dark);
+  --fg: var(--paper);
+  --fg-muted: color-mix(in srgb, var(--paper) 64%, var(--dark)); /* 7.2:1 both themes */
+  --fg-meta: color-mix(in srgb, var(--paper) 52%, var(--dark)); /* 5.2:1 both themes */
+  --hairline: color-mix(in srgb, var(--paper) 14%, transparent);
+  --accent-text: var(--accent-on-dark);
+  --focus: var(--accent-on-dark);
+  --field: color-mix(in srgb, var(--paper) 7%, var(--dark));
+}
+
+.surface-black {
+  --surface: var(--black);
+  --fg: var(--paper);
+  --fg-muted: color-mix(in srgb, var(--paper) 64%, var(--black));
+  --fg-meta: color-mix(in srgb, var(--paper) 52%, var(--black));
+  --hairline: color-mix(in srgb, var(--paper) 14%, transparent);
+  --accent-text: var(--accent-on-dark);
+  --focus: var(--accent-on-dark);
+  --field: color-mix(in srgb, var(--paper) 7%, var(--black));
+}
+
+.surface-paper,
+.surface-deep,
+.surface-card,
+.surface-dark,
+.surface-black {
+  background-color: var(--surface);
+  color: var(--fg);
+}
+
+/* ---------------------------------------------------------------------------
+   4. Semantic color utilities — inline so they track the live variable
+   --------------------------------------------------------------------------- */
+@theme inline {
+  /* surface-relative (adapt automatically inside a .surface-* scope) */
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-meta: var(--fg-meta);
+  --color-hairline: var(--hairline);
+  --color-surface: var(--surface);
+  --color-field: var(--field);
+  --color-accent-text: var(--accent-text);
+  --color-focus: var(--focus);
+
+  /* absolute palette roles */
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-on-dark: var(--accent-on-dark);
+  --color-accent-wash: var(--accent-wash);
+  --color-accent-chip: var(--accent-chip);
+  --color-on-accent: var(--on-accent);
+
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-meta: var(--meta);
+  --color-meta-soft: var(--meta-soft);
+  --color-paper: var(--paper);
+  --color-surface-deep: var(--surface-deep);
+  --color-rule: var(--rule);
+  --color-card: var(--card);
+  --color-dark: var(--dark);
+  --color-black: var(--black);
+  --color-brick: var(--brick);
+
+  --color-art-ink: var(--art-ink);
+  --color-art-mid: var(--art-mid);
+  --color-art-light: var(--art-light);
+  --color-art-ground: var(--art-ground);
+  --color-hero-ground: var(--hero-ground);
+  --color-hero-fg: var(--hero-fg);
+}
+
+/* ---------------------------------------------------------------------------
+   5. Base layer
+   --------------------------------------------------------------------------- */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--hairline);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis-weight: none;
+  }
+
+  /* Every anchor target clears the sticky nav (ref 03) */
+  :where([id]) {
+    scroll-margin-top: var(--nav-h);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 300;
+    text-wrap: balance;
+  }
+
+  /* Deal data is always mono + tabular (P1 gate) */
+  :where(code, kbd, samp, pre) {
+    font-family: var(--font-mono);
+  }
+
+  /* Visible focus everywhere — 2px accent ring, surface-aware (P0 gate) */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-card);
+  }
+
+  /* iOS anti-zoom: form fields never below 16px (kwc pattern) */
+  input,
+  select,
+  textarea {
+    font-size: max(1rem, var(--text-body));
+    font-family: inherit;
+  }
+
+  ::selection {
+    background-color: var(--accent-chip);
+    color: var(--ink);
+  }
+
+  img,
+  svg,
+  video,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   6. Signature utilities
+   --------------------------------------------------------------------------- */
+
+/* Micro-label device: [ 01 — TRACK RECORD ] */
+@utility micro-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  line-height: 1.4;
+  letter-spacing: var(--tracking-micro);
+  text-transform: uppercase;
+  color: var(--fg-meta);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tracked-caps brand line — headers/footers only */
+@utility brand-line {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-brand);
+  color: var(--accent-text);
+  font-weight: 500;
+}
+
+/* All deal data */
+@utility data-line {
+  font-family: var(--font-mono);
+  font-size: var(--text-data);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Duration tokens as utilities. Tailwind has no --duration-* theme namespace,
+   and raw `duration-300` would defeat the token gate — use these. */
+@utility duration-fast {
+  transition-duration: var(--dur-fast);
+}
+@utility duration-base {
+  transition-duration: var(--dur-base);
+}
+@utility duration-reveal {
+  transition-duration: var(--dur-reveal);
+}
+@utility duration-slow {
+  transition-duration: var(--dur-slow);
+}
+
+/* 1px structure — never a drop shadow (ref 03) */
+@utility hairline {
+  border: 1px solid var(--hairline);
+}
+@utility hairline-t {
+  border-top: 1px solid var(--hairline);
+}
+@utility hairline-b {
+  border-bottom: 1px solid var(--hairline);
+}
+@utility hairline-l {
+  border-left: 1px solid var(--hairline);
+}
+
+/* Edge fade for marquees / rails (filmfully .rail-mask) */
+@utility rail-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%);
+}
+
+/* Star grain + hairline orbital arcs — DARK sections only (ref 03) */
+@utility star-grain {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.08;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, var(--paper) 50%, transparent 50%),
+      radial-gradient(1px 1px at 37% 68%, var(--paper) 50%, transparent 50%),
+      radial-gradient(1px 1px at 64% 14%, var(--paper) 50%, transparent 50%),
+      radial-gradient(1px 1px at 81% 52%, var(--paper) 50%, transparent 50%),
+      radial-gradient(1px 1px at 26% 88%, var(--paper) 50%, transparent 50%),
+      radial-gradient(1.5px 1.5px at 92% 78%, var(--paper) 50%, transparent 50%),
+      radial-gradient(1px 1px at 53% 41%, var(--paper) 50%, transparent 50%);
+    background-size: 340px 340px;
+  }
+}
+
+/* Coronal plate chassis — Theme B light chrome (hairline frame + registration
+   marks). Light surfaces only; never on dark. */
+@utility plate-frame {
+  position: relative;
+  border: 1px solid var(--hairline);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border: 1px solid var(--accent-text);
+    border-radius: var(--radius-pill);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  &::before {
+    top: -5px;
+    left: -5px;
+  }
+  &::after {
+    bottom: -5px;
+    right: -5px;
+  }
+}
+
+/* Content container */
+@utility container-hk {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+
+  @media (width >= 64rem) {
+    padding-inline: 3rem;
+  }
+}
+
+@utility container-wide {
+  width: 100%;
+  max-width: var(--container-wide);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+
+  @media (width >= 64rem) {
+    padding-inline: 3rem;
+  }
+}
+
+/* Section rhythm: 96–160px desktop, 64–96px mobile (ref 03) */
+@utility section-pad {
+  padding-block: clamp(4rem, 2rem + 8vw, 10rem);
+}
+
+/* Skip-to-content link — first in DOM, visible on focus */
+@utility skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100%;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: var(--text-data);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-micro);
+  border-radius: var(--radius-card);
+  transition: top var(--dur-fast) var(--ease-out);
+
+  &:focus {
+    top: 1rem;
+  }
+}
+
+/* Screen-reader-only, but focusable variant handled by skip-link */
+@utility visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Photo treatment: grayscale at rest → color on hover (pointer) / .tapped (touch) */
+@utility photo-reveal {
+  filter: grayscale(1);
+  transition:
+    filter var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+  will-change: filter;
+
+  @media (hover: hover) and (pointer: fine) {
+    :where(a, button, .card-hit):hover & {
+      filter: grayscale(0);
+      transform: scale(1.02);
+    }
+  }
+}
+
+@utility tapped {
+  filter: grayscale(0) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   7. Reduced motion — global kill switch (P0 gate: every effect has a designed
+   static state; nothing is merely missing).
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  /* Marquees hold their first frame rather than disappearing */
+  [data-marquee] {
+    animation: none !important;
+    transform: none !important;
+  }
+  [data-marquee-clone] {
+    display: none !important;
+  }
+}
+
+/* Pause marquees on hover AND focus-within (a11y: WCAG 2.2.2) */
+[data-marquee-viewport]:hover [data-marquee],
+[data-marquee-viewport]:focus-within [data-marquee] {
+  animation-play-state: paused;
+}
+
+/* JS-driven global freeze (hero kill switch, data-saver) */
+:root[data-motion="off"] [data-marquee],
+:root[data-motion="off"] [data-animated] {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* ---------------------------------------------------------------------------
+   8. Print — owners print listings and closings (ref 07 gate)
+   --------------------------------------------------------------------------- */
+@media print {
+  :root {
+    --paper: #ffffff;
+    --surface-deep: #ffffff;
+    --dark: #ffffff;
+    --fg: #000000;
+    --fg-muted: #333333;
+    --fg-meta: #444444;
+  }
+
+  .surface-dark,
+  .surface-black {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  [data-print-hide],
+  nav,
+  .ticker-bar {
+    display: none !important;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 10px;
+  }
+
+  img {
+    filter: none !important;
+  }
+}
