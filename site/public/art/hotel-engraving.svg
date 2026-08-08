@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<!--
+  hotel-engraving.svg — single-stroke architectural line drawing, traced from
+  site/public/hotels/last-hotel-st-louis.jpg (a corner building: rusticated
+  arched-entry base, nine floors of a tapering window grid, a colonnaded
+  attic floor screening the top windows, a deep dentillated cornice).
+  Pure strokes, no fills. stroke="currentColor" so it inherits the host
+  surface's --fg in both themes when inlined by HotelEngraving.tsx.
+  133 paths, ~9.3KB. Perspective: true 2-point (vertical parallels, shared
+  far vanishing points on both faces) — not decorative guesswork.
+-->
+<g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+<path vector-effect="non-scaling-stroke" d="M90 556.6 L460 560 L780 557.1"/>
+<path vector-effect="non-scaling-stroke" d="M90 519.6 L460 520 L780 519.7"/>
+<path vector-effect="non-scaling-stroke" d="M90 491.9 L460 490 L780 491.6"/>
+<path vector-effect="non-scaling-stroke" d="M90 467.8 L460 464 L780 467.3"/>
+<path vector-effect="non-scaling-stroke" d="M90 443.7 L460 438 L780 443"/>
+<path vector-effect="non-scaling-stroke" d="M90 419.7 L460 412 L780 418.6"/>
+<path vector-effect="non-scaling-stroke" d="M90 395.6 L460 386 L780 394.3"/>
+<path vector-effect="non-scaling-stroke" d="M90 371.6 L460 360 L780 370"/>
+<path vector-effect="non-scaling-stroke" d="M90 347.5 L460 334 L780 345.7"/>
+<path vector-effect="non-scaling-stroke" d="M90 323.4 L460 308 L780 321.4"/>
+<path vector-effect="non-scaling-stroke" d="M90 299.4 L460 282 L780 297"/>
+<path vector-effect="non-scaling-stroke" d="M90 275.3 L460 256 L780 272.7"/>
+<path vector-effect="non-scaling-stroke" d="M90 193.9 L460 168 L780 190.4"/>
+<path vector-effect="non-scaling-stroke" d="M90 149.5 L460 120 L780 145.5"/>
+<path vector-effect="non-scaling-stroke" d="M75 173.7 L460 145 L795 170"/>
+<path vector-effect="non-scaling-stroke" d="M90 556.6 L90 149.5"/>
+<path vector-effect="non-scaling-stroke" d="M152 557.2 L152 144.5"/>
+<path vector-effect="non-scaling-stroke" d="M220 557.8 L220 139.1"/>
+<path vector-effect="non-scaling-stroke" d="M293 558.5 L293 133.3"/>
+<path vector-effect="non-scaling-stroke" d="M373 559.2 L373 126.9"/>
+<path vector-effect="non-scaling-stroke" d="M460 560 L460 120"/>
+<path vector-effect="non-scaling-stroke" d="M535 559.3 L535 126"/>
+<path vector-effect="non-scaling-stroke" d="M604 558.7 L604 131.5"/>
+<path vector-effect="non-scaling-stroke" d="M668 558.1 L668 136.6"/>
+<path vector-effect="non-scaling-stroke" d="M726 557.6 L726 141.2"/>
+<path vector-effect="non-scaling-stroke" d="M780 557.1 L780 145.5"/>
+<path vector-effect="non-scaling-stroke" d="M416.5 258.3 L416.5 171"/>
+<path vector-effect="non-scaling-stroke" d="M333 262.6 L333 176.9"/>
+<path vector-effect="non-scaling-stroke" d="M256.5 266.6 L256.5 182.2"/>
+<path vector-effect="non-scaling-stroke" d="M186 270.3 L186 187.2"/>
+<path vector-effect="non-scaling-stroke" d="M121 273.7 L121 191.7"/>
+<path vector-effect="non-scaling-stroke" d="M497.5 258 L497.5 170.6"/>
+<path vector-effect="non-scaling-stroke" d="M569.5 261.7 L569.5 175.7"/>
+<path vector-effect="non-scaling-stroke" d="M636 265.2 L636 180.3"/>
+<path vector-effect="non-scaling-stroke" d="M697 268.4 L697 184.6"/>
+<path vector-effect="non-scaling-stroke" d="M753 271.3 L753 188.5"/>
+<path vector-effect="non-scaling-stroke" d="M85 194.2 L95 193.5"/>
+<path vector-effect="non-scaling-stroke" d="M147 189.9 L157 189.2"/>
+<path vector-effect="non-scaling-stroke" d="M215 185.1 L225 184.4"/>
+<path vector-effect="non-scaling-stroke" d="M288 180 L298 179.3"/>
+<path vector-effect="non-scaling-stroke" d="M368 174.4 L378 173.7"/>
+<path vector-effect="non-scaling-stroke" d="M455 168.3 L465 168.3"/>
+<path vector-effect="non-scaling-stroke" d="M530 172.9 L540 173.6"/>
+<path vector-effect="non-scaling-stroke" d="M599 177.7 L609 178.4"/>
+<path vector-effect="non-scaling-stroke" d="M663 182.2 L673 182.9"/>
+<path vector-effect="non-scaling-stroke" d="M721 186.3 L731 187"/>
+<path vector-effect="non-scaling-stroke" d="M775 190 L785 190.7"/>
+<path vector-effect="non-scaling-stroke" d="M411.5 171.4 L421.5 170.7"/>
+<path vector-effect="non-scaling-stroke" d="M328 177.2 L338 176.5"/>
+<path vector-effect="non-scaling-stroke" d="M251.5 182.6 L261.5 181.9"/>
+<path vector-effect="non-scaling-stroke" d="M181 187.5 L191 186.8"/>
+<path vector-effect="non-scaling-stroke" d="M116 192.1 L126 191.4"/>
+<path vector-effect="non-scaling-stroke" d="M492.5 170.3 L502.5 171"/>
+<path vector-effect="non-scaling-stroke" d="M564.5 175.3 L574.5 176"/>
+<path vector-effect="non-scaling-stroke" d="M631 180 L641 180.7"/>
+<path vector-effect="non-scaling-stroke" d="M692 184.2 L702 184.9"/>
+<path vector-effect="non-scaling-stroke" d="M748 188.1 L758 188.8"/>
+<path vector-effect="non-scaling-stroke" d="M86 275.5 L94 275.1"/>
+<path vector-effect="non-scaling-stroke" d="M148 272.3 L156 271.9"/>
+<path vector-effect="non-scaling-stroke" d="M216 268.7 L224 268.3"/>
+<path vector-effect="non-scaling-stroke" d="M289 264.9 L297 264.5"/>
+<path vector-effect="non-scaling-stroke" d="M369 260.8 L377 260.3"/>
+<path vector-effect="non-scaling-stroke" d="M456 256.2 L464 256.2"/>
+<path vector-effect="non-scaling-stroke" d="M531 259.7 L539 260.1"/>
+<path vector-effect="non-scaling-stroke" d="M600 263.3 L608 263.7"/>
+<path vector-effect="non-scaling-stroke" d="M664 266.7 L672 267.1"/>
+<path vector-effect="non-scaling-stroke" d="M722 269.7 L730 270.1"/>
+<path vector-effect="non-scaling-stroke" d="M776 272.5 L784 272.9"/>
+<path vector-effect="non-scaling-stroke" d="M412.5 258.5 L420.5 258.1"/>
+<path vector-effect="non-scaling-stroke" d="M329 262.8 L337 262.4"/>
+<path vector-effect="non-scaling-stroke" d="M252.5 266.8 L260.5 266.4"/>
+<path vector-effect="non-scaling-stroke" d="M182 270.5 L190 270.1"/>
+<path vector-effect="non-scaling-stroke" d="M117 273.9 L125 273.5"/>
+<path vector-effect="non-scaling-stroke" d="M493.5 257.7 L501.5 258.2"/>
+<path vector-effect="non-scaling-stroke" d="M565.5 261.5 L573.5 261.9"/>
+<path vector-effect="non-scaling-stroke" d="M632 265 L640 265.4"/>
+<path vector-effect="non-scaling-stroke" d="M693 268.2 L701 268.6"/>
+<path vector-effect="non-scaling-stroke" d="M749 271.1 L757 271.5"/>
+<path vector-effect="non-scaling-stroke" d="M90 193.9 L90 181.9"/>
+<path vector-effect="non-scaling-stroke" d="M108 192.6 L108 180.5"/>
+<path vector-effect="non-scaling-stroke" d="M126 191.4 L126 179.2"/>
+<path vector-effect="non-scaling-stroke" d="M144 190.1 L144 177.9"/>
+<path vector-effect="non-scaling-stroke" d="M162 188.8 L162 176.6"/>
+<path vector-effect="non-scaling-stroke" d="M180 187.6 L180 175.3"/>
+<path vector-effect="non-scaling-stroke" d="M198 186.3 L198 174"/>
+<path vector-effect="non-scaling-stroke" d="M216 185.1 L216 172.7"/>
+<path vector-effect="non-scaling-stroke" d="M234 183.8 L234 171.4"/>
+<path vector-effect="non-scaling-stroke" d="M252 182.6 L252 170.1"/>
+<path vector-effect="non-scaling-stroke" d="M270 181.3 L270 168.8"/>
+<path vector-effect="non-scaling-stroke" d="M288 180 L288 167.5"/>
+<path vector-effect="non-scaling-stroke" d="M306 178.8 L306 166.2"/>
+<path vector-effect="non-scaling-stroke" d="M324 177.5 L324 164.9"/>
+<path vector-effect="non-scaling-stroke" d="M342 176.3 L342 163.6"/>
+<path vector-effect="non-scaling-stroke" d="M360 175 L360 162.3"/>
+<path vector-effect="non-scaling-stroke" d="M378 173.7 L378 161"/>
+<path vector-effect="non-scaling-stroke" d="M396 172.5 L396 159.6"/>
+<path vector-effect="non-scaling-stroke" d="M414 171.2 L414 158.3"/>
+<path vector-effect="non-scaling-stroke" d="M432 170 L432 157"/>
+<path vector-effect="non-scaling-stroke" d="M450 168.7 L450 155.7"/>
+<path vector-effect="non-scaling-stroke" d="M468 168.6 L468 155.6"/>
+<path vector-effect="non-scaling-stroke" d="M486 169.8 L486 156.9"/>
+<path vector-effect="non-scaling-stroke" d="M504 171.1 L504 158.2"/>
+<path vector-effect="non-scaling-stroke" d="M522 172.3 L522 159.5"/>
+<path vector-effect="non-scaling-stroke" d="M540 173.6 L540 160.8"/>
+<path vector-effect="non-scaling-stroke" d="M558 174.9 L558 162.1"/>
+<path vector-effect="non-scaling-stroke" d="M576 176.1 L576 163.4"/>
+<path vector-effect="non-scaling-stroke" d="M594 177.4 L594 164.7"/>
+<path vector-effect="non-scaling-stroke" d="M612 178.6 L612 166"/>
+<path vector-effect="non-scaling-stroke" d="M630 179.9 L630 167.3"/>
+<path vector-effect="non-scaling-stroke" d="M648 181.2 L648 168.6"/>
+<path vector-effect="non-scaling-stroke" d="M666 182.4 L666 170"/>
+<path vector-effect="non-scaling-stroke" d="M684 183.7 L684 171.3"/>
+<path vector-effect="non-scaling-stroke" d="M702 184.9 L702 172.6"/>
+<path vector-effect="non-scaling-stroke" d="M720 186.2 L720 173.9"/>
+<path vector-effect="non-scaling-stroke" d="M738 187.4 L738 175.2"/>
+<path vector-effect="non-scaling-stroke" d="M756 188.7 L756 176.5"/>
+<path vector-effect="non-scaling-stroke" d="M774 190 L774 177.8"/>
+<path vector-effect="non-scaling-stroke" d="M475 554.9 L475 505"/>
+<path vector-effect="non-scaling-stroke" d="M520 554.5 L520 505.1"/>
+<path vector-effect="non-scaling-stroke" d="M475 505 Q497.5 486.2 520 505.1"/>
+<path vector-effect="non-scaling-stroke" d="M455 478 L545 478.6 L545 486.5 L455 486 L455 478"/>
+<path vector-effect="non-scaling-stroke" d="M462 486 L475 505"/>
+<path vector-effect="non-scaling-stroke" d="M538 486.5 L520 505.1"/>
+<path vector-effect="non-scaling-stroke" d="M379 515 L454 515"/>
+<path vector-effect="non-scaling-stroke" d="M299 515 L367 515"/>
+<path vector-effect="non-scaling-stroke" d="M226 515 L287 515"/>
+<path vector-effect="non-scaling-stroke" d="M158 515 L214 515"/>
+<path vector-effect="non-scaling-stroke" d="M96 515 L146 515"/>
+<path vector-effect="non-scaling-stroke" d="M541 515 L598 515"/>
+<path vector-effect="non-scaling-stroke" d="M610 515 L662 515"/>
+<path vector-effect="non-scaling-stroke" d="M674 515 L720 515"/>
+<path vector-effect="non-scaling-stroke" d="M732 515 L774 515"/>
+<path vector-effect="non-scaling-stroke" d="M70 570.3 L460 575 L800 570.9"/>
+</g>
+</svg>

@@ -22,27 +22,18 @@
  * `#brands` / `#mandates` precedent, until one agent assembles the final
  * sitewide sequence and a dated PROJECT-MEMORY.md entry fixes the numbers.
  *
- * ── Art gap: OrbitalArcs / HotelEngraving are not shipped ──────────────────
- * The task brief calls for importing `OrbitalArcs` and `HotelEngraving` from
- * `site/components/art/` — that directory does not exist yet (verified
- * 2026-08-08; presumably W2's deliverable, still in flight). Per the brief's
- * own instruction ("import; report if missing"), this file does NOT create
- * those shared components — this agent owns exactly this file and the spec.
- * Two stand-ins ship instead, both local to this file only:
- *   • `star-grain` — the existing globals.css utility, used as specified.
- *   • `MethodArt` — a small inline hairline-ring SVG at the same 8% texture
- *     opacity cap, filling the "orbital arcs" role geometrically.
- * The white single-stroke engraved hotel facade (`HotelEngraving`) is a
- * commissioned/hand-traced illustration asset per PHASE-1-EXECUTION §4.3 —
- * fabricating one here would be inventing brand art outside this agent's
- * remit, so the section ships without it rather than with a fake. Swap
- * `MethodArt` for the real components the moment they land; nothing else in
- * this file needs to change.
+ * ── Art: OrbitalArcs + HotelEngraving (shipped 2026-08-08) ────────────────
+ * The chapter's art object is the commissioned single-stroke `HotelEngraving`
+ * (traced from an owned track-record photo), over `star-grain` plus the
+ * `OrbitalArcs` hairline arcs. Both are decorative, aria-hidden, and capped at
+ * the 8% texture opacity dark sections allow.
  */
 
 import type { ReactNode } from "react";
 import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
+import { HotelEngraving } from "@/components/art/HotelEngraving";
+import { OrbitalArcs } from "@/components/art/OrbitalArcs";
 import Stamp from "@/components/atoms/Stamp";
 import { Reveal, RevealItem } from "@/components/motion/Reveal";
 import { methodFraming, methodSteps, reachStats } from "@/content/methodology";
@@ -123,35 +114,6 @@ function reachDividerClass(i: number): string | undefined {
   return undefined;
 }
 
-/**
- * Local stand-in for the missing `components/art/OrbitalArcs` — see the file
- * header. Three concentric hairline rings, `currentColor`, capped at the same
- * 8% texture opacity `star-grain` uses. Purely decorative: `aria-hidden`, no
- * layout impact (`absolute inset-0`, `pointer-events-none`), painted before
- * the content in DOM order so it sits behind it without an invented z-index.
- */
-function MethodArt() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 flex items-center justify-end overflow-hidden text-fg"
-      style={{ opacity: 0.08 }}
-    >
-      <svg
-        width="480"
-        height="480"
-        viewBox="0 0 480 480"
-        fill="none"
-        className="-mr-40 hidden shrink-0 md:block"
-      >
-        <circle cx="240" cy="240" r="220" stroke="currentColor" strokeWidth="1" />
-        <circle cx="240" cy="240" r="150" stroke="currentColor" strokeWidth="1" />
-        <circle cx="240" cy="240" r="80" stroke="currentColor" strokeWidth="1" />
-      </svg>
-    </div>
-  );
-}
-
 export function MethodSection() {
   return (
     <section
@@ -159,7 +121,7 @@ export function MethodSection() {
       aria-labelledby="method-heading"
       className="surface-dark star-grain section-pad relative isolate overflow-hidden"
     >
-      <MethodArt />
+      <OrbitalArcs />
       <span className="visually-hidden">
         Decorative hairline orbital-ring texture and star-grain behind this chapter — no
         informational content.
@@ -175,9 +137,18 @@ export function MethodSection() {
         </Reveal>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-12">
-          <Reveal as="p" className="text-body-lg leading-relaxed lg:col-span-5">
-            {renderFramingParagraph(methodFraming)}
-          </Reveal>
+          <div className="lg:col-span-5">
+            <Reveal as="p" className="text-body-lg leading-relaxed">
+              {renderFramingParagraph(methodFraming)}
+            </Reveal>
+
+            {/* The chapter's one art object: a commissioned single-stroke
+                engraving of an owned track-record hotel. Inlined so it inherits
+                `currentColor` and is correct in both themes. */}
+            <Reveal className="mt-12">
+              <HotelEngraving className="opacity-70" />
+            </Reveal>
+          </div>
 
           <Reveal as="ol" stagger className="hairline-l flex flex-col gap-12 pl-8 lg:col-span-7">
             {methodSteps.map((step) => (
