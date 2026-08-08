@@ -72,7 +72,7 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { useReducedMotion } from "motion/react";
 import {
   ASCII_ART_DESCRIPTION,
@@ -149,6 +149,45 @@ const CJK_STACK = '"Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif';
  * cannot hold frame budget on this device, remounting must not re-arm it.
  */
 let sessionFrozen = false;
+
+/* ===========================================================================
+   Enhancement gate
+   ===========================================================================
+   Whether the canvas is mounted at all. Modelled as an external store rather
+   than effect-driven state for three reasons: the server snapshot is a hard
+   `false`, so hydration can never mismatch and the SSR payload is the static
+   frame; a coarse-pointer device or a fired kill switch is a real subscription,
+   not a one-shot measurement; and `freezeMotion()` writing `data-motion="off"`
+   now unmounts the canvas by itself, leaving exactly the designed static state.
+   =========================================================================== */
+
+const FINE_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
+
+function subscribeEnhance(onChange: () => void): () => void {
+  const pointer = window.matchMedia(FINE_POINTER_QUERY);
+  pointer.addEventListener("change", onChange);
+  const motionFlag = new MutationObserver(onChange);
+  motionFlag.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-motion"],
+  });
+  return () => {
+    pointer.removeEventListener("change", onChange);
+    motionFlag.disconnect();
+  };
+}
+
+function getEnhanceSnapshot(): boolean {
+  if (sessionFrozen) return false;
+  if (document.documentElement.dataset.motion === "off") return false;
+  // Pointer devices only (ref 05). A coarse pointer is the honest "mobile"
+  // signal — far better than a width breakpoint.
+  return window.matchMedia(FINE_POINTER_QUERY).matches;
+}
+
+function getEnhanceServerSnapshot(): boolean {
+  return false;
+}
 
 /* ===========================================================================
    Colour — read from the token sheet, never authored here
@@ -475,24 +514,14 @@ export function AsciiCanvas({
   const prefersReduced = useReducedMotion();
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [enhance, setEnhance] = useState(false);
-
-  // Decide whether the canvas is mounted at all. Deliberately an effect: it
-  // reads matchMedia + prefers-reduced-motion, neither of which exists on the
-  // server, so the first client render must match the server's (SVG only).
-  useEffect(() => {
-    if (sessionFrozen) {
-      setEnhance(false);
-      return;
-    }
-    if (!motionAllowed(prefersReduced)) {
-      setEnhance(false);
-      return;
-    }
-    // Pointer devices only (ref 05). Also the "mobile → static frame" rule:
-    // a coarse pointer is the honest signal, not a width breakpoint.
-    setEnhance(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
-  }, [prefersReduced]);
+  const subscribed = useSyncExternalStore(
+    subscribeEnhance,
+    getEnhanceSnapshot,
+    getEnhanceServerSnapshot,
+  );
+  // motionAllowed() adds the data-saver signal on top of reduced motion; both
+  // land here rather than inside the store so the P0 gate reads at a glance.
+  const enhance = subscribed && motionAllowed(prefersReduced);
 
   useEffect(() => {
     if (!enhance) return;

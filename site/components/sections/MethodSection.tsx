@@ -107,6 +107,23 @@ function renderFramingParagraph(text: string): ReactNode[] {
 }
 
 /**
+ * Divider class for one reach-stat item, given its index in a row that wraps
+ * 2-up on mobile and lays out 4-up from `md` (ref 03: 2-up ≥640px, but this
+ * grid switches to the full 4-up at `md` since there are only four items).
+ * A left hairline belongs on every column except the leader of its own row —
+ * which row-leader positions differ between the two breakpoints, so each
+ * needs its own modulo test rather than a single `i > 0` check (that would
+ * wrongly draw a border on the mobile row-2 leader, item index 2).
+ */
+function reachDividerClass(i: number): string | undefined {
+  const mobileDivider = i % 2 === 1; // right column of the 2-up mobile row
+  const desktopDivider = i % 4 !== 0; // every column but the 4-up row leader
+  if (mobileDivider && desktopDivider) return "hairline-l pl-8";
+  if (desktopDivider) return "md:hairline-l md:pl-8";
+  return undefined;
+}
+
+/**
  * Local stand-in for the missing `components/art/OrbitalArcs` — see the file
  * header. Three concentric hairline rings, `currentColor`, capped at the same
  * 8% texture opacity `star-grain` uses. Purely decorative: `aria-hidden`, no
@@ -188,11 +205,7 @@ export function MethodSection() {
           className="hairline-t mt-12 grid grid-cols-2 gap-x-8 gap-y-8 pt-12 md:grid-cols-4"
         >
           {reachStats.map((stat, i) => (
-            <Reveal.Item
-              as="li"
-              key={stat.value}
-              className={i > 0 ? "hairline-l pl-8" : undefined}
-            >
+            <Reveal.Item as="li" key={stat.value} className={reachDividerClass(i)}>
               <span className="block font-mono text-body-lg font-medium tabular text-fg">
                 {stat.value}
               </span>

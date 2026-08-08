@@ -45,6 +45,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 
+import { AccentRule } from "@/components/atoms/AccentRule";
 import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BROKERAGE_DISCLOSURE, KW_COMMERCIAL_MARK } from "@/content/compliance";
