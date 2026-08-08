@@ -34,7 +34,7 @@
 import { mandates, mandatesCta, mandatesDeck, mandatesDiscretion } from "@/content/mandates";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
 import { DataLine } from "@/components/atoms/DataLine";
-import { Reveal } from "@/components/motion/Reveal";
+import { Reveal, RevealItem } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
 
 export function MandatesSection() {
@@ -56,7 +56,7 @@ export function MandatesSection() {
           className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-16"
         >
           {mandates.map((mandate) => (
-            <Reveal.Item
+            <RevealItem
               key={mandate.headline}
               as="article"
               className="hairline flex flex-col gap-4 rounded-card p-6 sm:p-8"
@@ -65,7 +65,7 @@ export function MandatesSection() {
                 {mandate.headline}
               </h3>
               <DataLine parts={[mandate.criteria]} className="text-fg-meta" />
-            </Reveal.Item>
+            </RevealItem>
           ))}
         </Reveal>
 

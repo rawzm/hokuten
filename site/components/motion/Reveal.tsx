@@ -228,4 +228,18 @@ function RevealItem({ children, as = "div", ...rest }: RevealItemProps) {
 RevealRoot.displayName = "Reveal";
 RevealItem.displayName = "Reveal.Item";
 
+/**
+ * RevealItem MUST be its own named export.
+ *
+ * `Object.assign(RevealRoot, { Item })` looks tidy, but this is a "use client"
+ * module: a Server Component importing it receives a client *reference*, not the
+ * function object, and properties hung off that function do not cross the RSC
+ * boundary. `Reveal.Item` therefore evaluates to `undefined` on the server and
+ * React throws "Element type is invalid". Named exports cross the boundary
+ * correctly, so sections import { Reveal, RevealItem }.
+ *
+ * The `Reveal.Item` alias below is kept for use inside client components only.
+ */
+export { RevealItem };
+
 export const Reveal = Object.assign(RevealRoot, { Item: RevealItem });

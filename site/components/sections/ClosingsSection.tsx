@@ -19,7 +19,7 @@
 import { closings } from "@/content/closings";
 import ClosingCard from "@/components/cards/ClosingCard";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
-import { Reveal } from "@/components/motion/Reveal";
+import { Reveal, RevealItem } from "@/components/motion/Reveal";
 
 export default function ClosingsSection() {
   return (
@@ -42,9 +42,9 @@ export default function ClosingsSection() {
           className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 print:grid-cols-1 print:gap-6"
         >
           {closings.map((closing) => (
-            <Reveal.Item key={closing.name} as="li" className="print:break-inside-avoid">
+            <RevealItem key={closing.name} as="li" className="print:break-inside-avoid">
               <ClosingCard closing={closing} />
-            </Reveal.Item>
+            </RevealItem>
           ))}
         </Reveal>
       </div>

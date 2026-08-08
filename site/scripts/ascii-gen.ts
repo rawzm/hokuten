@@ -470,7 +470,7 @@ function ditherToBuckets(
   cols: number,
   rows: number,
   levels: number,
-): { buckets: Uint8Array; offsets: Float32Array } {
+): Uint8Array {
   const buf = Float32Array.from(field);
   const out = new Uint8Array(cols * rows);
   const offsets = new Float32Array(cols * rows);

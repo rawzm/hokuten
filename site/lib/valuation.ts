@@ -992,7 +992,12 @@ export function calculate(input: ValuationInput, config: CalculatorConfig = CONF
   const firedCodes: AdviceCode[] = fired.map((a) => a.code);
   const top: AdviceEntry[] = fired.slice(0, 2);
 
-  const ctaVariant: CtaVariant = firedCodes.some((c) => VALUE_ADD_CTA_CODES.indexOf(c) !== -1)
+  // The cast widens the tuple's literal element type to AdviceCode so any fired
+  // code can be tested against it. Membership semantics are unchanged — this is
+  // a type widening only, and the ported math is untouched.
+  const ctaVariant: CtaVariant = firedCodes.some(
+    (c) => (VALUE_ADD_CTA_CODES as readonly AdviceCode[]).indexOf(c) !== -1,
+  )
     ? "valueAdd"
     : firedCodes.indexOf("revparTop") !== -1
       ? "runningWell"

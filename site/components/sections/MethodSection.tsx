@@ -44,7 +44,7 @@ import type { ReactNode } from "react";
 import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
 import Stamp from "@/components/atoms/Stamp";
-import { Reveal } from "@/components/motion/Reveal";
+import { Reveal, RevealItem } from "@/components/motion/Reveal";
 import { methodFraming, methodSteps, reachStats } from "@/content/methodology";
 
 /**
@@ -181,7 +181,7 @@ export function MethodSection() {
 
           <Reveal as="ol" stagger className="hairline-l flex flex-col gap-12 pl-8 lg:col-span-7">
             {methodSteps.map((step) => (
-              <Reveal.Item as="li" key={step.index} className="group relative">
+              <RevealItem as="li" key={step.index} className="group relative">
                 <span
                   className="block font-mono text-micro uppercase tracking-micro tabular text-accent-text"
                   aria-hidden="true"
@@ -194,7 +194,7 @@ export function MethodSection() {
                   </span>
                 </h3>
                 <p className="mt-3 max-w-[60ch] text-body text-fg-muted">{step.body}</p>
-              </Reveal.Item>
+              </RevealItem>
             ))}
           </Reveal>
         </div>
@@ -205,14 +205,14 @@ export function MethodSection() {
           className="hairline-t mt-12 grid grid-cols-2 gap-x-8 gap-y-8 pt-12 md:grid-cols-4"
         >
           {reachStats.map((stat, i) => (
-            <Reveal.Item as="li" key={stat.value} className={reachDividerClass(i)}>
+            <RevealItem as="li" key={stat.value} className={reachDividerClass(i)}>
               <span className="block font-mono text-body-lg font-medium tabular text-fg">
                 {stat.value}
               </span>
               <span className="mt-2 block font-mono text-body leading-snug text-fg-muted">
                 {stat.label}
               </span>
-            </Reveal.Item>
+            </RevealItem>
           ))}
         </Reveal>
       </div>

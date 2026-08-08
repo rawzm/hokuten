@@ -32,7 +32,7 @@
  */
 
 import { CountUp } from "@/components/motion/CountUp";
-import { Reveal } from "@/components/motion/Reveal";
+import { Reveal, RevealItem } from "@/components/motion/Reveal";
 import { DataLine } from "@/components/atoms/DataLine";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
 import { stats } from "@/content/stats";
@@ -76,13 +76,13 @@ export function StatsSection() {
           className="mt-12 grid grid-cols-1 gap-y-10 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:mt-16 lg:grid-cols-4 lg:gap-x-10"
         >
           {stats.map((stat) => (
-            <Reveal.Item as="li" key={stat.label} className="hairline-t pt-6">
+            <RevealItem as="li" key={stat.label} className="hairline-t pt-6">
               <span className="block font-display font-light text-display2">
                 <CountUp value={stat.value} />
               </span>
               <span className="micro-label mt-3 block">{stat.label}</span>
               {stat.detail ? <StatDetail detail={stat.detail} /> : null}
-            </Reveal.Item>
+            </RevealItem>
           ))}
         </Reveal>
       </div>

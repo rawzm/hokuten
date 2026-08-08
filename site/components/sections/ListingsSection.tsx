@@ -23,7 +23,7 @@ import { A100_ARMS_SIGNUP_URL } from "@/content/site";
 import { listings, listingsEmptyState } from "@/content/listings";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
 import { ListingCard } from "@/components/cards/ListingCard";
-import { Reveal } from "@/components/motion/Reveal";
+import { Reveal, RevealItem } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
 
 /** ref 04 §#listings — no verbatim headline given; new copy in the established voice. */
@@ -50,9 +50,9 @@ export function ListingsSection() {
             className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
           >
             {listings.map((listing) => (
-              <Reveal.Item key={listing.id} as="li">
+              <RevealItem key={listing.id} as="li">
                 <ListingCard listing={listing} className="h-full" />
-              </Reveal.Item>
+              </RevealItem>
             ))}
           </Reveal>
         ) : (

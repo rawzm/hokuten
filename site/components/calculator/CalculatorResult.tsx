@@ -390,7 +390,10 @@ const TERTIARY_LINK =
 
 /** The tertiary CTA. An anchor while CALENDLY_URL is blocked — never a dead button. */
 function TertiaryCta({ prefill }: { prefill: ValuationPrefill }) {
-  if (!CALENDLY_URL) {
+  // Captured locally: narrowing an imported binding does not survive into the
+  // nested closure below, because TS treats module imports as mutable.
+  const calendlyUrl = CALENDLY_URL;
+  if (!calendlyUrl) {
     return (
       <a href={CALENDLY_FALLBACK} className={TERTIARY_LINK}>
         {CALENDLY_CTA}
@@ -411,7 +414,7 @@ function TertiaryCta({ prefill }: { prefill: ValuationPrefill }) {
       return;
     }
     calendly.initPopupWidget({
-      url: CALENDLY_URL,
+      url: calendlyUrl,
       prefill: { customAnswers: { a1: calendlyAnswer(prefill) } },
     });
   };
