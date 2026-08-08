@@ -81,7 +81,7 @@ Verify against the filesystem before rebuilding anything.
 
 | # | What | Path |
 |---|---|---|
-| 1 | **Page assembly** — still the M0 placeholder | `app/page.tsx` |
+| 1 | **Replace the INTERIM page assembly** — `app/page.tsx` currently renders 10 real sections plus a temporary hero and three visible `blocked:` blocks. Delete `InterimHero` and `Blocked`, drop in the real Hero / SiteNav / TeamSection / CalculatorSection. | `app/page.tsx` |
 | 2 | Nav + numbered menu overlay | `components/sections/SiteNav.tsx`, `components/nav/MenuOverlay.tsx` |
 | 3 | Team section + card | `components/sections/TeamSection.tsx`, `components/cards/TeamCard.tsx` |
 | 4 | Both hero chassis + shared copy | `components/hero/{Hero,HeroCoverPanel,HeroPlate,heroContent}.tsx` |
@@ -93,19 +93,35 @@ Verify against the filesystem before rebuilding anything.
 | 10 | Specimen + art preview routes (optional) | `app/specimen/`, `app/art/` |
 | 11 | Ship gate — audits, perf, a11y, compliance, content fidelity, anti-slop | — |
 
-## 5. Known open defects — 6 `tsc` errors total
+## 5. Build status — GREEN
 
-```
-scripts/ascii-gen.ts   4   a helper returns {buckets, offsets} but is typed Uint8Array.
-                           BUILD SCRIPT ONLY — does not ship. Fix the return type.
-lib/valuation.ts       1   :995 AdviceCode union is missing "pip" in a CTA-variant
-                           parameter. NOTE: this is a TYPE narrowing bug, not a math
-                           bug — do not "fix" it by changing any ported value.
-CalculatorResult.tsx   1   Type 'null' is not assignable to type 'string'.
-```
+`pnpm build` passes. Zero type errors. Routes prerendered: `/`, `/privacy`,
+`/sms-terms`, `/accessibility`, `/robots.txt`, `/sitemap.xml`, plus the dynamic
+`/api/ticker-data`. Both `main` (gold) and `theme-blue` (blue) are pushed at the
+same commit, so both Vercel URLs build.
 
-Everything else typechecks. `pnpm build` has **not** been run against the full
-tree yet — expect additional integration errors on first assembly.
+All six earlier `tsc` errors are fixed. The one worth remembering:
+
+> **`Reveal.Item` did not survive the RSC boundary.** `Reveal` is a `"use client"`
+> component that exported its subcomponent via
+> `Object.assign(RevealRoot, { Item })`. A Server Component importing it gets a
+> client *reference*, not the function object, so properties hung off it are
+> `undefined` — React threw "Element type is invalid" with no useful stack.
+> Fixed by exporting `RevealItem` as its own named export. **Never attach a
+> subcomponent to a client component with `Object.assign` and render it from a
+> Server Component.** Isolated by giving each section its own probe route and
+> curling them all: every failing section used `Reveal.Item`, every passing one
+> did not — a much faster diagnosis than bisecting the page.
+
+Also fixed: `next.config.ts` now sets `agentRules: false`, because Next 16 was
+regenerating `site/AGENTS.md` and `site/CLAUDE.md` on every dev run and
+competing with this repo's single rulebook.
+
+## 5b. Known inconsistency to clean up
+
+The section agents were not consistent about default vs named exports —
+`ClosingsSection` is default-only, `DoorsSection` / `ListingsSection` /
+`SiteFooter` export both. Normalise to named exports in the cleanup pass.
 
 ## 6. Coordination issue to fix in one pass
 
