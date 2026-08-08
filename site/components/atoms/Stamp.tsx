@@ -78,8 +78,9 @@ export default function Stamp({
   if (missing) return null;
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- SVG seal; the
-    // default next/image loader passes SVG through unoptimised regardless.
+    // The default next/image loader passes SVG through unoptimised regardless,
+    // so <Image> would buy machinery and zero bytes here.
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={hankoSrc(onDark)}
       alt=""
@@ -98,7 +99,7 @@ export default function Stamp({
 }
 
 /**
- * The seal, pressed in once: scale 1.06 → 1 with an opacity reveal, fired the
+ * The seal, pressed in once: scale 1.06 to 1 with an opacity reveal, fired the
  * first time it enters the viewport (`hankoPressVariants`, DUR.base, EASE.out).
  * Footer placement only.
  *

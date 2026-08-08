@@ -121,8 +121,11 @@ function translatePathX(d: string, dx: number): string {
   let buf: number[] = [];
 
   const flush = () => {
-    if (!cmd) return;
+    if (!cmd || buf.length === 0) return;
     const xs = X_SLOTS[cmd];
+    if (buf.length !== ARITY[cmd]) {
+      throw new Error(`truncated "${cmd}" group: ${buf.length}/${ARITY[cmd]} args`);
+    }
     for (const i of xs) buf[i] += dx;
     out.push(buf.map(num).join(" "));
     buf = [];
@@ -290,10 +293,32 @@ const THEMES: ThemeSpec[] = [
 /** Intrinsic height of the emitted lockup, px (sets the <img> default size). */
 const LOCKUP_INTRINSIC_H = 48;
 
+/**
+ * The lockup's ink aspect ratio, duplicated in components/brand/Wordmark.tsx so
+ * that component can emit width+height and reserve layout before the SVG loads.
+ * If this assertion ever fires, the typesetting changed — update BOTH.
+ */
+const LOCKUP_ASPECT = 22.093;
+/**
+ * Cap height as a fraction of the lockup box. Below 1 because O/G/U overshoot
+ * the cap line; Wordmark.tsx documents it so `height` can be reasoned about.
+ */
+const LOCKUP_CAP_RATIO = 0.972;
+
 function wordmarkSvg(theme: ThemeSpec): string {
   const line = typeset(BRAND, BRAND_TRACK);
   const w = line.ink.x1 - line.ink.x0;
   const h = line.ink.y1 - line.ink.y0;
+  const aspect = w / h;
+  if (Math.abs(aspect - LOCKUP_ASPECT) > 0.005) {
+    throw new Error(
+      `lockup aspect drifted to ${aspect.toFixed(4)} (was ${LOCKUP_ASPECT}) — ` +
+        `update LOCKUP_ASPECT here and WORDMARK_ASPECT in components/brand/Wordmark.tsx`,
+    );
+  }
+  if (Math.abs(CAP / h - LOCKUP_CAP_RATIO) > 0.005) {
+    throw new Error(`lockup cap ratio drifted to ${(CAP / h).toFixed(4)}`);
+  }
   const iw = Number(((LOCKUP_INTRINSIC_H * w) / h).toFixed(2));
   const d = translatePathX(line.d, -line.ink.x0);
 
@@ -362,11 +387,17 @@ function starGrain(color: string): string {
   return `<g fill="${color}" opacity="0.09">${specks.join("")}</g>`;
 }
 
+/** Registration-mark geometry, and the gap the trim line leaves for it. */
+const REG_R = 5.5;
+const REG_ARM_IN = 8.5;
+const REG_ARM_OUT = 15;
+const REG_CLEAR = REG_ARM_OUT + 5;
+
 /** Print registration mark: open circle + four detached crosshair arms. */
 function regMark(cx: number, cy: number, color: string): string {
-  const r = 5.5;
-  const armIn = 8.5;
-  const armOut = 14;
+  const r = REG_R;
+  const armIn = REG_ARM_IN;
+  const armOut = REG_ARM_OUT;
   const arms = [
     `M${num(cx - armOut)} ${num(cy)}H${num(cx - armIn)}`,
     `M${num(cx + armIn)} ${num(cy)}H${num(cx + armOut)}`,
@@ -383,12 +414,21 @@ function regMark(cx: number, cy: number, color: string): string {
 
 function plateChrome(theme: ThemeSpec): string {
   if (!theme.frame) return "";
-  const i = PLATE_INSET;
-  const x1 = OG_W - i;
-  const y1 = OG_H - i;
+  const i = PLATE_INSET + 0.5; // .5 so a 1px stroke lands on the pixel grid
+  const x1 = OG_W - PLATE_INSET - 0.5;
+  const y1 = OG_H - PLATE_INSET - 0.5;
+  // The trim line stops short of each corner; the corner belongs to the
+  // registration mark. That break is what makes it read as a press proof
+  // rather than a box with dots on it.
+  const g = REG_CLEAR;
+  const trim = [
+    `M${num(i + g)} ${i}H${num(x1 - g)}`,
+    `M${num(i + g)} ${y1}H${num(x1 - g)}`,
+    `M${i} ${num(i + g)}V${num(y1 - g)}`,
+    `M${x1} ${num(i + g)}V${num(y1 - g)}`,
+  ].join("");
   return [
-    `<rect x="${i}.5" y="${i}.5" width="${x1 - i - 1}" height="${y1 - i - 1}"`,
-    ` fill="none" stroke="${theme.frame}" stroke-width="1"/>`,
+    `<path d="${trim}" fill="none" stroke="${theme.frame}" stroke-width="1"/>`,
     regMark(i, i, theme.accent),
     regMark(x1, i, theme.accent),
     regMark(i, y1, theme.accent),

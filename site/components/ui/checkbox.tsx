@@ -25,16 +25,16 @@ import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { motionAllowed } from "@/lib/motion";
 
-/** See accordion.tsx for why this starts optimistic and settles in an effect. */
+const NO_OP_SUBSCRIBE = () => () => {};
+
+/** See accordion.tsx for why the snapshot is optimistic on the server. */
 function useTransitionsEnabled(): boolean {
   const prefersReducedMotion = useReducedMotion();
-  const [enabled, setEnabled] = React.useState(true);
-
-  React.useEffect(() => {
-    setEnabled(motionAllowed(prefersReducedMotion));
-  }, [prefersReducedMotion]);
-
-  return enabled;
+  const getSnapshot = React.useCallback(
+    () => motionAllowed(prefersReducedMotion),
+    [prefersReducedMotion],
+  );
+  return React.useSyncExternalStore(NO_OP_SUBSCRIBE, getSnapshot, () => true);
 }
 
 function Checkbox({

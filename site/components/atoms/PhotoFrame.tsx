@@ -16,7 +16,7 @@
  * `height` (intrinsic mode). There is no third option, so a grid can never
  * reflow when an image decodes.
  *
- * ── The grayscale→colour reveal is DECORATION, never information ────────────
+ * ── The grayscale-to-colour reveal is DECORATION, never information ───────
  * `photo-reveal` (globals.css) is grayscale at rest and colour on hover, but the
  * hover rule is scoped to `(hover: hover) and (pointer: fine)`. Nothing is ever
  * communicated by the colour state — not availability, not status, not

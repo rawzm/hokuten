@@ -40,7 +40,7 @@ type Parsed = {
 };
 
 /** `$200M+` → prefix `$`, digits `200`, suffix `M+` */
-const NUMERAL = /^([^\d]*)(\d[\d,]*(?:\.\d+)?)(.*)$/s;
+const NUMERAL = /^([^\d]*)(\d[\d,]*(?:\.\d+)?)([\s\S]*)$/;
 
 function parse(raw: string): Parsed | null {
   const match = NUMERAL.exec(raw);

@@ -197,7 +197,7 @@ function DialogContent({
           </DialogPrimitive.Overlay>
 
           {/* Positioning layer. Kept separate from the panel so motion owns the
-              panel transform outright — a Tailwind -translate-* centring class
+              panel transform outright — a Tailwind centring transform utility
               would be overwritten by the animated inline transform. */}
           <div
             className={cn(

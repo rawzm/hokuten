@@ -32,6 +32,13 @@
  *     of a close.
  *   • Reduced motion / global motion kill switch: transitions are dropped
  *     entirely and the row opens instantly — a designed static state.
+ *
+ * Trade-off worth knowing: because the panel stays mounted, Radix's
+ * `role="region"` wrapper is present (though empty and hidden) while a row is
+ * closed. That matches the ARIA APG accordion pattern for a short FAQ; if the
+ * FAQ ever grows past ~6 rows, APG prefers dropping the landmark — pass
+ * `role="presentation"` to <AccordionContent> (Radix spreads props after its own
+ * role, so the override lands).
  */
 
 import * as React from "react";
@@ -42,20 +49,25 @@ import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { motionAllowed } from "@/lib/motion";
 
+/** The kill switch lives on the DOM, not in React state — nothing to subscribe to. */
+const NO_OP_SUBSCRIBE = () => () => {};
+
 /**
- * True when transitions may run. Starts optimistic so SSR and hydration agree;
- * `prefers-reduced-motion` is already neutralised by globals.css before this
- * settles, and the effect then also honours the JS kill switch / data-saver.
+ * True when transitions may run: `prefers-reduced-motion` via motion/react plus
+ * the global kill switch and data-saver signal via `motionAllowed()`.
+ *
+ * Read through useSyncExternalStore so the server snapshot is optimistic (the
+ * markup hydrates identically) and the real answer lands right after hydration.
+ * `prefers-reduced-motion` is already neutralised by globals.css in the
+ * meantime, so the reduced-motion state is never briefly wrong.
  */
 function useTransitionsEnabled(): boolean {
   const prefersReducedMotion = useReducedMotion();
-  const [enabled, setEnabled] = React.useState(true);
-
-  React.useEffect(() => {
-    setEnabled(motionAllowed(prefersReducedMotion));
-  }, [prefersReducedMotion]);
-
-  return enabled;
+  const getSnapshot = React.useCallback(
+    () => motionAllowed(prefersReducedMotion),
+    [prefersReducedMotion],
+  );
+  return React.useSyncExternalStore(NO_OP_SUBSCRIBE, getSnapshot, () => true);
 }
 
 function Accordion({

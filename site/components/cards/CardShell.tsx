@@ -20,7 +20,7 @@
  * `reserveData={false}` only when NO card in that grid uses the slot.
  *
  * ── Hover / focus (ref 05) ─────────────────────────────────────────────────
- * Hovering the card does exactly two things: the photo goes grayscale→colour at
+ * Hovering the card does exactly two things: the photo goes grayscale to colour at
  * scale 1.02 (the `photo-reveal` utility keys off the `card-hit` marker class
  * on this element), and the card's hairline shifts to the accent at 40%.
  * The card NEVER translates, never lifts a shadow, never springs.
