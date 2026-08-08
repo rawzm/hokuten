@@ -8,9 +8,9 @@
 >
 > **Evidence gate.** Every number in sections A and D is a public claim under `CLAUDE.md` → it needs a `verified-current` row in the design skill's claims register (reference 06) before it ships on a Hokuten page. This document records what the old site said; it is **not** verification.
 >
-> **Sarhan flag.** No Sarhan Hotel Group branding appears anywhere in the deal data (sections A–E). It appears only in `index.html:19, 24, 1145, 1234, 1249` and `marketplace.html:375, 400` — all outside this doc's scope. **Do not carry any of it over.** Occurrences are listed in §F for the record; the strings themselves are not reproduced.
+> **Sarhan flag.** No Sarhan Hotel Group branding appears anywhere in the deal data (sections A–E). It appears only in `index.html:19, 24, 1145, 1147, 1234, 1249` and `marketplace.html:375, 400` — all outside this doc's scope. **Do not carry any of it over.** Occurrences are listed in §F for the record; the strings themselves are not reproduced.
 >
-> **Secrets.** No API keys appear in any deal code path. The listings feed is explicitly keyless (`index.html:1750` — "no backend, no API key"). Nothing redacted was needed in this document.
+> **Secrets.** No API keys appear in any deal code path. The listings feed is explicitly keyless (`index.html:1750` — "no backend, no API key"). Nothing redacted was needed in this document. *(For the record: the source does carry one committed credential — a Web3Forms `access_key` at `index.html:1169`, described in `README.md:12–14` as a public client-side key. It belongs to the BOV-form port doc, not this one; its value is deliberately **not** reproduced here and must not be copied into the Hokuten repo without a decision.)*
 
 ---
 
@@ -314,7 +314,7 @@ Alt text for every closing photo equals the card's `name` — **except A.2**, wh
 
 **There is NO static listing data in the source.** The old site hardcodes zero listings. Every field the task asks for — display name, city/state, service level, key count, price string, cap-rate string — arrives **at runtime** from a third-party feed and is never present in the repo. The only listing-identifying data committed to the source is the `CREXI_LINKS` map (5 Monday item ids → 5 Crexi URLs) and its trailing comments.
 
-`README.md:19–20` confirms it: *"The `ACTIVE LISTINGS` section is **no longer hardcoded.**"*
+`README.md:20` confirms it (under the `README.md:19` heading *"Active Listings — LIVE feed, Crexi destinations (no manual editing)"*): *"The `ACTIVE LISTINGS` section is **no longer hardcoded.**"*
 
 Consequence for Hokuten: either (a) port the feed integration, or (b) hand-author a static listing set. **This is an open decision, not something this document can resolve.** Everything in §B.5 below marked *derived* is inferred from URL slugs and comments — it is **not** verbatim source data and must not ship without verification.
 
@@ -980,7 +980,8 @@ Per `CLAUDE.md`: no Sarhan Hotel Group branding carries over. Occurrences found,
 |---|---|
 | `index.html:19` | `<meta name="description">` tail |
 | `index.html:24` | `og:site_name` |
-| `index.html:1145` | `#team` → "The Platform" card `.role` + body + external link to `sarhanhotelgroup.com` (`:1147`) |
+| `index.html:1145` | `#team` → "The Platform" card `.role` |
+| `index.html:1147` | same card, external link + link text `sarhanhotelgroup.com →` |
 | `index.html:1234` | Footer affiliation stack |
 | `index.html:1249` | Footer legal line + `sarhanhotelgroup.com` |
 | `marketplace.html:375` | Footer affiliation stack |

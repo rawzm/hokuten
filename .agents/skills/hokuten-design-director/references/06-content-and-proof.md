@@ -28,8 +28,12 @@ Logos/testimonials additionally need written permission noted in PROJECT-MEMORY.
 | Closed transactions | 12 (11 hotel assets + 1 management-co M&A) | `verified-current` |
 | Total square feet | 836K+ | `verified-current` |
 | CoStar Power Broker Quarterly Deals | Q3 2025 · Q1 2026 · Q2 2026 | `verified-current` |
+| Closings (6) — deal figures | Price, LP/SP ratio, days-on-market, $/key and structure notes for Carte $61.49M · Renaissance Reno $50.1M · The Last Hotel $13.2M · HIE Brooklyn $20.0M · Radisson McAllen $14.0M · Rohnert Park $14.0M | `verified-current` — verbatim published copy from the kwc source `#closings` cards (`index.html:872–907`), re-verified byte-for-byte 2026-08-08; same standard as the Dino creds-line row. Decimal precision and the "Confidential"/"Lease → Buy" slot substitutions are the source's own — do not normalize |
 | Reach stats | ~400K CoStar investors · ~60K owners voice outreach · 1,500 owner relationships · 30K SMS contacts | `verified-current` (kwc methodology) |
 | BOV promise | Written BOV in 48h conditioned on T-12 / STR / PIP receipt | `verified-current` |
+| Listing-term structure | 180 days as two 90-day cycles; market reads at Days 30 and 60; Day 90 seller decision (accept / reprice + second cycle / conclude) | `verified-current` (kwc `index.html:1095`, verified against source 2026-08-08) — contractual timeframe: re-confirm against the Hokuten listing agreement at the KW / Forward Wilshire paperwork gate before public launch |
+| Average close | 60–90 days post-LOI | `verified-current` (kwc `index.html:1103`, verified against source 2026-08-08; Dino book of record) |
+| Listing distribution | Public launch across CoStar, LoopNet, and Crexi + direct database distribution and owner outreach | `verified-current` (kwc `index.html:1100`, verified against source 2026-08-08) — corroborated by the live Crexi listing links and the CoStar Power Broker rows above; re-confirm the subscriptions transfer to Hokuten at the paperwork gate |
 | Sarhan-era "~$1B total hotel sales" | — | `pending-verification` — group-level, needs Dino's sign-off + framing away from Sarhan brand |
 | Sarhan testimonials (Caliber, Whispering Pines, Juniper) | — | `pending-verification` — permission + attribution unresolved |
 | Dino bio (creds line) | verbatim from kwc source `team-creds` | `verified-current` |

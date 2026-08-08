@@ -7,7 +7,8 @@
 
 ### Conventions used in this file
 
-- Everything inside a fenced block is **byte-exact** from the source, HTML entities included (`&amp;`, `&nbsp;`). Do not normalize.
+- Everything inside a fenced block is **byte-exact** from the source, HTML entities included (`&amp;`, `&nbsp;`). Do not normalize. Two documented exceptions: (a) where a single element is quoted on its own, the source's leading indentation is stripped; (b) fenced blocks labelled "Rendered text" show the resolved text node, not raw markup, and are labelled as such.
+- **The source escapes ampersands inconsistently — preserved as-is, never harmonized.** Escaped `&amp;` occurs on 8 lines (:937, :974, :992, :1137 `M&amp;A`, :1200, :1203, :1404, :1790). Raw, unescaped `&` occurs in user-visible text at :903 and :904 (`Budget Inn & Rodeway Inn`), :1100 (`Listing & Marketing`), :1102 (`LOI & Negotiation`), and inside the Google Maps query strings at :1139 and :1239. If a fenced block in this document shows a raw `&`, that is the source, not a transcription slip.
 - All apostrophes in the source are ASCII `'` (verified: zero U+2019 in the file). Non-ASCII characters present: `–` U+2013, `—` U+2014, `•` U+2022, `…` U+2026, `→` U+2192, `≈` U+2248, `ⓘ` U+24D8, `✓` U+2713, `§` U+00A7, `©` U+00A9, `·` U+00B7, `×` U+00D7, `÷` U+00F7.
 - **VOICE** flags = sentences that are Dino-singular / personal-practice-site framing and must become team-first "we" for HOKUTEN.
 - **EVIDENCE** flags = factual claims (number, award, timeframe, license) that need a `verified-current` row in the design skill's claims register (reference 06) before shipping.
@@ -18,7 +19,7 @@
 
 ## 1. `<head>` — title, meta, OG/Twitter, canonical, structured data
 
-**index.html:16–41** (the rest of `<head>`, lines 42–807, is inline CSS; 808–812 are Calendly + intl-tel-input stylesheets; 809 is the Calendly widget script).
+**index.html:16–38** — metadata + icons. Accounting for the rest of `<head>`: **39–41** font loading (quoted separately below), **42–804** the inline `<style>` block, 805 blank, 806–807 an HTML comment, **808** the Calendly stylesheet, **809** the Calendly widget script, 810 blank, 811 a comment, **812** the intl-tel-input stylesheet, 813 `</head>`.
 
 ```html
 <meta charset="UTF-8">
@@ -46,6 +47,22 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 ```
 
+**Font loading — index.html:39–41**, verbatim (not copy, but part of `<head>` and load-bearing for the type port — the three families here are the whole typographic system of the source site):
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+```
+
+| Family | Weights / styles requested | Role in the source |
+|---|---|---|
+| `Cormorant Garamond` | 400/500/600 upright + 400/500 italic | `--serif` — display headlines, the gold italic `.accent` spans, BOV subhead |
+| `Inter` | 300/400/500/600/700 | `--sans` — body, nav, labels |
+| `JetBrains Mono` | 400/500 | mono — figures, ticker, small-caps metrics |
+
+> Port note: HOKUTEN's type stack is its own decision (see the design skill, reference 01). This block is recorded so nobody re-derives the source's families by guesswork — it is **not** an instruction to keep them. Also note the source loads fonts from a third-party CDN with `display=swap`; a Next.js port should use `next/font` (self-hosted, no external request) rather than reproducing these `<link>` tags.
+
 **Source HTML comment above the doctype — index.html:2–13** (build/maintenance note, not user-visible; recorded because it documents the two "SET THIS" values and the card-editing convention):
 
 ```html
@@ -67,7 +84,7 @@
 
 | Missing | Verified | Action |
 |---|---|---|
-| `<link rel="canonical">` | absent — zero matches for `canonical` in index.html | Add in Next.js `metadata.alternates.canonical`. |
+| `<link rel="canonical">` | absent — zero `<link rel="canonical">` tags. (The string `canonical` does occur once in the file, at :1564, but only inside a JS comment — `// Canonical disclaimer language …` — which is unrelated.) | Add in Next.js `metadata.alternates.canonical`. |
 | JSON-LD structured data (`application/ld+json`) | **absent — zero `ld+json` blocks anywhere in index.html.** There is no `Organization`, `RealEstateAgent`, `LocalBusiness`, `BreadcrumbList`, or `FAQPage` markup. | Net-new. Author fresh for HOKUTEN; do not "port" anything. |
 | `<meta name="robots">`, `author`, `keywords`, `theme-color` | all absent | Net-new. |
 | `og:locale`, `twitter:site`/`twitter:creator` | absent | Net-new. |
@@ -247,6 +264,7 @@ Full block, verbatim:
 | Head CTA | `View all` → `https://www.crexi.com/profile/dino-monteverde-dinomon` (`target="_blank" rel="noopener"`) | :869 |
 | Card badge (repeats on all six cards) | `Recently Closed` | :873, 879, 885, 891, 897, 903 |
 | Card affordance | `→` (U+2192) in `.card-title-arrow` | per card |
+| Broken-image placeholder caption | `Photo · 4:3` (second `<span>` inside `.placeholder`, `style="opacity:.6;"`; the first span repeats the property name). Revealed by the card image's inline `onerror` handler. **Present on only two of the six cards** — Carte (:873) and Renaissance (:879); the other four cards have no `.placeholder` at all, so a failed image on them leaves an empty box | :873, :879 |
 | Empty state | **none** — closings are hand-authored static blocks, so there is no loading/empty/error state | — |
 
 ### 4b. `#listings` — index.html:1114–1124
@@ -312,6 +330,7 @@ Full block, verbatim:
 - **VOICE / BRAND** — `represented through Keller Williams Commercial` (:1117) is a brokerage attribution, not a brand statement. Re-express for HOKUTEN, keeping the compliance-accurate brokerage-of-record language.
 - **EVIDENCE** — the `View all` links point at a *personal Crexi profile* (`/profile/dino-monteverde-dinomon`). HOKUTEN needs its own destination; if none exists, the CTA must change rather than deep-link a personal profile.
 - The empty state funnels to `a100arms.com/signup` — the a100 Arms relationship is load-bearing for the empty state, see §8.
+- **Behaviour note (not copy, recorded for parity)** — index.html:1735–1745: on `(hover: none)` devices, tapping a `.closing-card` or `.listing-card` anywhere except a link toggles a `.tapped` class, which is what reveals the card's colour/overlay treatment on touch. Without it the hover-only reveal is unreachable on phones. Same class of mobile-correctness requirement as the hero-video guard in §3.
 
 ---
 
@@ -354,9 +373,9 @@ Each step is `.timeline-circle` (number) + `.step-title` + `.step-headline` + `.
 
 **Step 02 — index.html:1100**
 ```html
-<div class="timeline-step"><div class="timeline-circle">02</div><div class="step-title">Listing &amp; Marketing</div><div class="step-headline">Confidential OM and campaign launch</div><div class="step-body">Custom OM and targeted buyer outreach. Public launch across CoStar, LoopNet, and Crexi, supported by direct database distribution and owner outreach — unless the seller's circumstances require a controlled confidential process.</div></div>
+<div class="timeline-step"><div class="timeline-circle">02</div><div class="step-title">Listing & Marketing</div><div class="step-headline">Confidential OM and campaign launch</div><div class="step-body">Custom OM and targeted buyer outreach. Public launch across CoStar, LoopNet, and Crexi, supported by direct database distribution and owner outreach — unless the seller's circumstances require a controlled confidential process.</div></div>
 ```
-> Source note: at :1100 the title is written as the raw ampersand `Listing & Marketing` (unescaped in the source file). Rendered text is `Listing & Marketing`.
+> Source note: at :1100 the title uses a **raw, unescaped ampersand** — `Listing & Marketing`, not `Listing &amp; Marketing`. The block above reproduces the source byte-for-byte. Rendered text is `Listing & Marketing`. (In JSX this must be written as `Listing &amp; Marketing` or `Listing {'&'} Marketing`; the raw form here is HTML-source fidelity, not a porting instruction.)
 
 **Step 03 — index.html:1101**
 ```html
@@ -365,9 +384,9 @@ Each step is `.timeline-circle` (number) + `.step-title` + `.step-headline` + `.
 
 **Step 04 — index.html:1102**
 ```html
-<div class="timeline-step"><div class="timeline-circle">04</div><div class="step-title">LOI &amp; Negotiation</div><div class="step-headline">Price, terms, contingencies</div><div class="step-body">Best-and-final rounds when warranted, single-buyer negotiations when not. The seller stays focused on running the hotel.</div></div>
+<div class="timeline-step"><div class="timeline-circle">04</div><div class="step-title">LOI & Negotiation</div><div class="step-headline">Price, terms, contingencies</div><div class="step-body">Best-and-final rounds when warranted, single-buyer negotiations when not. The seller stays focused on running the hotel.</div></div>
 ```
-> Source note: at :1102 the source likewise uses a raw `&` — `LOI & Negotiation`.
+> Source note: at :1102 the source likewise uses a raw, unescaped `&` — `LOI & Negotiation`. Reproduced byte-for-byte above; same JSX caveat as step 02.
 
 **Step 05 — index.html:1103**
 ```html
@@ -400,7 +419,7 @@ Each step is `.timeline-circle` (number) + `.step-title` + `.step-headline` + `.
 - **VOICE** — this section is **already team-first**: "How **we** run a sale", "You see real offers", "the seller decides". It is the cleanest port on the page. The only singular residue is contextual (a one-person practice implied by the rest of the site), not in the words themselves.
 - **EVIDENCE (P0):** `180 days` term, `two 90-day cycles`, `Days 30 and 60` market reads, `Day 90` decision point, `Average close: 60–90 days post-LOI` — all timeframe commitments. If HOKUTEN's engagement terms differ from Dino's, these are contractual statements, not marketing copy. Re-verify against the actual listing agreement before shipping.
 - **EVIDENCE (P0):** all four reach stats (`~400K`, `~60K`, `1,500`, `30K`) — database-size claims. Register rows required, with the source of each count named.
-- **EVIDENCE (P1):** named third-party platforms `CoStar`, `LoopNet`, `Crexi`, `RCA` — verify HOKUTEN actually holds the subscriptions/distribution being claimed.
+- **EVIDENCE (P1):** named third-party platforms `CoStar`, `LoopNet`, `Crexi` (:1100) and `CoStar` again in the reach caption (:1107) — verify HOKUTEN actually holds the subscriptions/distribution being claimed. (`RCA` is **not** named in this section; it appears only in the calculator's methodology note at :920 and its JS twin at :1568 — flagged there, not here.)
 - The `30K SMS-capable contacts` figure interacts with the 10DLC/TCPA posture owned by the legal extractor — flag it to them.
 
 ---
@@ -825,7 +844,8 @@ Sticky bottom bar; body has `padding-bottom: 40px` (:73) to clear it.
 | Region label | `aria-label="Live market data"` | :1254 |
 | Lead chip | `LIVE DATA` | :1256 |
 | Series labels | `10-Yr Treasury`, `SOFR`, `Prime Rate`, `Fed Funds Upper`, `Fed Funds Lower` | :1257–1261 |
-| Placeholder value | `—` (U+2014) for each series, shown until `/api/ticker-data` responds; **on fetch failure the dashes simply remain** — there is no error string | :1274–1285 |
+| Placeholder value | `—` (U+2014) for each series, shown until `/api/ticker-data` responds | :1257–1261 |
+| Failure behaviour | **On fetch failure the dashes simply remain — there is no error string.** The renderer early-returns on an empty payload (`if (!items || !items.length) return;` with the trailing comment `// keep placeholder dashes`, :2275) and the `.catch` body is a bare comment (`/* leave placeholder dashes */`, :2285) | :2270–2286 |
 
 > Labels come from the server response at runtime (`it.label` / `it.value`, :2278); the five above are the static fallbacks. The ticker data contract belongs to the FRED/API extractor.
 
@@ -847,7 +867,9 @@ Sticky bottom bar; body has `padding-bottom: 40px` (:73) to clear it.
 
 ### There is NO FAQ section on this page.
 
-Verified: zero matches for `faq`, `FAQ`, `frequently asked`, or any `<details>`/accordion Q&A construct in index.html. There is no `FAQPage` JSON-LD either (see §1). There is no "Questions", "Common questions", or diligence-Q&A block anywhere in the 2290 lines. **Nothing to port. A HOKUTEN FAQ is net-new copywriting.**
+Verified: zero matches for `faq`, `FAQ`, or `frequently asked` in index.html. There is no `FAQPage` JSON-LD either (see §1). There is no "Questions", "Common questions", or diligence-Q&A block anywhere in the 2290 lines. **Nothing to port. A HOKUTEN FAQ is net-new copywriting.**
+
+> Precision on the accordion question: index.html contains **exactly one `<details>` element**, at :969 — `<details class="calc-refine">` with `<summary>Refine my estimate <span>(optional)</span></summary>`. It is an optional-inputs disclosure inside the calculator wizard (the calculator extractor's scope), **not** a Q&A construct, and it is the only disclosure widget on the page. So the "no FAQ" conclusion stands, but the source is not `<details>`-free — a HOKUTEN FAQ accordion has one existing interaction precedent to match.
 
 What follows is the **raw material harvest**: every sentence already on the page that speaks to a standard owner question, quoted verbatim with its line, so a copywriter can build an FAQ from real source claims and invent nothing. Where the page says nothing on a topic, that is stated plainly — **do not fill the gap from imagination; escalate it as an open question.**
 
@@ -1042,7 +1064,7 @@ Every factual claim in this document's scope. `P0` = blocks ship; `P1` = blocks 
 | OG card asset | `og-card-v2.jpg` | :26–27 | raster contains old name + phone |
 | Portrait asset | `portrait_final.jpg` | :1133 | personal portrait |
 | Calendly link | `https://calendly.com/dino-monteverde-kw` | :1335 | personal booking link |
-| Crexi profile link | `https://www.crexi.com/profile/dino-monteverde-dinomon` | :869, :1118, :1877 | personal profile |
+| Crexi profile link | `https://www.crexi.com/profile/dino-monteverde-dinomon` | :869, :1118, and the `CREXI_PROFILE` constant at :1768 (which is what renders at :1877 and is also the per-card fallback at :1840) | personal profile |
 
 ---
 

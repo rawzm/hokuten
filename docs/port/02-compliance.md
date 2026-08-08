@@ -19,6 +19,7 @@
 | 3 | SMS hidden audit-trail fields | `index.html:1173-1175`, `index.html:2240-2241` | **byte-exact frozen** |
 | 4 | Consent links row (Privacy + SMS Terms) | `index.html:1202-1204` | **byte-exact frozen** |
 | 5 | Calculator indicative-range disclaimer | `index.html:920`, `index.html:1564-1570` | **byte-exact frozen** |
+| 5b | Calculator benchmark-band scope disclaimer (user-visible) | `index.html:1047` | **byte-exact frozen** — see §3.6 |
 | 6 | Footer legal row | `index.html:1248-1250` | frozen text, **Dino/Sarhan segments must be replaced** — see §7 |
 | 7 | KW Commercial mark + alt text | `index.html:820`, `marketplace.html:184` | mark usage frozen, alt text frozen |
 | 8 | 10DLC / TCR registered brand string + sample messages | `sms-terms.html:87-114` | **byte-exact frozen (registry-matched)** |
@@ -136,7 +137,9 @@ Note: in this contact block the disclosure sentence has **no trailing period** a
 
 ## 2. SMS / TCPA consent block on the BOV form
 
-### 2.1 The complete form, hidden fields through consent links (`index.html:1167-1208`)
+### 2.1 Form open + the hidden-field header block (`index.html:1167-1175`)
+
+The full form element spans `index.html:1167-1208`; only the opening tag and the hidden-field header are reproduced here. The visible fields are Name (`:1176`), Hotel Name (`:1177`), City/State combobox (`:1178-1193`), Phone — optional (`:1194`), Email — required (`:1195`); the consent block is §2.6, the submit button is `:1206`, the status region `:1207`.
 
 Web3Forms access key value is **redacted** per repo law. The source comment calls it a public client-side key; it is still an account credential and does not belong in a port doc.
 
@@ -466,7 +469,33 @@ When the user supplies actual NOI, the NOI/key metric renders with a trailing `*
       document.getElementById("resNoi").textContent = usedNoiOverride ? "$" + groupInt(String(Math.round(noiPerKey))) + "*" : "$" + groupInt(String(Math.round(noiPerKey)));
 ```
 
-**Ambiguity flagged:** the `*` marker has **no corresponding footnote text anywhere in `index.html`.** Grep confirms no orphan-asterisk legend exists. Either port the `*` as-is (matching source) or add a footnote — but adding one is new copy and needs a claims-register row + Razim's sign-off. Do not invent it silently.
+**Ambiguity flagged:** there is **no legend or footnote line that names the `*` glyph** — no "* = ..." string exists anywhere in `index.html`. But the `*` is **not** orphaned: it is gated on `usedNoiOverride` at `index.html:1560`, and the *same* flag conditionally appends the explanatory sentence at `index.html:1570`:
+
+```js
+        (usedNoiOverride ? " <em>Using your actual NOI — the most accurate input you can give us.</em>" : "");
+```
+
+So whenever the `*` renders, that sentence renders too — the pairing is implicit, never spelled out. **Port rule:** preserve the shared `usedNoiOverride` condition so the two never desynchronize. If Razim wants an explicit `* = your actual NOI` legend, that is new copy requiring a claims-register row + sign-off. Do not invent it silently, and do not "fix" the `*` by deleting it.
+
+### 3.6 Benchmark-band scope disclaimer — user-visible (`index.html:1047`)
+
+Rendered inside the "Where you sit" result band label. This is a **scope-limiting disclaimer shown to the user**, not a code comment, and it is the only on-screen text that tells the visitor the benchmark bars are not local comps. It must ship.
+
+Raw HTML:
+
+```html
+            <div class="result-band-label">Where you sit <span class="result-band-sub">— broad national reference for this type, not your local comp set</span></div>
+```
+
+Isolated string (opens with U+2014 EM DASH + one space):
+
+```
+— broad national reference for this type, not your local comp set
+```
+
+Note there is **no terminal period** in the source. Do not add one.
+
+> This is the visible counterpart to the internal code comment at `index.html:1399` quoted in §3.4. §3.4 is the rationale; §3.6 is the shipped copy. Porting only the comment loses the disclaimer.
 
 ---
 
@@ -536,7 +565,7 @@ Nav lockup (`index.html:819-826`):
     </a>
 ```
 
-Identical lockup at `marketplace.html:184` and `marketplace.html:188`.
+The same lockup appears at `marketplace.html:183-190` — **not byte-identical**: the wrapping anchor is `<a href="index.html" class="brand-lockup" …>` there versus `<a href="#" class="brand-lockup" …>` on the homepage. Only the `<img>` line (`marketplace.html:184`) and the descriptor line (`:188`) match the homepage byte-for-byte.
 
 **Alt text, byte-exact:**
 
@@ -651,9 +680,26 @@ All figures preliminary and subject to verification.
 
 Grep across all four HTML files returns **zero** hits for "equal housing", "Equal Opportunity", the Fair Housing logo, or any HUD mark. The site is commercial hospitality investment sales only. **Do not add one** to the Hokuten port on your own — if it's required, it comes through the paperwork gate as a new claims-register row.
 
-### 4.8 No cookie / consent banner exists in the source
+### 4.8 No first-party cookie / consent banner — but a suppressed third-party one
 
-Grep returns zero hits for cookie banners, GDPR/CCPA notices, consent-management platforms, or analytics-consent gates. The site sets no cookies of its own. If the Hokuten build adds analytics, a cookie notice becomes a new requirement — flag it, don't silently inherit "no banner".
+**Corrected claim.** There is no cookie banner, no CCPA notice, no consent-management platform, and no analytics-consent gate authored by the site, and the site's own JS sets no cookies. That much holds. But the blanket "zero GDPR hits" reading is **wrong** — there is exactly one GDPR-relevant string, and it suppresses a third party's banner rather than showing one:
+
+`index.html:1922`:
+
+```js
+      var opts = { url: CALENDLY_URL + (CALENDLY_URL.indexOf("?") === -1 ? "?" : "&") + "hide_gdpr_banner=1" };
+```
+
+`CALENDLY_URL` is `"https://calendly.com/dino-monteverde-kw"` (`index.html:1335`), and the Calendly widget is loaded on **every** page view, not on demand (`index.html:808-809`):
+
+```html
+<link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+```
+
+Third-party origins the homepage loads: `assets.calendly.com`, `fonts.googleapis.com`, `fonts.gstatic.com`, `cdn.jsdelivr.net` (intl-tel-input), plus `api.web3forms.com` on submit. These are the parties that can set cookies — the "no cookies" statement is about first-party code only.
+
+**Port note / open item:** carrying `hide_gdpr_banner=1` forward is a deliberate choice to suppress Calendly's own consent prompt for EU visitors. Do not copy it reflexively. Raise it at the paperwork gate alongside any analytics decision (open item 9).
 
 ### 4.9 Form-status and error microcopy that carries legal weight
 
@@ -703,7 +749,7 @@ Not-connected guard (`index.html:2233`):
 Form not yet connected — add the Web3Forms access key to go live.
 ```
 
-Validation strings (`index.html:2196`, `2198`, `2205`, `2206`, `2221`, `2225`):
+Validation strings — BOV form (`index.html:2196`, `2198`, `2205`, `2206`, `2221`, `2225`):
 
 ```
 Enter a valid phone number for the selected country.
@@ -729,11 +775,35 @@ Please pick a city from the list.
 Please fix the highlighted fields.
 ```
 
+Validation string — calculator email capture (`index.html:1967`). This is a **seventh** validation string on a different control from the six above; do not assume the BOV validator covers it.
+
+```
+Please enter a valid email.
+```
+
 Calculator email-capture confirmation (`index.html:2011`) — **note the Dino-singular third-person reference; this one is marketing copy, not legal text, and must become team-first for Hokuten:**
 
 ```
 Done — Dino will send your estimate and comp set shortly.
 ```
+
+### 4.9a Gap — the calculator email capture collects PII with no privacy notice (`index.html:1071-1079`)
+
+The BOV form carries the consent-links row (§2.6/§2.7). The calculator's inline email capture does **not**: it takes an email address and POSTs it to Web3Forms with no Privacy Policy link, no SMS terms link, and no consent language of any kind.
+
+```html
+          <!-- Optional email capture → Web3Forms (sends the estimate + inputs to Dino as a lead) -->
+          <div class="calc-emailcap" id="calcEmailcap">
+            <label for="calcEmail">Email me this estimate + the comp set we'd use</label>
+            <div class="calc-emailcap-row">
+              <input type="email" id="calcEmail" placeholder="you@company.com" autocomplete="email" inputmode="email">
+              <button type="button" id="calcEmailSend">Send it</button>
+            </div>
+            <div class="calc-emailcap-status" id="calcEmailStatus" role="status" aria-live="polite"></div>
+          </div>
+```
+
+The payload it sends is broad — email plus every calculator input plus the estimate (`index.html:1980-2000`). **Flagged as a gap, not ported as-is:** an email-only capture does not touch TCPA (no phone, no SMS), so this is not a 10DLC defect, but shipping a PII capture with zero privacy notice while the form 400px away carries one is an inconsistency Razim should rule on at the paperwork gate. Adding a privacy link here is new copy → claims-register row. Do not add it on builder initiative.
 
 ### 4.10 BOV-section disclaimer paragraph (`index.html:1211`)
 
@@ -827,12 +897,14 @@ Format is invariant: `CA DRE #` + 8 digits, no spaces inside, `#` glued to the n
 
 | Entity | Role | Occurrences |
 |---|---|---|
-| `Forward Wilshire Inc dba Keller Williams Larchmont` | Brokerage of record | 12 (see 5.1 row 1) |
-| `Keller Williams Commercial` | Brand / affiliation | `index.html:19`, `:24`, `:31`, `:820` (alt), `:824`, `:1114` (comment), `:1117`, `:1234`; `marketplace.html:184` (alt), `:188`, `:375`, `:400` |
-| `KW Commercial` | Short form, used in SMS/legal copy | `index.html:24`, `:94` (comment), `:1199`, `:1200`; `privacy.html:7`, `:115`, `:140`; `sms-terms.html:7`, `:93`, `:98`, `:103`, `:107`, `:110`, `:145`, `:173`; `marketplace.html:400` |
+| `Forward Wilshire Inc dba Keller Williams Larchmont` | Brokerage of record | 12 lines: `index.html:1140`, **`:1151`**, `:1241`, `:1249`; `privacy.html:115`, `:141`, `:153`; `sms-terms.html:145`, `:174`, `:183`; `marketplace.html:383`, `:400` |
+| `Keller Williams Commercial` | Brand / affiliation | 11 lines: `index.html:19`, `:31`, `:820` (alt), `:824`, `:1114` (comment), `:1117`, `:1234`, **`:1249`**; `marketplace.html:184` (alt), `:188`, `:375` |
+| `KW Commercial` | Short form, used in SMS/legal copy | 17 lines: `index.html:24`, `:94` (comment), `:1199`, `:1200`; `privacy.html:7`, `:115`, `:140`; `sms-terms.html:7`, `:93`, `:98`, `:103`, `:107`, `:110`, `:145`, `:173`; `marketplace.html:43` (comment), `:400` |
 | `Sarhan Hotel Group` | **DOES NOT CARRY OVER** — see §8 | `index.html:19`, `:24`, `:1145`, `:1234`, `:1249`; `marketplace.html:375`, `:400` |
 | `Dino Monteverde` | Individual licensee | throughout |
-| `a100 Arms` / `a100arms.com` | Specialist channel (not a legal entity in the disclosures) | `index.html:1218-1226` |
+| `a100 Arms` / `a100arms.com` | Specialist channel (not a legal entity in the disclosures) | `index.html:1217-1227` (section), link at `:1226`; footer link at `:1246` |
+
+> **Careful:** the entity name `Forward Wilshire Inc dba Keller Williams Larchmont` and the license `CA DRE #01870534` do **not** sit on the same lines inside `index.html`'s team block — the entity is the `<div class="role">` at `:1151`, the license is the link text at `:1153`. Grep for both separately; a single grep will miss one.
 
 ### 5.3 Phone numbers
 
@@ -850,7 +922,7 @@ One phone number, three formats:
 
 | Address | Occurrences | Notes |
 |---|---|---|
-| `dino.monteverde@kw.com` | `index.html:31, 1138, 1211, 1236, 1245, 1972, 2015, 2021, 2258, 2263`; `privacy.html:142`; `sms-terms.html:98, 160, 175`; `marketplace.html:364, 382` | Real contact address. 16 occurrences. |
+| `dino.monteverde@kw.com` | `index.html:31, 1138, 1211, 1236, 1245, 1972, 2015, 2021, 2258, 2263`; `privacy.html:142`; `sms-terms.html:98, 160, 175`; `marketplace.html:364, 382` | Real contact address. **16 source lines / 23 raw string instances** (index 13, sms-terms 5, marketplace 3, privacy 2) — several lines carry it twice, once in the `href`/`data-email` and once as link text. Count lines, not instances, when auditing. |
 | `name@company.com` | `index.html:1195` | Input placeholder only, not a real address. |
 | `you@company.com` | `index.html:1075` | Input placeholder only, not a real address. |
 
@@ -883,8 +955,8 @@ United States
 
 | String | Where |
 |---|---|
-| `kwc-dinomonteverde.com` | `index.html:1268` (config const), `index.html:1170` (form subject), `index.html:1249` (footer, via `#siteDomain`), `privacy.html:154`, `sms-terms.html:184` |
-| `https://kwc-dinomonteverde.com/` | `index.html:23` (og:url) |
+| `kwc-dinomonteverde.com` | `index.html:4` (build-stamp HTML comment), `:1170` (form subject), `:1249` (footer, via `#siteDomain`), `:1268` (config const); `privacy.html:154`; `sms-terms.html:184` |
+| `https://kwc-dinomonteverde.com/…` (absolute URLs) | `index.html:23` (og:url), `:26` (og:image), `:27` (og:image:secure_url), `:35` (twitter:image); `marketplace.html:12` (og:url) |
 | `sarhanhotelgroup.com` | `index.html:1147`, `index.html:1249` — **does not carry over**, §8 |
 
 ---
@@ -986,9 +1058,11 @@ Unchecked by default · not `required` · separate from form submission · SMS-s
 
 Format `YYYY-MM-DDTHH:mm:ss.sssZ`, UTC. Stamp before building the payload. Do not make it conditional on the checkbox; the source deliberately stamps unconditionally.
 
-### R5 — Two calculator disclaimers, one canon, two endings
+### R5 — Three calculator disclaimers: one canon with two endings, plus a separate band note
 
-The methodology-note version and the result-panel version share the first sentence exactly and diverge in the second. Store the shared sentence once (mirroring the source's "canonical disclaimer language" comment), but keep both endings distinct. Do not unify.
+The methodology-note version (§3.1) and the result-panel version (§3.2) share the first sentence exactly and diverge in the second. Store the shared sentence once (mirroring the source's "canonical disclaimer language" comment), but keep both endings distinct. Do not unify.
+
+The benchmark-band scope note (§3.6, `index.html:1047`) is a **third, unrelated** disclaimer with its own wording and no terminal period. It is not a variant of the other two and must not be folded into them or dropped.
 
 ### R6 — Redact the Web3Forms key; keep `FRED_API_KEY` server-side
 
@@ -996,7 +1070,9 @@ No credential values in port docs, repo files, or client bundles. `FRED_API_KEY`
 
 ### R7 — Do not invent compliance copy
 
-There is no Equal Housing mark, no cookie banner, no FRED attribution line, and no footnote for the calculator's NOI asterisk in the source. Absences are recorded facts, not gaps for a builder to fill. Additions are new claims requiring a `verified-current` row in the claims register.
+There is no Equal Housing mark, no first-party cookie banner, no FRED attribution line, no privacy notice on the calculator email capture, and no named legend for the calculator's NOI asterisk in the source. Absences are recorded facts, not gaps for a builder to fill. Additions are new claims requiring a `verified-current` row in the claims register.
+
+Corollary: absences are also not licence to *keep* an inherited suppression. `hide_gdpr_banner=1` (§4.8) is a present string with compliance meaning — it needs a decision, not a copy-paste.
 
 ### R8 — Legal pages stay indexable
 
@@ -1044,6 +1120,9 @@ grep -rn "Indicative range only — based on the figures provided and generalize
 grep -rn "pricing recommendation. Request a written BOV below." site/
 grep -rn "pricing recommendation — request a written BOV below." site/
 
+# Calculator benchmark-band scope disclaimer (§3.6) — no terminal period
+grep -rn "broad national reference for this type, not your local comp set" site/
+
 # Carrier-mandated privacy clauses
 grep -rn "No mobile information will be shared with third parties or affiliates for marketing or promotional purposes." site/
 grep -rn "Text messaging originator opt-in data and consent will not be shared with any third parties." site/
@@ -1083,6 +1162,16 @@ grep -rn "sms_consent" site/ | grep -iE "checked|required|defaultChecked"
 grep -rn "B8943D" site/app site/components 2>/dev/null
 ```
 
+**Must be reviewed if present (not automatically wrong, but never inherited silently):**
+
+```
+# Suppressed third-party consent banner (§4.8) — decision required before it ships
+grep -rn "hide_gdpr_banner" site/
+
+# Third-party origins that can set cookies (§4.8)
+grep -rnE "assets\.calendly\.com|cdn\.jsdelivr\.net|fonts\.(googleapis|gstatic)\.com" site/
+```
+
 **Manual review checkpoints (grep cannot decide these):**
 
 1. Consent checkbox renders unchecked on first paint and after a form reset.
@@ -1092,9 +1181,12 @@ grep -rn "B8943D" site/app site/components 2>/dev/null
 5. Footer disclosure survives intact after Sarhan segment removal (visual diff `index.html:1249` vs the built footer).
 6. "Last updated: June 4, 2026" — decision from Razim before publishing revised legal pages (§4.5).
 7. `Each office independently owned and operated.` — homepage inclusion decision (§4.6).
-8. Calculator NOI `*` — footnote decision (§3.5).
+8. Calculator NOI `*` — legend decision (§3.5). Confirm the `*` and the `Using your actual NOI…` sentence stay on the *same* `usedNoiOverride` condition.
 9. FRED attribution line — add-or-not decision (§4.12).
 10. 10DLC/TCR re-registration filed under the Hokuten brand before any SMS consent box goes live under Hokuten branding (§2.8, §7.1).
+11. `hide_gdpr_banner=1` on the Calendly popup URL — keep, drop, or replace the scheduler (§4.8).
+12. Calculator email capture ships with no privacy notice while the BOV form has one (§4.9a) — resolve the inconsistency deliberately.
+13. §3.6 benchmark-band scope disclaimer renders on-screen in the results panel (grep alone cannot prove it is not `display:none`).
 
 ---
 
@@ -1108,5 +1200,7 @@ grep -rn "B8943D" site/app site/components 2>/dev/null
 | 4 | "Last updated" date on the rewritten legal pages | Yes — §4.5 |
 | 5 | `Each office independently owned and operated.` on the homepage footer? | No, but flag at gate — §4.6 |
 | 6 | FRED / St. Louis Fed attribution line for the ticker | No — §4.12 |
-| 7 | Calculator NOI asterisk footnote text | No — §3.5 |
+| 7 | Calculator NOI asterisk legend text | No — §3.5 |
 | 8 | Web3Forms vs. a server-side form handler for the Hokuten build | No, but §6/R6 apply either way |
+| 9 | Keep or drop `hide_gdpr_banner=1` on the Calendly popup; and whether Calendly/jsDelivr/Google Fonts load at all | No, but decide before EU-visible launch — §4.8 |
+| 10 | Privacy notice on the calculator email capture | No — §4.9a |

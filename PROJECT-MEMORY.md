@@ -43,6 +43,36 @@
 
 ## 4. Log
 
+### 2026-08-08 — Phase 1 execution begins: M0 foundation, dual-theme deploy wiring, port pack
+
+**Orchestration.** Executing [docs/PHASE-1-EXECUTION.md](docs/PHASE-1-EXECUTION.md) as parallel Workflow runs per Razim's max-concurrency instruction. W0 port pack (14 agents) complete; W1 design system, W2 art program, W3 content, W4 calculator, W5 data/forms/routes running concurrently.
+
+**Stack pinned** (verified against `node_modules`, not memory): Next 16.3.0 · React 19.2.8 · Tailwind 4.3.3 · TS 5.9 strict · pnpm 11.9 · motion 13 · lenis 1.3 · vitest 3 (vitest 4 pulls vite 8, whose lightningcss resolution fails on this machine — pinned to 3 deliberately) · sharp 0.34 + tsx for build-time art/OG generation. Fonts via `next/font/google` (fetched at build, self-hosted output, zero runtime CDN requests): Fraunces variable opsz roman+italic = 2 files · Inter variable = 1 · IBM Plex Mono 400/500 = 2. Meets the ≤2-files-per-family gate.
+
+**Dual-theme mechanism (decided, built).** `[data-theme="gold"|"blue"]` on `<html>` from `NEXT_PUBLIC_HOKUTEN_THEME` binds the semantic tokens; on top of that, five **surface scopes** (`.surface-paper / -deep / -card / -dark / -black`) rebind the text, accent and hairline roles for everything inside them. A component writes `text-fg` / `text-accent-text` / `border-hairline` once and is correct on every surface in both themes. This is what makes the semantic-token P0 gate enforceable by grep rather than by review.
+
+**⚠️ Contrast decisions — three brand tones adjusted (measured, not chosen).** PHASE-1-EXECUTION §8.1 authorises "adjust tone, not the brand hex, where it fails at small sizes"; the measurements forced it. Full matrix + re-runnable script: [docs/design/CONTRAST.md](docs/design/CONTRAST.md); tokens recorded in design-skill ref 01 → "Accessible tones".
+- Website gold `#B8902E` on `--paper` is **2.71:1** — it fails AA at every text size and even the 3:1 UI threshold. **Gold text on light was never shippable.** New `--accent-ink #816520` (same hue 42.6°, same saturation 0.600, darkened) = 5.01 paper / 4.54 surface-deep / 5.50 card. Gold on dark is unchanged and fine (5.99 on `--dark`, 7.07 on `--black`).
+- Brand ivory-gray `--meta #8B8680` is **3.29:1** on paper and fails as text → `--meta` is now `#6E6862` (5.01:1); `#8B8680` survives as `--meta-soft`, **decorative only, never text**.
+- Ref 03's "paper at 40%" for on-dark meta text is **3.59:1** and fails → on-dark secondary/tertiary are `color-mix(paper 64% / 52%, dark)` (7.2:1 / 5.2:1, both themes).
+- Theme B needs opposite polarities from Theme G in two places: `#2F4FA3` on indigo is 2.34:1 so on-dark accent text is `--accent-dim #7E96D0` (6.05:1); and `--on-accent` is ink in gold but cool-paper in blue (black on blue is 2.77:1).
+
+**Vercel ops** (`vercel whoami` = `razim-kw`, everything scoped `hokuten1`/`hokuten`, no CLI deploys):
+- Root Directory set to `site`, framework `nextjs`.
+- `NEXT_PUBLIC_HOKUTEN_THEME=gold` on Production + Preview + Development; `=blue` branch-scoped to `theme-blue` (Preview). Registered via the REST API — the CLI's `env add … preview` git-branch prompt bug from 2026-08-07 is still present.
+- Branch `theme-blue` created and pushed with **zero code diff** from `main`, as specified. Both URLs now auto-deploy.
+- Preview deployments are Vercel-SSO protected (`all_except_custom_domains`) — consistent with internal-only status until the paperwork gate clears.
+- `site/.env.example` written (names only, no values); `site/.env.local` pulled and gitignored.
+
+**Port pack** — [docs/port/](docs/port/) 01-calculator · 02-compliance · 03-deals · 04-copy · 05-forms-and-ticker · 06-legal-pages · 07-mandates. Verbatim extracts from the kwc source, each written by one agent then attacked by an independent verifier that re-read the source. Defects the verification caught (a sample of why the second pass was worth it):
+- **P0**: a shipped calculator disclaimer (`index.html:1047`, "broad national reference for this type, not your local comp set") had been missed entirely — the extract quoted only an internal code comment. It would have shipped with no on-screen scope disclaimer on the benchmark bars.
+- **P1**: the extract's `AdviceContext.brand` type was `"branded" | "independent"`, but the source sets `"indep"` — building to the published contract would have made the independent-hotel ADVICE rule permanently false and silently dropped its CTA branch.
+- **P1**: the source suppresses Calendly's own consent prompt (`hide_gdpr_banner=1`, `index.html:1922`) — the extract had claimed zero consent-related code. That is now flagged for the privacy review.
+- Plus wrong line citations, a miscounted adjuster enumeration, and three golden cases documented against the wrong economics base.
+- ⚠️ The kwc source has a live Web3Forms access key at `index.html:1169`. It is **not** reproduced anywhere in this repo, and per the standing guardrail Hokuten needs its own key regardless.
+
+**Calculator posture**: math, defaults, bands, adjusters, rounding and the ADVICE engine are a frozen port. Golden tests are being derived **from the source by hand**, not from the port — so they cross-check parity rather than restating the implementation.
+
 ### 2026-08-07 — FRED key provisioned + executor entry point clarified (night)
 - FRED_API_KEY set on the `hokuten` Vercel project (Production/Preview/Development) — retrieved from Dino's project via his agent; same key shared with kwc + a100arms. Value lives in Vercel env only, never in repo/docs. Known gotcha (from kwc): dashboard env changes take effect only on next deploy. Workspace root `vercel link`ed to `hokuten1/hokuten` (.vercel gitignored). Note: `vercel env add ... preview` non-interactive mode loops on a git-branch prompt bug — worked around via the REST API (`POST /v10/projects/:id/env`, target preview).
 - **Executor entry point: `docs/PHASE-1-EXECUTION.md` is THE brief OPUS-5 implements.** PHASE-1-IMPLEMENTATION.md stays authoritative for milestones/contracts and is inherited through the brief's read order — never handed to the executor alone.

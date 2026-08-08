@@ -52,6 +52,24 @@ Theme B branding: rebuild the THE HOKUTEN GROUP tracked-caps line, hanko seal, a
 
 Theme G binds: `--accent = #B8902E`, `--accent-dim = #C9A04A`, `--accent-wash = #E2DCCC`, `--accent-chip = #EFE9DA`.
 
+## Accessible tones (added 2026-08-08 — measured, not chosen)
+
+The brand hexes above are correct as brand values but several fail WCAG AA as *text*. PHASE-1-EXECUTION §8.1 authorises exactly this remedy: "adjust tone, not the brand hex, where it fails at small sizes." These are the adjusted tones; contrast was computed, not estimated (`docs/design/CONTRAST.md` holds the script and the full matrix).
+
+| Token | Hex | Why it exists | Measured |
+|---|---|---|---|
+| `--accent-ink` (Theme G) | `#816520` | Gold **as text on light**. `#B8902E` on `--paper` is **2.71:1** — it fails AA for every text size and even the 3:1 UI threshold, so gold text on paper was never shippable. Same hue (42.6°) and saturation (0.600) as `#B8902E`, darkened only. | 5.01:1 on `--paper` · 4.54:1 on `--surface-deep` · 5.50:1 on `--card` |
+| `--accent-on-dark` (Theme G) | `#B8902E` | Gold **as text on dark** needs no adjustment — this is the brand hex unchanged. | 5.99:1 on `--dark` · 7.07:1 on `--black` |
+| `--accent-ink` (Theme B) | `#2F4FA3` | Hokuten Blue passes on light unadjusted. | 7.12:1 on cool `--paper` · 7.59:1 on `--card` |
+| `--accent-on-dark` (Theme B) | `#7E96D0` | `#2F4FA3` on indigo `#12172B` is **2.34:1**. The blue-mid step carries on-dark text instead. | 6.05:1 on `--dark` |
+| `--on-accent` | `#16181B` (G) / `#F7F8F5` (B) | Text on an `--accent` fill (the primary pill). Black on blue is 2.77:1, so the two themes need opposite polarities. | 5.99:1 (G) · 7.12:1 (B) |
+| `--meta` | `#6E6862` | Tertiary/caption **text**. The brand ivory-gray `#8B8680` is **3.29:1** on `--paper` and fails. | 5.01:1 on `--paper` · 4.54:1 on `--surface-deep` |
+| `--meta-soft` | `#8B8680` | The original brand ivory-gray, retained — **decorative only, never text**. | n/a |
+
+On-dark secondary/tertiary text is `color-mix(in srgb, var(--paper) 64%, var(--dark))` and `52%` respectively (7.2:1 and 5.2:1 in both themes). Ref 03's "paper at 40%" measures **3.59:1** and must not be used for text.
+
+Implementation: `site/app/globals.css` binds all of these per theme, and the `.surface-*` scope classes select the right one automatically — components write `text-accent-text` / `text-fg-meta` and are correct on every surface in both themes.
+
 Light mode is the site; dark is a section treatment (hero, process chapter, footer), not a theme toggle.
 Gold is scarce: CTAs, one accent word per headline, badges, thin rules. If gold exceeds ~5% of a viewport, it's wrong.
 

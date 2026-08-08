@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Listing photo placeholder — 5:4, matching the listing-card photo frame.
+
+  Used wherever a listing has no published photograph. The kwc source repo
+  contains closing photos only, and a closing photo must never stand in for a
+  listing (it would misrepresent the asset). This is the honest substitute:
+  hairline frame, north-star glyph, mono label. No imagery, no gradient.
+
+  Palette is Theme G (--paper / --rule / --accent / --meta) with a dark-scheme
+  variant. Values are literal because a standalone asset cannot read the page's
+  CSS custom properties; they mirror site/app/globals.css and must be updated
+  with it. The site's data-theme toggle cannot reach inside this file, so the
+  dark variant keys off prefers-color-scheme only.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400" role="img" aria-labelledby="placeholder-title">
+  <title id="placeholder-title">Photo on request</title>
+  <style>
+    .ground { fill: #f7f4ed; }
+    .hairline { fill: none; stroke: #e2dccc; stroke-width: 1; }
+    .glyph { fill: #b8902e; }
+    .ring { fill: none; stroke: #e2dccc; stroke-width: 1; }
+    .label {
+      fill: #6e6862;
+      font-family: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      letter-spacing: 2.6px;
+      text-transform: uppercase;
+    }
+    @media (prefers-color-scheme: dark) {
+      .ground { fill: #16181b; }
+      .hairline { stroke: rgba(247, 244, 237, 0.14); }
+      .ring { stroke: rgba(247, 244, 237, 0.14); }
+      .label { fill: rgba(247, 244, 237, 0.52); }
+    }
+  </style>
+
+  <rect class="ground" x="0" y="0" width="500" height="400"/>
+  <rect class="hairline" x="10.5" y="10.5" width="479" height="379"/>
+
+  <circle class="ring" cx="250" cy="174" r="54"/>
+  <path class="glyph" d="M 250 140 Q 257 167 284 174 Q 257 181 250 208 Q 243 181 216 174 Q 243 167 250 140 Z"/>
+
+  <text class="label" x="251.3" y="262" text-anchor="middle">PHOTO ON REQUEST</text>
+</svg>

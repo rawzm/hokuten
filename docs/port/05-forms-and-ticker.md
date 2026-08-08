@@ -385,7 +385,19 @@ Markup (`index.html:1071-1080`):
           <button type="button" id="calcBook" class="result-altcta" style="display:block; width:100%; text-align:center; margin-bottom: 12px; background:none; border:none; cursor:pointer;">Prefer a call? Book 15 minutes →</button>
 ```
 
-This is the **only** field on the page with `autocomplete` + `inputmode` set (`autocomplete="email" inputmode="email"`).
+`#calcEmail` is the only **email**-typed field carrying both hints (`autocomplete="email" inputmode="email"`). It is **not** the only field on the page with them — the calculator's numeric fields all set both. Full inventory of `inputmode` on the page (`grep -on '<input[^>]*inputmode[^>]*>' index.html`):
+
+| Src line | `id` | `inputmode` | `autocomplete` | `maxlength` |
+|---|---|---|---|---|
+| 946 | `cKeys` | `numeric` | `off` | — |
+| 967 | `cMarket` | `numeric` | `postal-code` | `5` |
+| 993 | `cFb` | `decimal` | `off` | — |
+| 997 | `cNoi` | `decimal` | `off` | — |
+| 1012 | `cOcc` | `decimal` | `off` | — |
+| 1013 | `cAdr` | `decimal` | `off` | — |
+| 1075 | `calcEmail` | `email` | `email` | — |
+
+**What is true of the BOV form specifically:** not one of its fields sets `inputmode` or `maxlength`, and its only `autocomplete` values are `off` (the `botcheck` honeypot, line 1172; `#citySearch`, line 1182). `maxlength="5"` on `#cMarket` is the **only** `maxlength` in the entire file. That is a real a11y/UX gap to close in the Hokuten port (`name` → `autocomplete="name"`, `email` → `autocomplete="email" inputmode="email"`, `#citySearch` should keep `off`) — log it as a decision, since it changes behaviour.
 
 Handler (`index.html:1949-2025`) — key points, quoted:
 
@@ -600,7 +612,7 @@ Verified by parsing the file (552,845 bytes on disk):
    - Loop **stops early** once `starts.length + contains.length >= 400`.
 5. `current = starts.concat(contains).slice(0, 60)` — prefix matches always rank above substring matches; **max 60 rendered rows**.
 6. Match is on **city name only** — the state code is never searched. Typing "CA" matches cities whose *name* contains "ca", not California cities.
-7. No debounce. Runs synchronously on every `input`. (For React: this is ~30k lowercase+indexOf per keystroke. Acceptable, but a memoized pre-lowercased index is a safe, behaviour-preserving optimization.)
+7. No debounce. Runs synchronously on every `input`. Worst case is **29,856** `toLowerCase()` + `indexOf()` pairs per keystroke (a query that matches almost nothing scans the whole array); a common 2-3 letter query hits the 400-match break early and scans far less. Acceptable either way, but a memoized pre-lowercased index is a safe, behaviour-preserving optimization.
 
 **Result-list markup.**
 - Container: `<ul class="city-list" id="cityList" role="listbox" hidden>`.
@@ -1024,7 +1036,7 @@ Fed Funds Lower
 
 Note `10-Yr Treasury` — hyphen, capital `Y`, lowercase `r`. Not "10-Year", not "10Y".
 
-### D.6 `vercel.json` — verbatim (4 lines)
+### D.6 `vercel.json` — verbatim (whole file, 5 lines)
 
 ```json
 {
@@ -1560,7 +1572,27 @@ Your consultation is booked — see your email for the calendar invite.
   })();
 ```
 
-**Contract:** single delegated `click` listener on `document`. One popover at a time (`openPop`/`openBtn` singletons). Clicking the same ⓘ again toggles closed. Content comes from the button's `data-tip` attribute, injected as **raw HTML** (authored content, but render as sanitized/JSX in React). Positioning is absolute in **page** coordinates (`scrollX/scrollY` added), centered under the button, clamped to a **12px** viewport margin, flipping above (`top - ph - 8`) when `r.bottom + ph + 16 > window.innerHeight`. Measured while `visibility: hidden` + `.open` so `offsetWidth/offsetHeight` are real. Closes on: click-out, Escape, `resize`, and **`scroll` captured on window (`true` — captures scrolls in any nested scroller)**. `aria-expanded` is toggled on the trigger. Mobile: `.calc-info { width: 18px; height: 18px; }` and `.calc-popover { max-width: 84vw; }` at ≤640px (`index.html:795-796`).
+Popover CSS — the half of the interaction that lives outside the JS (`index.html:441-451`):
+
+```css
+  .calc-popover {
+    position: absolute; z-index: 60; max-width: 290px;
+    background: var(--ground); color: var(--ink-muted);
+    border: 1px solid var(--rule); box-shadow: 0 14px 36px rgba(0,0,0,0.28);
+    padding: 15px 17px; font-family: var(--sans); font-size: 13px; line-height: 1.55;
+    opacity: 0; transform: translateY(4px); pointer-events: none;
+    transition: opacity 150ms ease, transform 150ms ease;
+  }
+  .calc-popover.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .calc-popover strong { color: var(--gold); font-weight: 600; }
+  .calc-popover .tip-eg { display: block; margin: 4px 0 9px; color: var(--meta); font-style: italic; font-size: 12px; }
+```
+
+**Contract:** single delegated `click` listener on `document`. One popover at a time (`openPop`/`openBtn` singletons). Clicking the same ⓘ again toggles closed. Content comes from the button's `data-tip` attribute, injected as **raw HTML** (authored content, but render as sanitized/JSX in React) — note `data-tip` strings use `<strong>` and `<span class='tip-eg'>` for the "e.g." line. Positioning is absolute in **page** coordinates (`scrollX/scrollY` added), centered under the button, clamped to a **12px** viewport margin, flipping above (`top - ph - 8`) when `r.bottom + ph + 16 > window.innerHeight`. Measured while `visibility: hidden` + `.open` so `offsetWidth/offsetHeight` are real. Closes on: click-out, Escape, `resize`, and **`scroll` captured on window (`true` — captures scrolls in any nested scroller)**. `aria-expanded` is toggled on the trigger. Mobile: `.calc-info { width: 18px; height: 18px; }` and `.calc-popover { max-width: 84vw; }` at ≤640px (`index.html:795-796`).
+
+**The `.open` class is not just a visibility flag — it is the whole animation.** Base state is `opacity: 0; transform: translateY(4px); pointer-events: none`; `.open` moves it to `opacity: 1; transform: translateY(0); pointer-events: auto` over **150ms ease** on both properties. The popover therefore **fades and slides up 4px on open**; it is never "instant". Because `place()` adds `.open` *after* `btn.getBoundingClientRect()` has already forced a style resolution on the freshly appended node, the transition genuinely runs — the element resolves at `opacity: 0` first, then transitions. In React, do not collapse this into a conditional mount that skips the frame at `opacity: 0`, or the animation disappears.
+
+> **CONFIRMED BUG — `.calc-popover` sits UNDER the sticky nav.** Its `z-index` is **60** (`index.html:442`), below `nav.topnav`'s `100` and `.ticker-bar`'s `90`. A popover opened near the top of the viewport is clipped by the nav; one flipped downward near the bottom is clipped by the ticker bar. This is not a hypothetical to "confirm later" — it is the shipped behaviour. The Hokuten port should raise it above both (≥101) and log the change as a decision.
 
 ### E.10 Micro-interaction inventory — quick reference
 
@@ -1578,21 +1610,38 @@ Your consultation is booked — see your email for the calendar invite.
 | Hamburger → X | `.open` class | `transform 250ms, opacity 250ms` | 160-166 |
 | Field focus | `:focus` | `border-color 200ms` (bottom border → gold) | 405-410 |
 | Step dot fill | `.active` | `background 200ms` | 400-401 |
-| Info popover | click ⓘ | instant, no transition on placement | 1689-1733 |
+| Info popover open | click ⓘ | `opacity 150ms ease, transform 150ms ease`; `translateY(4px)` → `0` | 441-449, 1689-1733 |
 | Smooth anchor scroll | in-page link | `scroll-behavior: smooth`, `scroll-margin-top: 88px` | 63-66 |
+| Nav link hover | `:hover` | `color 200ms` → `--ink` | 135, 137 |
+| `.btn-primary` / `.btn-secondary` hover | `:hover` | `all 200ms`; primary → `--gold-dim`, secondary → `--surface` (hero variant → `rgba(255,255,255,0.10)`) | 238, 242-248 |
+| `.btn-outline` hover | `:hover` | `all 200ms`; inverts to `background: var(--ink); color: var(--ground)` | 261, 264 |
+| Footer contact link hover | `:hover` | `color 200ms, border-color 200ms`; transparent bottom border → `--rule` | 712-713 |
+| Footer column link hover | `:hover` | `color 200ms` → `--ink` | 720-721 |
+| Team address link hover | `:hover` | `border-color 200ms, color 200ms` | 592 |
+| Calculator step change | `.calc-step.active` | `animation: fade 280ms ease` — `opacity 0 → 1`, `translateY(6px) → none` | 516-517 |
+
+The last seven rows are ordinary link/button chrome, but they are part of "every micro-interaction" and the page has no other hover treatment — if the Hokuten build omits them the page reads as static. `.calc-step` belongs to the calculator port doc; the 280 ms fade is recorded here only because §E.6 lists it as an uncovered reduced-motion gap and the number is needed to close it.
 
 ### E.11 Z-index ladder (needed to keep overlays stacking correctly)
 
-| Layer | z-index | Source |
+All ten `z-index` declarations in `index.html` (`grep -n "z-index" index.html`), highest first:
+
+| Layer | z-index | Src line |
 |---|---|---|
 | `nav.topnav` | 100 | 83 |
 | `.ticker-bar` | 90 | 296 |
 | `.city-list` | 70 | 667 |
 | `.iti__dropdown-content` | 60 | 655 |
-| hero overlay | 1 | 191 |
-| hero content | 2 | 194 |
+| `.calc-popover` | **60** | 442 |
+| hero content (`section.hero > *`) | 2 | 194 |
+| `.timeline-steps` | 2 | 537 |
+| hero overlay (`section.hero::after`) | 1 | 191 |
+| hero video (`section.hero > .hero-video`) | 0 | 186 |
+| `.timeline-line` | 0 | 536 |
 
-`.calc-popover` z-index is defined in the calculator CSS block (outside this doc's assigned range) — the builder of the calculator doc should confirm it sits above 100 or the sticky nav will cover a popover opened near the top of the viewport.
+Two local stacking pairs sit outside the global ladder and only matter within their own section: hero (video 0 → overlay 1 → content 2) and the methodology timeline (rule 0 → steps 2).
+
+`.calc-popover` (60) ties with `.iti__dropdown-content` (60) and loses to the nav (100) and ticker (90): see the confirmed clipping bug in §E.9. Raising it is the one deliberate deviation from the source's stacking this doc recommends.
 
 ---
 
@@ -1600,7 +1649,18 @@ Your consultation is booked — see your email for the calendar invite.
 
 ### F.1 Sarhan Hotel Group — occurrences flagged, NOT ported
 
-Present in this file at `index.html:1145`, `1147`, `1234`, `1249`, and in `<meta property="og:site_name">` at line 24. Per the hard guardrail, **no Sarhan Hotel Group branding carries over.** None of it is quoted as port material here. The "The Platform" team card (1143-1148) and the footer affiliation line have no Hokuten equivalent and must be dropped or replaced by design decision, not by an implementer's guess.
+Complete inventory — **7 occurrences on 6 lines** (`grep -oin "sarhan[a-z]*" index.html`):
+
+| Src line | Where | Occurrence |
+|---|---|---|
+| 19 | `<meta name="description">` | `… closed deals. Sarhan Hotel Group at Keller Williams Commercial.` |
+| 24 | `<meta property="og:site_name">` | `Dino Monteverde — KW Commercial · Sarhan Hotel Group` |
+| 1145 | "The Platform" team card `.role` | `Sarhan Hotel Group` |
+| 1147 | same card, outbound link | `href="https://sarhanhotelgroup.com"` + link text `sarhanhotelgroup.com →` |
+| 1234 | `.footer-affil` | third line of `Keller Williams Commercial / National Hospitality Division / Sarhan Hotel Group` |
+| 1249 | `.footer-legal` | **twice** — `Senior Associate at Sarhan Hotel Group` and `· sarhanhotelgroup.com ·` |
+
+Per the hard guardrail, **no Sarhan Hotel Group branding carries over.** None of it is quoted as port material here. The "The Platform" team card (1143-1148) and the footer affiliation line have no Hokuten equivalent and must be dropped or replaced by design decision, not by an implementer's guess. **Note the two `<meta>` hits (19, 24):** they are easy to miss because they are above the fold of every editor — any Hokuten SEO/OG metadata must be authored fresh, never copy-adapted from these tags.
 
 ### F.2 Secrets
 
@@ -1640,6 +1700,9 @@ Already team-first and safe to keep: the BOV intro paragraph, the BOV success me
 8. `Promise.all` in `/api/ticker-data` makes one bad series kill all five.
 9. Mobile nav drawer: no Escape close, no click-outside close, no focus trap, no scroll lock.
 10. `.city-list` rows and ticker items are built via `innerHTML` string concatenation — render as text in React.
+11. **`.calc-popover` `z-index: 60` is below the sticky nav (100) and the ticker bar (90)** — popovers opened near the top or bottom of the viewport are clipped. Confirmed against `index.html:442`, not speculative (§E.9, §E.11).
+12. **BOV form fields carry no `autocomplete` hints at all** (only `off` on the honeypot and the city search) and no `inputmode` — so mobile keyboards and browser autofill get no signal on Name / Email / Phone. The calculator's fields do set both (§A.9 table). Adding them to the BOV form changes behaviour, so log the decision.
+13. `.ticker-bar` carries `aria-label="Live market data"` on a plain `<div>` with no `role` (`index.html:1254`) — the label is inert for assistive tech. Give it a real role (or drop the label) in the port.
 
 ### F.5 Stale documentation in the source (do not carry forward)
 

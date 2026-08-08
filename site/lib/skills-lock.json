@@ -1,0 +1,42 @@
+{
+  "//": "skills-lock.json — pins external design/motion skills vendored into this repo. Governed by .agents/skills/hokuten-design-director/references/05-motion.md (ref 05). Shape mirrors the filmfully precedent (repo-root skills-lock.json); this repo keeps it in site/lib per the Phase 1 file assignment. JSON has no comments, hence this key.",
+  "version": 1,
+  "skills": {
+    "transitions-dev": {
+      "source": "Jakubantalik/transitions.dev",
+      "sourceType": "github",
+      "skillPath": "skills/transitions-dev/SKILL.md",
+      "computedHash": "17f95d664be8c020b0ea17283154e062c0140cc9b71817edff597aaa0115b9e4",
+      "hashAlgorithm": "sha256",
+      "hashSubject": "docs/design/MOTION-RECIPES.md",
+      "vendoring": "translated",
+      "vendoredPath": "docs/design/MOTION-RECIPES.md",
+      "vendoredAt": "2026-08-08",
+      "status": "provisional",
+      "governedBy": ".agents/skills/hokuten-design-director/references/05-motion.md",
+      "tokensOfRecord": ["site/lib/motion.ts", "site/app/globals.css"],
+      "recipeCount": 21,
+      "verdicts": {
+        "allowed": 2,
+        "blocked": 9,
+        "rejected": 10
+      },
+      "notes": [
+        "Vendored as a translation, not a verbatim copy: AGENTS.md requires references to be translated, never cloned, and more than half the upstream catalogue violates ref 05 token/motion/a11y law. Upstream _root.css is deliberately NOT imported — it would inject six easings, five distances, four scales, three blurs and literal colours through the P0 token gate.",
+        "computedHash is a sha256 over our own vendored document, because no verbatim upstream file exists in this repo to hash. It is not comparable to the precedent's computedHash below.",
+        "Three open token registrations block nine recipes: an overlay scale token, a blur scale decision, and the #faq accordion technique (grid-template-rows is a layout property, yet ref 05 names an accordion under DUR.base). See the vendored document."
+      ],
+      "precedent": {
+        "repo": "/Users/razim/Documents/Salman-ind/filmfully",
+        "lockPath": "skills-lock.json",
+        "lockLocation": "repo root (this repo uses site/lib/skills-lock.json instead)",
+        "vendoredTree": ".agents/skills/transitions-dev/ — SKILL.md + 21 numbered reference files + _root.css, copied verbatim",
+        "pinnedFields": ["source", "sourceType", "skillPath", "computedHash"],
+        "computedHash": "4d8c902194967b451e40786bc5845fd35651d9f24a21c26377fe1b1e93bd385e",
+        "computedHashVerified": false,
+        "computedHashNote": "Transcribed from filmfully's lock for provenance only. It does NOT match the sha256 of the SKILL.md vendored beside it (260f64ed98986e25f45b7300ab8a887001a6bf8eba2057a540ebb7e18ced1cc7), nor of the concatenated skill tree — it is an installer-recorded upstream hash whose subject could not be verified from this machine. Not reproduced as if it were ours.",
+        "readOnly": true
+      }
+    }
+  }
+}
