@@ -44,22 +44,34 @@ import { Marquee } from "@/components/motion/Marquee";
  * optical height," not just style — capitalizing removes the
  * ascender/descender variance between names (no "y" tail, no "h" ascender
  * difference) so the row sits level the way a real logo row would.
- * `tracking-micro` reuses the one non-`brand-line` tracked-caps token
- * (AGENT-BRIEF.md's typography program allows exactly two flavours, and
- * `brand-line` is reserved to headers/footers) rather than inventing a third
- * value. `text-fg-meta` keeps every mark grayscale — never `text-accent-text`.
+ * Tracking is `tracking-brand` (changed 2026-08-08, coherence audit). The
+ * typography program allows exactly TWO tracked-caps flavours: `brand-line`
+ * (Inter caps 0.35em) and `micro-label` (MONO caps 0.14em). The previous
+ * combination here — Inter caps at 0.14em — belonged to neither and was a
+ * third flavour, at 28px the most conspicuous tracked-caps run on the page.
+ * `brand-line`'s own utility class is not used because it hard-sets
+ * `color: var(--accent-text)`, which would colorize marks that ref 01 requires
+ * stay grayscale; the flavour is adopted via its face + tracking tokens with
+ * `text-fg-meta` kept. Weight stays Inter 500, matching `brand-line`.
  */
 const FLAG_MARK_CLASS =
-  "shrink-0 whitespace-nowrap text-heading font-sans font-medium uppercase tracking-micro text-fg-meta";
+  "shrink-0 whitespace-nowrap text-heading font-sans font-medium uppercase tracking-brand text-fg-meta";
 
 export function BrandsSection() {
   return (
     <section
       id="brands"
       aria-labelledby="brands-heading"
-      className="surface-paper hairline-t hairline-b section-pad"
+      // NOT `section-pad` (changed 2026-08-08, coherence audit). `section-pad`
+      // is the CHAPTER rhythm (clamp 64–160px), and at 1440px it put ~147px
+      // above and below a 28px logo row — a ~10:1 void-to-content ratio that
+      // reads as an accidentally empty screen rather than as air, and gave a
+      // quiet familiarity strip the same vertical claim as `#closings`. Ref 04
+      // calls this a "band"; ref 03's density rule is one idea per screen.
+      // 56/80px is band rhythm on the same base-8 scale.
+      className="surface-paper hairline-t hairline-b py-14 lg:py-20"
     >
-      <div className="container-hk flex flex-col items-center gap-10 text-center">
+      <div className="container-hk flex flex-col items-center gap-8 text-center md:gap-10">
         {/*
           BRANDS_MICRO_LABEL ships as the fully-composed string
           "[ FLAGS WE TRANSACT ACROSS ]" — MicroLabel (the atom) instead

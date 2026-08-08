@@ -19,6 +19,17 @@
  *     LP/SP ratio. Never pad a missing slot with "—" (port pack §A.4).
  *   • "Confidential" is the proud stand-in for a withheld ratio — never a
  *     placeholder dash and never an abbreviation for "not available".
+ *   • ONE DELIBERATE NORMALIZATION, declared so the "byte-for-byte" claim above
+ *     stays honest: the source's Last Hotel card reads "142 rooms" where its
+ *     other two counted cards read "keys" (index.html:885 vs :878, :890). The
+ *     unit is typed here as `keys: 142` and renders "142 keys", because (a) the
+ *     source's OWN listing renderer normalizes the same way — index.html:1810,
+ *     `String(p.rooms).replace(/\brooms?\b/i, "keys")` — so "keys" is the
+ *     source's settled data vocabulary, not this file's invention; (b) keys and
+ *     rooms are the same quantity, and the calculator's own ⓘ copy defines it on
+ *     this very page ("Keys = the total number of rentable guest rooms"); and
+ *     (c) `Closing.keys` in lib/types.ts can only express one noun. This is the
+ *     ONLY place the closings data departs from the source card text.
  *   • Separator is " · " (U+00B7, one space each side) per the lib/types.ts
  *     contract; join location/keys/segment/note with metaLine() from @/lib/utils.
  *   • Order is the source's own, which already leads with the largest close.

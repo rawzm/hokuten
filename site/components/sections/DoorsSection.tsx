@@ -39,7 +39,14 @@ const [ownerDoor, investorDoor] = doors;
 function DoorPanel({ door, primary }: { door: Door; primary: boolean }) {
   return (
     <div className="flex-1">
-      <MicroLabel as="p" index={door.index} className="mb-4">
+      {/* Word-only, deliberately. `door.index` ("01" / "02") is a LOCAL
+          enumeration of the two panels, but the bracketed device is the
+          page's ONE numbered chapter run — rendering `[ 01 — THE OWNER ]`
+          three sections below `[ 01 — TRACK RECORD ]` reset the count
+          mid-page and made the whole index read as decoration. The section's
+          own header carries `05`; the panels carry names. `door.index` stays
+          in content/doors.ts for a future standalone route. */}
+      <MicroLabel as="p" className="mb-4">
         {door.label}
       </MicroLabel>
 
@@ -83,6 +90,7 @@ export function DoorsSection() {
         <Reveal>
           <SectionHeader
             id="doors-heading"
+            index="05"
             label="The Owner / The Investor"
             headline="Two doors, one *house*."
           />

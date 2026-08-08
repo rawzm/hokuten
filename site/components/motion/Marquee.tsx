@@ -17,6 +17,22 @@
  * and the duplicate never leaves a gap. It composes into client components
  * normally; keeping it a Server Component protects the 180KB landing budget.
  *
+ * ── Why the viewport is `tabIndex={0}` (WCAG 2.2.2, Level A) ────────────────
+ * Both rails auto-start, loop for longer than 5s (40s brands / 45s ticker) and
+ * sit in parallel with other content, so 2.2.2 requires a pause mechanism for
+ * EVERY user — not only for the reduced-motion cohort. The token sheet's pause
+ * rule is `:hover, :focus-within`, and neither rail contains a single focusable
+ * descendant (`#brands` renders `<span>` marks, `#ticker` renders `<span>`
+ * label/value pairs), so before this attribute existed `:focus-within` could
+ * never match and the mechanism was pointer-only. Making the labelled
+ * `role="group"` viewport itself focusable is the standard focusable-region
+ * technique: it is announced by its `aria-label`, takes the global 2px
+ * focus-visible ring from globals.css's `[tabindex]` selector, pauses the track
+ * for as long as it holds focus, and traps nothing. It is also what
+ * `app/accessibility/page.tsx` already tells the public is implemented.
+ * A visible pause/play control would be a stronger remedy; that is a design
+ * decision, not a fix an audit may take on its own.
+ *
  * Zero CLS: the content is server-rendered, so the viewport has its full height
  * on first paint. If the row can be empty on first paint (the ticker before its
  * data resolves), pass a min-height on `className` — e.g. the ticker's
@@ -43,7 +59,7 @@ export type MarqueeProps = {
   label: string;
   /** Soft-fade the left and right edges with `rail-mask`. */
   edgeFade?: boolean;
-  /** Classes for the clipping viewport (height, surface, hairlines, padding). */
+  /** Classes for the viewport (height, surface, hairlines, padding). */
   className?: string;
   /** Classes for the moving track (gap between items, vertical alignment). */
   trackClassName?: string;
@@ -66,17 +82,27 @@ export function Marquee({
       data-marquee-viewport
       role="group"
       aria-label={label}
-      className={cn("relative w-full overflow-hidden", edgeFade && "rail-mask", className)}
+      /* The pause mechanism's only keyboard/AT entry point — see file header. */
+      tabIndex={0}
+      className={cn("relative w-full", className)}
     >
-      <div
-        data-marquee
-        className={cn("flex w-max will-change-transform", SPEED_CLASS[speed])}
-      >
-        <div className={half}>{children}</div>
-        {/* The clone is scenery: `inert` keeps it out of the tab order and the
-            accessibility tree, so nothing is announced or focusable twice. */}
-        <div data-marquee-clone inert aria-hidden="true" className={half}>
-          {children}
+      {/* The clipper, and the ONLY element that may carry `rail-mask`.
+          A CSS mask applies to an element's whole rendering — its outline
+          included — so leaving the edge fade on the focusable viewport above
+          would fade that element's own `:focus-visible` ring out at both ends
+          and leave the focus indicator half-invisible. Clipping and masking
+          therefore live one level in, where nothing is ever focused. */}
+      <div className={cn("w-full overflow-hidden", edgeFade && "rail-mask")}>
+        <div
+          data-marquee
+          className={cn("flex w-max will-change-transform", SPEED_CLASS[speed])}
+        >
+          <div className={half}>{children}</div>
+          {/* The clone is scenery: `inert` keeps it out of the tab order and the
+              accessibility tree, so nothing is announced or focusable twice. */}
+          <div data-marquee-clone inert aria-hidden="true" className={half}>
+            {children}
+          </div>
         </div>
       </div>
     </div>

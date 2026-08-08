@@ -47,7 +47,13 @@ export function ListingsSection() {
           <Reveal
             as="ul"
             stagger
-            className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
+            // 2-up starts at `md`, not `sm` (fixed 2026-08-08, coherence
+            // audit). Ref 03: "2-up only ≥640px if cards stay ≥320px wide" —
+            // at a 640px viewport container-hk leaves 592px, minus the 32px
+            // gap, giving 280px tiles. `md` (768px) yields 344px and matches
+            // #closings and #team, so all three card grids now break at the
+            // same viewport instead of one stepping early.
+            className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
           >
             {listings.map((listing) => (
               <RevealItem key={listing.id} as="li">

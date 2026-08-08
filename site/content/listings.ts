@@ -114,12 +114,20 @@ export const listings = [
       "Developer Inn Downtown Orlando, a Baymont by Wyndham, Orlando, Florida — photograph on request",
   },
   {
-    // Monday item id — index.html:1779
+    // Monday item id — index.html:1779.
+    // DISPLAY NAME: the source's trailing comment is the shorthand "Baymont
+    // Jacksonville Airport", but ref 06's "Seed content sources" line and the
+    // Crexi slug itself both give the full listing name, "Baymont by Wyndham
+    // Jacksonville Airport" — and this row's own `photoAlt` already used the
+    // full form. Ref 06 is the register and it overrides a code comment, so the
+    // full name ships and the now-redundant `brand` field is dropped: the flag
+    // is stated exactly once per card, the same rule the two Developer Inn rows
+    // follow from the other direction (brand stripped OUT of the name, into
+    // `brand`). Leaving both set rendered "Baymont" twice on one card.
     id: "9105456898",
-    name: "Baymont Jacksonville Airport",
+    name: "Baymont by Wyndham Jacksonville Airport",
     city: "Jacksonville",
     stateCode: "FL",
-    brand: "Baymont by Wyndham",
     status: "listed",
     crexiUrl:
       "https://www.crexi.com/properties/1995485/florida-baymont-by-wyndham-jacksonville-airport",

@@ -138,7 +138,12 @@ function renderInlineMarkup(html: string, keyPrefix: string): React.ReactNode[] 
       );
     } else if (open === "em") {
       nodes.push(
-        <em key={key} className="italic">
+        // Weight, not italic (2026-08-08 coherence audit): the typography
+        // program never italicises UI copy, and `next/font` loads Inter with
+        // no italic file — `italic` here would render a synthesized oblique.
+        // `<em>` keeps the semantics; `<strong>` above stays one step louder
+        // by also taking `text-fg`, so the two levels remain distinguishable.
+        <em key={key} className="not-italic font-medium">
           {buffer}
         </em>,
       );
@@ -274,13 +279,14 @@ export function CalculatorResult({
           {result.usedDefaults ? (
             <>
               {" "}
-              <em className="italic">{CALCULATOR_DISCLAIMER.usedDefaults}</em>
+              {/* Colour steps meta → muted; never italic (see `flush()`). */}
+              <em className="not-italic text-fg-muted">{CALCULATOR_DISCLAIMER.usedDefaults}</em>
             </>
           ) : null}
           {result.usedNoiOverride ? (
             <>
               {" "}
-              <em className="italic">{CALCULATOR_DISCLAIMER.usedNoiOverride}</em>
+              <em className="not-italic text-fg-muted">{CALCULATOR_DISCLAIMER.usedNoiOverride}</em>
             </>
           ) : null}
         </p>

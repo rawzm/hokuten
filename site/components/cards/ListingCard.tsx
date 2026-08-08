@@ -80,7 +80,7 @@ export function ListingCard({ listing, className }: ListingCardProps) {
           src={listing.photo}
           alt={listing.photoAlt}
           aspect="4/3"
-          sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw"
+          sizes="(min-width: 1024px) 360px, (min-width: 768px) 45vw, 90vw"
         />
       }
       title={title}

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ConsentProvider } from "@/components/modals/ConsentProvider";
+import { TickerBar } from "@/components/ticker/TickerBar";
 import { THEME, themePresentation } from "@/lib/theme";
 import "./globals.css";
 
@@ -78,7 +80,22 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        {children}
+
+        {/* ConsentProvider belongs HERE, not on the landing page.
+            It installs the measurement guard that <Analytics /> and
+            <SpeedInsights /> below respect. Mounted only on `/`, a stored
+            "Reject all" was silently ignored on /privacy, /sms-terms and
+            /accessibility — the visitor was measured with no way to decline,
+            while our own consent copy claimed otherwise. Compliance P0,
+            found by the ship gate 2026-08-08. */}
+        <ConsentProvider>{children}</ConsentProvider>
+
+        {/* Outside {children} on purpose: app/template.tsx wraps children in a
+            transform for the route transition, and a transformed ancestor
+            becomes the containing block for `position: fixed`, detaching the
+            ticker from the viewport for the length of every navigation. */}
+        <TickerBar />
+
         <Analytics />
         <SpeedInsights />
       </body>

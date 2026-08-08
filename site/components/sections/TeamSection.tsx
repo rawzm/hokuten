@@ -39,6 +39,7 @@ export function TeamSection() {
         <Reveal>
           <SectionHeader
             id="team-heading"
+            index="07"
             label="The principals"
             headline="Named people, not a *desk*."
           />

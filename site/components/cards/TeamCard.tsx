@@ -102,7 +102,16 @@ function NorthStarGlyph({ className }: { className?: string }) {
 function GlyphPlate() {
   return (
     <div className="surface-deep relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-none">
-      <NorthStarGlyph className="size-10 text-accent-text sm:size-12" />
+      {/* `text-fg-meta`, not `text-accent-text` (changed 2026-08-08, coherence
+          audit). This is a FILLED shape at 40–48px, and ref 03's colour rule is
+          "accent = action/exclusivity only; never decorative fills". Worse, it
+          is not scarce in practice: three of four rows in content/team.ts have
+          no portrait, so two of the three principal cards render this plate
+          side by side — two solid accent stars in one grid, out-accenting the
+          section's own CTAs and reading as a placeholder badge. At meta tone on
+          the `surface-deep` plate it reads as a quiet watermark, which is what
+          an absent portrait should look like. */}
+      <NorthStarGlyph className="size-10 text-fg-meta sm:size-12" />
     </div>
   );
 }
@@ -129,7 +138,7 @@ export function TeamCard({ member, className }: TeamCardProps) {
             src={member.photo}
             alt={member.photoAlt ?? member.name}
             aspect="3/4"
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
           />
         </div>
       ) : (

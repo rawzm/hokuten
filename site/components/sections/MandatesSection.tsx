@@ -44,6 +44,7 @@ export function MandatesSection() {
         <Reveal>
           <SectionHeader
             id="mandates-heading"
+            index="06"
             label="Capital & mandates"
             headline="Four mandates we are already *working*."
             sub={mandatesDeck}

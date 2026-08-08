@@ -66,20 +66,19 @@ const COPY = {
 
 export interface BovSectionProps {
   /**
-   * Bracketed micro-label index.
-   *
-   * ASSUMPTION, not a verified value: the indexed chapters appear to run
-   * `01 TRACK RECORD` (#closings, confirmed in ref 04) → `03 METHOD` (#method,
-   * confirmed in content/methodology.ts), with `#mandates` explicitly
-   * unindexed — which puts `#bov` at 07 if the run is closings · listings ·
-   * method · doors · team · faq · bov. The page composer owns the real
-   * sequence; override it here rather than editing this file.
+   * Bracketed micro-label index. Default `09` — the last entry in the
+   * definitive sitewide run fixed by the 2026-08-08 coherence audit:
+   * 01 #closings · 02 #listings · 03 #calculator · 04 #method · 05 #doors ·
+   * 06 #mandates · 07 #team · 08 #faq · 09 #bov, with #hero / #stats /
+   * #brands deliberately unindexed above it (ref 04 pins #closings to 01, so
+   * nothing earlier in the page may take a number). The earlier `07` guess
+   * predated the registry. Do not change this without renumbering the run.
    */
   index?: string;
   className?: string;
 }
 
-export function BovSection({ index = "07", className }: BovSectionProps) {
+export function BovSection({ index = "09", className }: BovSectionProps) {
   return (
     <section
       id="bov"
@@ -107,12 +106,17 @@ export function BovSection({ index = "07", className }: BovSectionProps) {
               (the browser parses the tag as text when scripting is on). */}
           <noscript>{COPY.noscript}</noscript>
 
-          {/* Pull-quote treatment: serif italic against an accent hairline, the
+          {/* Pull-quote treatment: Fraunces Light against an accent rule — the
               source's own device (`.bov-disclaimer`, index.html:625) translated
-              to tokens. Prose, never UI or data — the no-italics rule in ref 03
-              governs the latter two. */}
+              to tokens. NOT italic (changed 2026-08-08, coherence audit): the
+              typography program spends italic as a scarce one-word accent per
+              headline, and a ~60-word italic serif run is the single loudest
+              way to spend it wrong — it reads as a wedding invitation rather
+              than a brokerage, and long italic at `--fg-muted` is the harder
+              read. The serif face plus the accent rule already separate this
+              from the form beside it. */}
           <Reveal delay={0.08}>
-            <p className="border-l-2 border-accent pl-6 font-display text-body-lg font-light italic text-fg-muted">
+            <p className="border-l-2 border-accent pl-6 font-display text-body-lg font-light text-fg-muted">
               {COPY.disclaimer.lead}
               <a
                 href={CONTACT.emailHref}

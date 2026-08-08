@@ -110,6 +110,7 @@ export function FaqSection() {
         <Reveal>
           <SectionHeader
             id="faq-heading"
+            index="08"
             label="Diligence FAQ"
             headline="The questions a *closer* answers first."
             sub="Confidentiality, exchange timelines, off-market access, licensing — the diligence a serious buyer or seller runs before signing anything."

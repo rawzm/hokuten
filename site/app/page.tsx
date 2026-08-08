@@ -16,7 +16,6 @@
 import type { Metadata } from "next";
 
 import { Hero } from "@/components/hero/Hero";
-import { ConsentProvider } from "@/components/modals/ConsentProvider";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BovSection } from "@/components/sections/BovSection";
@@ -32,7 +31,6 @@ import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SiteNav } from "@/components/sections/SiteNav";
 import { StatsSection } from "@/components/sections/StatsSection";
 import { TeamSection } from "@/components/sections/TeamSection";
-import { TickerBar } from "@/components/ticker/TickerBar";
 import { SITE_DESCRIPTION, SITE_TITLE } from "@/content/site";
 
 export const metadata: Metadata = {
@@ -42,13 +40,13 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <ConsentProvider>
+    <>
       <JsonLd />
       <SmoothScroll />
 
       <SiteNav />
 
-      <main id="main">
+      <main id="main" tabIndex={-1}>
         <Hero />
         <StatsSection />
         <BrandsSection />
@@ -64,7 +62,6 @@ export default function Home() {
       </main>
 
       <SiteFooter />
-      <TickerBar />
-    </ConsentProvider>
+    </>
   );
 }

@@ -902,7 +902,14 @@ export function calculate(input: ValuationInput, config: CalculatorConfig = CONF
   const brandCfg = input.brand;
   const condCfg = input.condition;
   const ground = input.groundLease;
-  const fbPct = (input.fbPct ?? 0) / 100; // as decimal
+  // F&B UNIT CONTRACT — read this before touching line ~935. The source held
+  // `fbPct` as a DECIMAL here (`num(#cFb) / 100`, :1513) and compared it to
+  // CONFIG.fbThreshold inline (:1543). This port does the /100 exactly once,
+  // inside capAdjustment(), so `input.fbPct` must be handed over as the PERCENT
+  // number. Dividing here as well would make the threshold unreachable below
+  // 2500% and silently kill the +25bps adjuster. (A dead `const fbPct` decimal
+  // used to sit on this line inviting precisely that "consistency fix";
+  // `noUnusedLocals` is off, so tsc never flagged it.)
   const noiOverride = input.noiOverride ?? 0;
   const usedDefaults = input.usedDefaults ?? false;
   const zip = extractZip(input.marketZipRaw);

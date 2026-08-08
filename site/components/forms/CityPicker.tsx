@@ -401,7 +401,12 @@ export function CityPicker({
               {COPY.failed}
             </li>
           ) : results.length === 0 ? (
-            <li role="presentation" className="px-3 py-3 font-sans text-data italic text-fg-meta">
+            // Not italic (2026-08-08 coherence audit): Inter ships no italic
+            // file via next/font, so this rendered as a synthesized oblique,
+            // and the typography program does not italicise UI. `text-data`
+            // + `text-fg-meta` already separate it from a real result row —
+            // exactly how the `error` row one branch up is already styled.
+            <li role="presentation" className="px-3 py-3 font-sans text-data text-fg-meta">
               {COPY.empty}
             </li>
           ) : (

@@ -53,11 +53,18 @@ function Term({ children }: { children: ReactNode }) {
 }
 
 /**
- * The source's `<span class='tip-eg'>` — an italic example line in --meta
+ * The source's `<span class='tip-eg'>` — an example line in --meta
  * (index.html:451). Rendered as a block so it reads as an aside, not as prose.
+ *
+ * NOT italic (changed 2026-08-08, coherence audit). Two reasons, both hard
+ * rules: the typography program forbids italicising UI or data (italic is
+ * spent as the one-word display accent), and `next/font` loads Inter with no
+ * italic file — `italic` on `font-sans` therefore renders a browser-
+ * synthesized oblique, which is the classic cheap-typography tell. Size,
+ * colour and the `mt-1 block` step already separate this from `Line`.
  */
 function Example({ children }: { children: ReactNode }) {
-  return <span className="mt-1 block font-sans text-data italic text-fg-meta">{children}</span>;
+  return <span className="mt-1 block font-sans text-data text-fg-meta">{children}</span>;
 }
 
 /** One paragraph of popover prose. */
@@ -276,7 +283,8 @@ const TIPS: Record<CalculatorTipId, Tip> = {
         <Line>
           <Term>{"ADR — Average Daily Rate"}</Term>
           {" — your average room revenue per "}
-          <em className="italic">sold</em>
+          {/* Weight, not italic — Inter ships no italic file (see `Example`). */}
+          <em className="not-italic font-medium">sold</em>
           {" room, before taxes."}
         </Line>
         <Line>

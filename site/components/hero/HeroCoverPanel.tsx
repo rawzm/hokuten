@@ -135,10 +135,18 @@ export function HeroCoverPanel() {
           `bottom-6`/`sm:bottom-8`: kept inside `section-pad`'s bottom padding at its
           smallest clamp value (4rem/64px at the 375px floor) rather than a single
           fixed offset — the cue's own rendered height (~39px) plus a fixed 32px
-          offset would slightly outrun that floor. */}
+          offset would slightly outrun that floor.
+
+          That ~39px rendered height (micro-label 15.4px + gap-2 8px + size-4 16px)
+          is BELOW the 44px tap-target floor (ref 07 P0), so the hit area is grown
+          with the same transparent `::before` expander `ui/button.tsx` uses for its
+          `sm`/`link` variants: `-inset-y-1` adds 4px top and bottom for a ~47px
+          target while the painted box — and therefore the `bottom-6` clearance
+          maths above — is unchanged. The anchor is already `absolute`, so it is
+          its own containing block and needs no extra `relative`. */}
       <a
         href={scrollCueHref}
-        className="absolute inset-x-0 bottom-6 mx-auto flex w-fit flex-col items-center gap-2 text-fg-meta transition-colors duration-fast ease-out hover:text-fg sm:bottom-8"
+        className="absolute inset-x-0 bottom-6 mx-auto flex w-fit flex-col items-center gap-2 text-fg-meta transition-colors duration-fast ease-out hover:text-fg sm:bottom-8 before:absolute before:content-[''] before:inset-x-0 before:-inset-y-1"
       >
         <span className="micro-label">{scrollCue}</span>
         <ChevronDown aria-hidden="true" strokeWidth={1.5} className="size-4" />

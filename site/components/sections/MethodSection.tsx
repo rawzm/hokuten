@@ -11,16 +11,22 @@
  * Server Component. The only client boundaries are the ones already inside
  * the imported atoms (`Reveal`, `Stamp`) — this file adds zero client JS.
  *
- * ── Micro-label index: shipped UNINDEXED, deviating from the content file ──
- * `content/methodology.ts`'s own header comment proposes `[ 03 — METHOD ]`.
- * That number collides with `docs/design/specs/calculator.md`, which
- * independently chose micro-label `[ 03 — VALUATION ]` for `#calculator`.
- * Ref 04 only assigns an explicit index to `#closings` (`01`); every other
- * section agent is building concurrently with no shared index registry —
- * `docs/design/specs/faq.md` hit the identical problem and resolved it the
- * same way this file does: ship unindexed (`[ METHOD ]`), matching the
- * `#brands` / `#mandates` precedent, until one agent assembles the final
- * sitewide sequence and a dated PROJECT-MEMORY.md entry fixes the numbers.
+ * ── Micro-label index: `04` (sitewide registry, fixed 2026-08-08) ──────────
+ * The concurrent section agents each guessed, so the page shipped with a
+ * broken run (01, 02, 03, unindexed, 01, unindexed…). The coherence audit
+ * assembled the definitive sequence and it is now the single source of truth:
+ *
+ *   masthead band — unindexed word-only labels:
+ *     #hero `[ HOSPITALITY INVESTMENT SALES — NATIONWIDE ]`
+ *     #stats `[ TRUST METRICS ]` · #brands `[ FLAGS WE TRANSACT ACROSS ]`
+ *   numbered chapter run (ref 04 pins #closings to `01`, so nothing above it
+ *   may take a number):
+ *     01 #closings · 02 #listings · 03 #calculator · 04 #method · 05 #doors ·
+ *     06 #mandates · 07 #team · 08 #faq · 09 #bov
+ *
+ * `content/methodology.ts`'s header comment proposing `[ 03 — METHOD ]` is
+ * stale — 03 belongs to `#calculator`. Do not renumber a section without
+ * renumbering the whole run.
  *
  * ── Art: OrbitalArcs + HotelEngraving (shipped 2026-08-08) ────────────────
  * The chapter's art object is the commissioned single-stroke `HotelEngraving`
@@ -130,7 +136,7 @@ export function MethodSection() {
       <div className="container-hk relative">
         <Reveal>
           <div className="mb-4 flex items-center gap-3">
-            <MicroLabel>Method</MicroLabel>
+            <MicroLabel index="04">Method</MicroLabel>
             <Stamp placement="method" onDark size={20} />
           </div>
           <SectionHeader id="method-heading" headline="How we run a *sale*." />
@@ -180,7 +186,15 @@ export function MethodSection() {
               <span className="block font-mono text-body-lg font-medium tabular text-fg">
                 {stat.value}
               </span>
-              <span className="mt-2 block font-mono text-body leading-snug text-fg-muted">
+              {/* Label is SANS, not mono. `reachStats[].label` is a full
+                  sentence ("Hotel-investor reach — primarily CoStar,
+                  supplemented by…"), and ref 03's Data role scopes mono to
+                  figures, not prose; ref 04's "reach stats row in mono" is
+                  satisfied by the value above. Setting 15-word sentences in
+                  16px mono is what tipped this chapter from "enterprise
+                  spine" to terminal, and it flattened the value/label step —
+                  face contrast now carries it alongside weight and colour. */}
+              <span className="mt-2 block font-sans text-body leading-snug text-fg-muted">
                 {stat.label}
               </span>
             </RevealItem>

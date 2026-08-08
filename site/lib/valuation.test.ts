@@ -33,35 +33,56 @@ import { describe, expect, it } from "vitest";
 
 import {
   ADR_BAND,
+  ADR_BAND_BY_LABEL,
   ADVICE,
   applyCapClamps,
+  BRAND_LABEL,
+  BRAND_OPTIONS,
   BRANDS,
   brandKeyCfg,
+  blurNumericField,
   calculate,
   CAP_FLOOR,
   capAdjustment,
   capPct,
   clampOccupancyPct,
+  cleanNumericInput,
   computeAdjustedCapLow,
   condKeyCfg,
+  CONDITION_LABEL,
+  CONDITION_OPTIONS,
   CONDITIONS,
   CONFIG,
   CTA_LINES,
+  DAYS_PER_YEAR,
   dollarsFull,
   extractZip,
   FALLBACK_ADVICE,
+  FIELD_FORMATS,
   formatCapRange,
   formatNumericField,
+  formatOccBandSub,
+  formatRevparBandSub,
   groundLeaseFromLabel,
   groupInt,
+  KEYS_REQUIRED_ERROR,
   keysAreValid,
+  LAND_LABEL,
+  LAND_OPTIONS,
   LANDS,
   MIN_CAP_SPREAD,
   OCC_BAND,
+  OCC_BAND_BY_LABEL,
   parseNumericField,
   pctBar,
+  PER_KEY_DISPLAY_INCREMENT,
+  PER_KEY_ROUND_INCREMENT,
+  PROPERTY_TYPE_LABEL,
+  PROPERTY_TYPE_OPTIONS,
   PROPERTY_TYPES,
+  RESULT_DISCLAIMER,
   REVPAR_BAND,
+  REVPAR_BAND_BY_LABEL,
   RESULT_CONTEXT_BASE,
   RESULT_CONTEXT_DEFAULTS_NOTE,
   RESULT_CONTEXT_NOI_NOTE,
@@ -69,10 +90,16 @@ import {
   roundKey,
   roundTo,
   roundTotal,
+  SUB_MILLION_ROUND_INCREMENT,
+  TIER_LABEL,
+  TIER_OPTIONS,
   tierKey,
   TIERS,
+  TOTAL_ROUND_INCREMENT,
   typeKey,
+  TYPICAL_FIGURES_NOTE,
   typicalFor,
+  VALUE_ADD_CTA_CODES,
   type CalculatorConfig,
   type PropertyType,
   type Tier,
@@ -1101,5 +1128,225 @@ describe("input parsing and money formatters", () => {
     expect(capPct(0.09)).toBe("9.0");
     expect(formatCapRange(0.0775, 0.09)).toBe("7.8% – 9.0%"); // :1562, spaced en dash
     expect(formatCapRange(0.0775, 0.09, "–")).toBe("7.8%–9.0%"); // :1605, unspaced
+  });
+
+  it("cleanNumericInput keeps digits, one dot and at most `dec` decimals (:1424-1433)", () => {
+    expect(cleanNumericInput("$1,234.56", 2)).toBe("1234.56"); // punctuation stripped
+    expect(cleanNumericInput("1.2.3.4", 2)).toBe("1.23"); // only the FIRST dot survives
+    expect(cleanNumericInput("1.9", 0)).toBe("1"); // dec 0 drops the dot and everything after
+    expect(cleanNumericInput("12.345", 1)).toBe("12.3"); // truncates, never rounds
+    expect(cleanNumericInput("12.", 1)).toBe("12."); // a trailing dot is preserved mid-typing
+    expect(cleanNumericInput("abc", 2)).toBe("");
+  });
+
+  it("blurNumericField trims a trailing dot then re-formats (:1456-1461)", () => {
+    // The blur tidy is wired to every numeric field; it had no coverage at all.
+    expect(blurNumericField("12.", FIELD_FORMATS.pct)).toBe("12"); // the whole point of :1457
+    expect(blurNumericField("1234.", FIELD_FORMATS.money)).toBe("1,234");
+    expect(blurNumericField("", FIELD_FORMATS.money)).toBe(""); // :1458 returns early
+    expect(blurNumericField(".", FIELD_FORMATS.money)).toBe(""); // "." -> "" after the trim
+    expect(blurNumericField("150", FIELD_FORMATS.pct)).toBe("100"); // max still applies on blur
+    expect(blurNumericField("0074", FIELD_FORMATS.int)).toBe("74");
+  });
+
+  it("formatOccBandSub / formatRevparBandSub are the source's bar sub-labels (:1575-1576)", () => {
+    // Rendered verbatim in the result panel; both en dashes are U+2013.
+    expect(formatOccBandSub(OCC_BAND.fullService)).toBe("60–78% typical");
+    expect(formatOccBandSub(OCC_BAND.extendedStay)).toBe("70–85% typical");
+    expect(formatRevparBandSub(REVPAR_BAND.fullService)).toBe("$105–$275 typical");
+    expect(formatRevparBandSub(REVPAR_BAND.resortBoutique)).toBe("$120–$460 typical");
+    // band[1] is never printed — the sub-label reads low and high only.
+    expect(formatOccBandSub(OCC_BAND.selectService)).not.toContain("72");
+  });
+});
+
+/* ===========================================================================
+   16. THE SHIPPED <option> INVENTORY — index.html:938-942, 949-953, 960-963,
+   976-980, 985-988.
+   These lists ARE the wizard's field inventory. components/calculator holds raw
+   display strings in state and derives CONFIG keys with the shims, and
+   INITIAL_FORM takes its seeded defaults BY INDEX (PROPERTY_TYPE_OPTIONS[2]
+   etc.), so a reorder or a label typo silently changes the shipped defaults and
+   the F&B row's visibility test. None of it was covered.
+   =========================================================================== */
+
+describe("shipped option labels and the shim round-trip", () => {
+  it("ships every #cType / #cTier / #cBrandFlag / #cCond / #cGround option in source order", () => {
+    expect(PROPERTY_TYPE_OPTIONS.map((o) => o.label)).toEqual([
+      "Limited-Service",
+      "Select-Service",
+      "Full-Service",
+      "Resort / Boutique",
+      "Extended-Stay",
+    ]); // :938-942
+    expect(TIER_OPTIONS.map((o) => o.label)).toEqual([
+      "Gateway / urban core (NYC, SF, LA, Miami…)", // the ellipsis is U+2026
+      "Strong secondary / resort destination",
+      "Standard / suburban",
+      "Tertiary / rural / highway",
+    ]); // :949-953
+    expect(BRAND_OPTIONS.map((o) => o.label)).toEqual([
+      "Branded (franchise)",
+      "Soft-brand / lifestyle",
+      "Independent / unbranded",
+    ]); // :960-963
+    expect(CONDITION_OPTIONS.map((o) => o.label)).toEqual([
+      "Renovated / built in last 3 yrs",
+      "4–8 yrs (baseline)", // U+2013
+      "9–15 yrs", // U+2013
+      "15+ yrs / renovation (PIP) due",
+    ]); // :976-980
+    expect(LAND_OPTIONS.map((o) => o.label)).toEqual([
+      "Fee Simple (own the land)",
+      "Ground lease",
+    ]); // :985-988
+  });
+
+  it("the seeded defaults sit at the indexes INITIAL_FORM reads (:940, :954, :961, :977, :985)", () => {
+    // CalculatorSteps.tsx seeds the form from these exact positions.
+    expect(PROPERTY_TYPE_OPTIONS[2].label).toBe("Full-Service");
+    expect(TIER_OPTIONS[2].label).toBe("Standard / suburban");
+    expect(BRAND_OPTIONS[0].label).toBe("Branded (franchise)");
+    expect(CONDITION_OPTIONS[1].label).toBe("4–8 yrs (baseline)");
+    expect(LAND_OPTIONS[0].label).toBe("Fee Simple (own the land)");
+    // :1670 hides the F&B row for every type except these two, by strict equality.
+    expect(PROPERTY_TYPE_OPTIONS[3].label).toBe("Resort / Boutique");
+  });
+
+  it("every shipped label round-trips through its shim back to its CONFIG key (:1385-1394, :1512)", () => {
+    // This is the invariant that makes the components' display-string state safe.
+    for (const o of PROPERTY_TYPE_OPTIONS) expect(typeKey(o.label)).toBe(o.value);
+    for (const o of TIER_OPTIONS) expect(tierKey(o.label)).toBe(o.value);
+    for (const o of BRAND_OPTIONS) expect(brandKeyCfg(o.label)).toBe(o.value);
+    for (const o of CONDITION_OPTIONS) expect(condKeyCfg(o.label)).toBe(o.value);
+    for (const o of LAND_OPTIONS) expect(groundLeaseFromLabel(o.label)).toBe(o.value === "groundLease");
+  });
+
+  it("the two collapsing labels collapse the way the source collapses them", () => {
+    expect(BRAND_OPTIONS.filter((o) => o.value === "branded")).toHaveLength(2); // :1393 soft-brand
+    expect(CONDITION_OPTIONS.filter((o) => o.value === "over8")).toHaveLength(2); // :1394 9–15 + 15+
+    expect(brandKeyCfg("Soft-brand / lifestyle")).toBe("branded");
+    expect(condKeyCfg("9–15 yrs")).toBe("over8"); // `/9.?15/` — `.` matches the en dash
+  });
+
+  it("*_LABEL maps hold the FIRST option label resolving to each key (prefill fallback)", () => {
+    for (const [map, opts] of [
+      [PROPERTY_TYPE_LABEL, PROPERTY_TYPE_OPTIONS],
+      [TIER_LABEL, TIER_OPTIONS],
+      [BRAND_LABEL, BRAND_OPTIONS],
+      [CONDITION_LABEL, CONDITION_OPTIONS],
+      [LAND_LABEL, LAND_OPTIONS],
+    ] as const) {
+      for (const [key, label] of Object.entries(map)) {
+        expect(opts.find((o) => o.value === key)?.label).toBe(label);
+      }
+    }
+    // The lossy one: over8 has two labels and the map keeps the earlier.
+    expect(CONDITION_LABEL.over8).toBe("9–15 yrs");
+  });
+
+  it("FIELD_FORMATS is the source's fmtMap, so occupancy clamp layer 1 cannot go missing (:1448-1452)", () => {
+    expect(FIELD_FORMATS).toEqual({ int: { dec: 0 }, money: { dec: 2 }, pct: { dec: 1, max: 100 } });
+    expect(FIELD_FORMATS.pct.max).toBe(100); // :1451 — the only `max` in the source
+    // `max` is absent (not merely undefined) on the other two: ADR/NOI/keys are
+    // uncapped in the source, and formatNumericField gates on `opts.max != null`.
+    expect("max" in FIELD_FORMATS.int).toBe(false);
+    expect("max" in FIELD_FORMATS.money).toBe(false);
+  });
+});
+
+/* ===========================================================================
+   17. THE D4 RE-KEYING GUARD — the *_BY_LABEL views exist solely to prove the
+   enum-keyed bands still carry the source's display-string keying (:1400-1402).
+   They had no test, which left the one deliberate port deviation unguarded.
+   =========================================================================== */
+
+describe("benchmark bands re-keyed to the enum (port-pack D4)", () => {
+  it("each *_BY_LABEL view reproduces the source's display-string table exactly", () => {
+    expect(OCC_BAND_BY_LABEL).toEqual({
+      "Limited-Service": [58, 68, 78],
+      "Select-Service": [62, 72, 80],
+      "Full-Service": [60, 70, 78],
+      "Resort / Boutique": [55, 65, 75],
+      "Extended-Stay": [70, 78, 85],
+    }); // :1400
+    expect(ADR_BAND_BY_LABEL).toEqual({
+      "Limited-Service": [95, 135, 190],
+      "Select-Service": [130, 175, 240],
+      "Full-Service": [175, 240, 360],
+      "Resort / Boutique": [220, 340, 650],
+      "Extended-Stay": [110, 150, 210],
+    }); // :1401
+    expect(REVPAR_BAND_BY_LABEL).toEqual({
+      "Limited-Service": [55, 90, 140],
+      "Select-Service": [80, 125, 185],
+      "Full-Service": [105, 165, 275],
+      "Resort / Boutique": [120, 210, 460],
+      "Extended-Stay": [80, 120, 175],
+    }); // :1402
+  });
+
+  it("the enum-keyed table and the by-label view are the same band for every type", () => {
+    for (const o of PROPERTY_TYPE_OPTIONS) {
+      expect(OCC_BAND[o.value]).toEqual(OCC_BAND_BY_LABEL[o.label]);
+      expect(ADR_BAND[o.value]).toEqual(ADR_BAND_BY_LABEL[o.label]);
+      expect(REVPAR_BAND[o.value]).toEqual(REVPAR_BAND_BY_LABEL[o.label]);
+    }
+  });
+
+  it("calculate() reads the bands through the type the source's display string mapped to", () => {
+    for (const o of PROPERTY_TYPE_OPTIONS) {
+      const r = calculate(inp({ propertyType: o.value }));
+      expect(r.occBand).toEqual(OCC_BAND_BY_LABEL[o.label]); // :1573
+      expect(r.revparBand).toEqual(REVPAR_BAND_BY_LABEL[o.label]); // :1573
+      expect(r.adrBand).toEqual(ADR_BAND_BY_LABEL[o.label]); // :1580
+    }
+  });
+});
+
+/* ===========================================================================
+   18. FROZEN COPY + NAMED CONSTANTS — strings and magic numbers rendered
+   verbatim by the UI, none of which were pinned.
+   =========================================================================== */
+
+describe("frozen copy and named constants", () => {
+  it("RESULT_DISCLAIMER is the canonical #resHonest sentence (:1565-1566)", () => {
+    expect(RESULT_DISCLAIMER).toBe(
+      "Indicative range only — based on the figures provided and generalized market assumptions, not a Broker Opinion of Value.",
+    );
+    // The em dash is U+2014 and there is exactly one.
+    expect([...RESULT_DISCLAIMER].filter((c) => c === "—")).toHaveLength(1);
+  });
+
+  it("KEYS_REQUIRED_ERROR / TYPICAL_FIGURES_NOTE are the source's two UI strings", () => {
+    expect(KEYS_REQUIRED_ERROR).toBe("How many rentable rooms does the hotel have?"); // :1623
+    expect(TYPICAL_FIGURES_NOTE).toBe(
+      "Filled with typical figures for your market tier — adjust if you know your own.",
+    ); // :1663
+  });
+
+  it("VALUE_ADD_CTA_CODES is the exact membership list of the :1585 ternary", () => {
+    expect(VALUE_ADD_CTA_CODES).toEqual(["revparLow", "valueAdd", "independent"]);
+    // revparTop is deliberately NOT in it — it selects the runningWell branch.
+    expect(VALUE_ADD_CTA_CODES).not.toContain("revparTop");
+  });
+
+  it("the named increments are the literals the source inlined", () => {
+    expect(DAYS_PER_YEAR).toBe(365); // :1529
+    expect(TOTAL_ROUND_INCREMENT).toBe(50_000); // :1552
+    expect(PER_KEY_ROUND_INCREMENT).toBe(1_000); // :1553-1554
+    expect(PER_KEY_DISPLAY_INCREMENT).toBe(5_000); // :1477 roundKey
+    expect(SUB_MILLION_ROUND_INCREMENT).toBe(5_000); // :1475 roundTotal's K branch
+  });
+
+  it("capAdjustment takes F&B as a PERCENT, not a decimal (:1513 + :1543)", () => {
+    // Regression guard for the double-divide: the source stored fbPct as a
+    // decimal at :1513 and this port defers that /100 into capAdjustment. A
+    // caller that pre-divides would push the threshold out to 2500% and kill
+    // the adjuster silently.
+    const base = { condition: "base4to8", groundLease: false, brand: "branded" } as const;
+    expect(capAdjustment({ ...base, fbPct: 26 })).toBeCloseTo(-0.0025 + 0.0025, 12); // fires
+    expect(capAdjustment({ ...base, fbPct: 0.26 })).toBeCloseTo(-0.0025, 12); // does NOT fire
+    expect(capAdjustment({ ...base, fbPct: 25 })).toBeCloseTo(-0.0025, 12); // `>` not `>=`
   });
 });
