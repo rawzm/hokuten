@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-page-custom-font -- no fonts here; rule is unrelated */
 /**
  * app/privacy/page.tsx — `/privacy`
  *
@@ -63,11 +62,15 @@ const FROZEN_DESCRIPTION =
   "Privacy Policy for Dino Monteverde (KW Commercial), including SMS / text-messaging data practices.";
 
 /**
- * `title.absolute` bypasses the root layout's `%s — The Hokuten Group` template
- * (verified against next/dist/lib/metadata/resolvers/resolve-title.js), so the
- * frozen string ships byte-exact instead of gaining a second brand. The Open
- * Graph and Twitter titles are pinned the same way — Next runs those through the
- * same template resolver.
+ * `title.absolute` bypasses the root layout's `%s — The Hokuten Group` template,
+ * so the frozen string ships byte-exact instead of gaining a second brand.
+ * Verified against `next/dist/lib/metadata/resolvers/resolve-title.js` (an
+ * `absolute` member short-circuits the template) and
+ * `next/dist/lib/metadata/resolve-metadata.js:807` (the Open Graph and Twitter
+ * templates are stashed from the PARENT's `openGraph.title.template` /
+ * `twitter.title.template`, which the root layout leaves unset — so those two
+ * pass through untemplated and `pageMetadata()`'s values stand as written,
+ * card image and canonical included).
  *
  * `robots` comes from `pageMetadata()` → `robotsMeta()`, which emits
  * `noindex, nofollow` while `INDEXING_ENABLED` is false in lib/seo.ts. That is
@@ -84,17 +87,6 @@ export const metadata: Metadata = {
     path: LEGAL_ROUTES.privacy,
   }),
   title: { absolute: FROZEN_TITLE },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    title: { absolute: FROZEN_TITLE },
-    description: FROZEN_DESCRIPTION,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: { absolute: FROZEN_TITLE },
-    description: FROZEN_DESCRIPTION,
-  },
 };
 
 /* -------------------------------------------------------------------------- */

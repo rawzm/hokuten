@@ -15,7 +15,7 @@
  * nothing is asserted that lacks a `verified-current` row in the register:
  *
  *   · NO `aggregateRating`, NO `review`, NO `reviewCount`. The site has no
- *     ratings and the Sarhan-era testimonials are `pending-verification`.
+ *     ratings, and the prior-affiliation testimonials are `pending-verification`.
  *   · NO `award`. Every KW corporate award is `prohibited`, and the CoStar
  *     Power Broker rows live in Dino's bio prose where their qualifiers travel
  *     with them — not as a bare `award` string a rich result could strip.

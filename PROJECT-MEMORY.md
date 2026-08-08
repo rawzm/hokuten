@@ -43,6 +43,16 @@
 
 ## 4. Log
 
+### 2026-08-08 — `#faq` Diligence FAQ section built
+
+`site/components/sections/FaqSection.tsx` (new) + `docs/design/specs/faq.md` (new). Server Component; renders the 7 questions already authored in `site/content/faq.ts` through the existing `ui/accordion.tsx` (built, not touched) inside two non-stagger `Reveal`s (header, accordion block — `faq.length` = 7 exceeds the 6-child stagger cap in ref 05, so per-row stagger was intentionally not used).
+
+**Placeholder-marker rendering (binding requirement from the task brief).** `content/faq.ts` ships five `[PLACEHOLDER:confirm — …]` markers (NDA mechanics, a100 Arms vetting bar, QI coordination, fee/engagement terms, KW/Forward Wilshire paperwork gate). `FaqSection.tsx` parses each answer and renders every marker as a distinct, unmissable block — hairline border, `text-brick`, `AlertTriangle` icon, fixed mono caption "Placeholder — confirm before launch", `data-placeholder-confirm="true"` for a future pre-deploy grep — never hidden, stripped, or paraphrased. **None of these five may render as live public copy** (per `content/faq.ts`'s own header); this section makes that impossible to miss during review, but does not resolve them.
+
+**Micro-label index decision.** Ref 04 (page anatomy) assigns a numbered micro-label device to `#closings` only (`[ 01 — TRACK RECORD ]`); `#brands`/`#mandates` ship unindexed. No number is assigned to `#faq`, and section-building is running as multiple concurrent agents with no shared index registry — so `#faq` ships **unindexed**, `[ DILIGENCE FAQ ]`, following the `#brands`/`#mandates` precedent rather than guessing a sequence position. Flagged in the spec for revisit once every section's index is assembled by one agent.
+
+Verified against this section's owned files only: `tsc --noEmit --incremental false` from `site/` — zero errors in `FaqSection.tsx` (8 pre-existing errors elsewhere, in `lib/valuation.ts` and `scripts/ascii-gen.ts`, neither owned by this task). QA greps (spelling, kit-gold, Sarhan, secret-shaped strings, raw hex/rgb, Tailwind-default-palette colors, banned CTA words, emoji) all pass on `FaqSection.tsx`.
+
 ### 2026-08-08 — Phase 1 execution begins: M0 foundation, dual-theme deploy wiring, port pack
 
 **Orchestration.** Executing [docs/PHASE-1-EXECUTION.md](docs/PHASE-1-EXECUTION.md) as parallel Workflow runs per Razim's max-concurrency instruction. W0 port pack (14 agents) complete; W1 design system, W2 art program, W3 content, W4 calculator, W5 data/forms/routes running concurrently.

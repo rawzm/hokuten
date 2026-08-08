@@ -35,8 +35,10 @@
  * ── Layout of record (docs/port/06-legal-pages.md §1.4) ───────────────────
  * Source `.legal` was `max-width: 860px; padding: 96px 48px` (64px/24px ≤640px).
  * Reproduced with Hokuten tokens as `container-hk` + `section-pad` + a 68ch
- * measure (design ref 07: line length 60–75ch). None of the source's literals —
- * including its kit-gold `#B8943D` — cross into this file.
+ * measure (design ref 07: line length 60–75ch). None of the source's literals
+ * cross into this file — in particular its `--gold`, which is the KIT gold and
+ * is permitted only inside raster assets. Website gold is a token, and hex lives
+ * only in globals.css and design ref 01.
  */
 
 import Image from "next/image";
@@ -225,7 +227,7 @@ export function LegalPage({
 
             {updated ? <p className="micro-label mt-4">{updated}</p> : null}
 
-            <span aria-hidden="true" className="mt-8 block h-px w-12 bg-accent" />
+            <AccentRule width="md" className="mt-8" />
 
             <div className="mt-10 text-fg-muted">
               {lede}
