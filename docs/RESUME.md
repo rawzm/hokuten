@@ -1,6 +1,12 @@
 # RESUME — Phase 1 build handoff
 
-**Kickoff prompt for the next session:** *"Read docs/RESUME.md and continue the Phase 1 build."*
+> **2026-08-08 (evening): the Phase 1 build is COMPLETE and live on both theme
+> URLs; the ship gate ran and its fixes are pushed. The next work order is the
+> design revisit — kickoff: *"Read docs/DESIGN-REVISIT.md in the hokuten repo
+> and execute it."* This file remains the build-state record and the
+> session-budget protocol (§1), which still applies.**
+
+**Kickoff prompt for the next session:** *"Read docs/DESIGN-REVISIT.md in the hokuten repo and execute it."*
 
 **Last updated:** 2026-08-08, at the session-budget pause (~80% used).
 All work below is committed and pushed to `main`. Nothing is uncommitted.

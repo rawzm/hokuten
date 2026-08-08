@@ -43,6 +43,23 @@
 
 ## 4. Log
 
+### 2026-08-08 — Design revisit 1 ordered after Razim's live review (evening)
+
+Razim reviewed both theme URLs and issued a full design revisit. **New executor brief: [docs/DESIGN-REVISIT.md](docs/DESIGN-REVISIT.md)** — kickoff: *"Read docs/DESIGN-REVISIT.md in the hokuten repo and execute it."* (For OPUS-5; brief authored by Fable per Razim's model switch.)
+
+**Decisions (Razim, 2026-08-08) — each supersedes prior law; W0 of the revisit updates AGENTS.md + skill refs so audits enforce the new direction:**
+- **D1** Header logo = the KW/Hokuten lockups Razim supplied in `Ref/site/` (blue ↔ Theme B, gold ↔ Theme G). ~~No KW lockup in the header~~ (2026-08-07) superseded. `Ref/site/` is production-approved by exception; the rest of Ref/ stays source-material-only.
+- **D2** `#brands` = **actual franchise logos, in color**, full $1M–$100M flag set, marquee loop, moved into the hero's first viewport. ~~Grayscale only / never colorized~~ superseded. Disclaimer text stays byte-exact but renders tiny with an asterisk. Counsel flag for public launch remains in PLACEHOLDERS (site is internal-only).
+- **D3** Real CoStar banners render (3× Power Broker Quarterly Deals + **new claims**: 2025 Annual Top Broker, 2025 Annual Top Firm — register rows added; source: badge assets provided by Razim 2026-08-08).
+- **D4** Listing/closing cards → dimensional **deal-ticket** design (boarding-pass translation; ACTIVE vs SOLD/retired states). Shadows on cards permitted, ink-tinted only.
+- **D5** Platform image treatment = **北天 chromatic sieve**: color-preserving ASCII art with tiny 北天 glyphs as the base (runcycle ref), plus a reusable `<KanjiAccent>` 北天 background motif (menu, forms, dark chapters). The Method engraving is retired (Razim: ugly).
+- **D6** Fit-to-viewport sections, compressed rhythm, compact footer. No scroll-jacking; internal native scroll only where unavoidable.
+- **D7** JS budget re-based (closes the open ship-gate question): critical path ≤200KB gz, full landing ≤340KB gz, mandatory LazyMotion + code-splitting of Calculator/BOV/Menu/Consent. Measured basis: 272KB actual, 129KB framework floor — ref 05's 180KB was unreachable on this stack.
+- **D8** Typography contrast amplified (hierarchy pass; Fraunces may step to 500, never 600+).
+- Calculator/BOV become landscape, tile-based interactive experiences — **math stays frozen**, UI only, field-for-field parity re-verified after the redesign.
+- New refs for ref 02's `study` verb: runcycle hero (2 screenshots), Stone menu jpg, boarding-pass screenshot.
+- Defects from Razim's screenshots: menu overlay photo overlaps the index (P0 — superseded by the menu rebuild); stats numerals may clip under the sticky nav (reproduce + fix).
+
 ### 2026-08-08 — `#hero` built in both theme chassis
 
 New: `site/components/hero/heroContent.ts` (shared copy, one module for both chassis), `HeroCoverPanel.tsx` (Theme G dark cover panel), `HeroPlate.tsx` (Theme B Coronal plate chassis), `Hero.tsx` (the `themePresentation.heroChassis` switch — the only place either chassis is imported), `site/components/art/PlateChrome.tsx` (hairline frame + four registration marks + optional quiet mono caption, light-surfaces-only, extends `globals.css`'s two-corner `plate-frame` utility to all four corners as real DOM nodes). Spec: `docs/design/specs/hero.md`.
