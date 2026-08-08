@@ -21,7 +21,7 @@ import ClosingCard from "@/components/cards/ClosingCard";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
 import { Reveal, RevealItem } from "@/components/motion/Reveal";
 
-export default function ClosingsSection() {
+export function ClosingsSection() {
   return (
     <section id="closings" aria-labelledby="closings-heading" className="surface-paper section-pad">
       <div className="container-hk">
@@ -51,3 +51,6 @@ export default function ClosingsSection() {
     </section>
   );
 }
+
+// Default retained for existing call sites; the named export above is canonical.
+export default ClosingsSection;

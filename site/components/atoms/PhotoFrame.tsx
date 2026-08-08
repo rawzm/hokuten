@@ -183,3 +183,6 @@ export default function PhotoFrame(props: PhotoFrameProps) {
     </div>
   );
 }
+
+// Named export for consistency — every component here is importable by name.
+export { PhotoFrame };

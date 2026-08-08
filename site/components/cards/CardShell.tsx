@@ -133,3 +133,6 @@ export default function CardShell({
     </Root>
   );
 }
+
+// Named export for consistency — every component here is importable by name.
+export { CardShell };

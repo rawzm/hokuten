@@ -158,3 +158,6 @@ export function StampPressIn({
     />
   );
 }
+
+// Named export for consistency — every component here is importable by name.
+export { Stamp };

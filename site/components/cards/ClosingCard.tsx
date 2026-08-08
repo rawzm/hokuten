@@ -88,3 +88,6 @@ export default function ClosingCard({ closing, className }: ClosingCardProps) {
     />
   );
 }
+
+// Named export for consistency — every component here is importable by name.
+export { ClosingCard };
