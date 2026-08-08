@@ -58,6 +58,7 @@ Razim reviewed both theme URLs and issued a full design revisit. **New executor 
 - **D8** Typography contrast amplified (hierarchy pass; Fraunces may step to 500, never 600+).
 - Calculator/BOV become landscape, tile-based interactive experiences — **math stays frozen**, UI only, field-for-field parity re-verified after the redesign.
 - New refs for ref 02's `study` verb: runcycle hero (2 screenshots), Stone menu jpg, boarding-pass screenshot.
+- **Artwork batch 1 delivered (Razim, 2026-08-08, later):** 5 glyph-mosaic scene pieces in `Ref/artwork/` (HIE entrance dusk · resort/pool · full-service sunset · branded tower · beachfront aerial) — mapped in DESIGN-REVISIT §3 (A5 → Theme G hero, A3 → Theme B hero, A1 → menu/method). 16 brand chips (3D glass squircles: Marriott, Best Western, Ritz-Carlton, et al.) in `Ref/hotel-brands/` — prep spec §3.7; ref 06 `#brands` register row wording widens to "economy through luxury" to match the shipped set. **Theme B artwork palette bias**: dusty blue → pale ivory → warm sand → muted salmon → olive → deep navy/burgundy (record in ref 01). Option-tile shape contract locked (§3.8): property type 1:1 ≥800px; market tier 5:2 ~1600×640; binary options stay text chips. Still wanted from Razim: limited-service + extended-stay squares, 5 active-listing photos, Razim/William portraits.
 - Defects from Razim's screenshots: menu overlay photo overlaps the index (P0 — superseded by the menu rebuild); stats numerals may clip under the sticky nav (reproduce + fix).
 
 ### 2026-08-08 — `#hero` built in both theme chassis
