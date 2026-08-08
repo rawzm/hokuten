@@ -78,6 +78,14 @@ const BREATHE_DEPTH = 0.03;
 const SEAM_TEXT = "THE HOKUTEN GROUP";
 const SEAM_LETTER_GAP = 1; // padding cells between letters (keep the art visible between them)
 const SEAM_WORD_GAP = 3; // padding cells between words
+/**
+ * The seam row's padding cells are blanked, plus this many cells of margin each
+ * side of the wordmark. Without it the row is not legible: H O K U T E N are all
+ * ramp members, so a letter flanked by art glyphs reads as more art. See the
+ * comment at the placement site.
+ */
+const SEAM_QUIET_MARGIN = 2;
+const QUIET_GLYPH = " ";
 /** Seam row sits at this fraction of the height — comfortably in the lower third. */
 const SEAM_ROW_FRACTION = 0.72;
 
@@ -659,7 +667,29 @@ function buildArt(opts: {
         glyphs[i] = ramp[buckets[i]];
       }
     }
-    // Seam row: letters are literal + frozen; the padding cells keep breathing.
+    // Seam row. Two steps, and the order matters.
+    //
+    // 1. QUIET THE GUTTERS FIRST. Seven of the wordmark's letters (H O K U T E N)
+    //    are themselves ramp members, so a letter sitting between two art glyphs
+    //    is visually indistinguishable from the art — the eye cannot segment the
+    //    word. The first generated pass proved it: "GROUP" read (G/R/P are not in
+    //    the ramp) and "THE HOKUTEN" vanished. Blanking the padding cells and a
+    //    two-cell margin gives each letterform its own counter-space, which is
+    //    what makes the row legible at all. The band is one row of 64, so the art
+    //    still carries the frame and the wordmark still emerges from it rather
+    //    than being stamped over it.
+    const quietBucket = Math.max(0, ramp.indexOf(QUIET_GLYPH));
+    const seamCols = seam.map((s) => s.col);
+    const quietFrom = Math.max(0, Math.min(...seamCols) - SEAM_QUIET_MARGIN);
+    const quietTo = Math.min(cols - 1, Math.max(...seamCols) + SEAM_QUIET_MARGIN);
+    const letterCols = new Set(seamCols);
+    for (let c = quietFrom; c <= quietTo; c += 1) {
+      if (letterCols.has(c)) continue;
+      const i = seamRow * cols + c;
+      glyphs[i] = QUIET_GLYPH;
+      buckets[i] = quietBucket;
+    }
+    // 2. Letters are literal + frozen.
     for (const { col, ch } of seam) {
       const i = seamRow * cols + col;
       glyphs[i] = ch;
