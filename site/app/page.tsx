@@ -19,7 +19,6 @@ import { Hero } from "@/components/hero/Hero";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BovSection } from "@/components/sections/BovSection";
-import { BrandsSection } from "@/components/sections/BrandsSection";
 import { CalculatorSection } from "@/components/sections/CalculatorSection";
 import { ClosingsSection } from "@/components/sections/ClosingsSection";
 import { DoorsSection } from "@/components/sections/DoorsSection";
@@ -47,9 +46,13 @@ export default function Home() {
       <SiteNav />
 
       <main id="main" tabIndex={-1}>
+        {/* D2 (Razim, 2026-08-08) moved the franchise-flag band INTO the hero's
+            first viewport, so `Hero` now renders `<BrandsMarquee />` itself as a
+            sibling landmark after `<section id="hero">`. The standalone
+            `<BrandsSection />` that used to sit here is gone — rendering both
+            would put two `<section id="brands">` elements in one document. */}
         <Hero />
         <StatsSection />
-        <BrandsSection />
         <ClosingsSection />
         <ListingsSection />
         <CalculatorSection />

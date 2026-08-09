@@ -1,0 +1,1689 @@
+{
+  "generatedAt": "2026-08-09T04:51:24.648Z",
+  "budgets": {
+    "heroLargestAvifKB": 350,
+    "defaultKB": 250
+  },
+  "masters": [
+    {
+      "slug": "hie-dusk",
+      "file": "ChatGPT Image Aug 8, 2026, 03_19_00 PM.png",
+      "width": 1448,
+      "height": 1086,
+      "subject": "Holiday Inn Express entrance at dusk, warm glow, dark ground"
+    },
+    {
+      "slug": "resort-tower-pool",
+      "file": "ChatGPT Image Aug 8, 2026, 03_19_03 PM.png",
+      "width": 1672,
+      "height": 941,
+      "subject": "Curved resort tower, palms, large pool, vivid blue/green"
+    },
+    {
+      "slug": "full-service-sunset",
+      "file": "ChatGPT Image Aug 8, 2026, 03_22_12 PM.png",
+      "width": 1672,
+      "height": 941,
+      "subject": "Full-service block at sunset, dusty blue / salmon / sand sky"
+    },
+    {
+      "slug": "marriott-tower",
+      "file": "ChatGPT Image Aug 8, 2026, 03_23_44 PM.png",
+      "width": 1536,
+      "height": 1024,
+      "subject": "Branded full-service tower, warm sand facade, palms"
+    },
+    {
+      "slug": "beachfront-aerial",
+      "file": "ChatGPT Image Aug 8, 2026, 03_25_21 PM.png",
+      "width": 1942,
+      "height": 809,
+      "subject": "Beachfront aerial, ocean, beach, white towers"
+    },
+    {
+      "slug": "grand-resort-arrival",
+      "file": "ChatGPT Image Aug 8, 2026, 03_27_00 PM.png",
+      "width": 1672,
+      "height": 941,
+      "subject": "Grand resort arrival court at sunset, palms, dramatic sky"
+    },
+    {
+      "slug": "historic-urban-dawn",
+      "file": "ChatGPT Image Aug 8, 2026, 03_29_15 PM.png",
+      "width": 1672,
+      "height": 941,
+      "subject": "Historic classical downtown hotel at golden hour, street view"
+    },
+    {
+      "slug": "select-service-dusk",
+      "file": "ChatGPT Image Aug 8, 2026, 04_03_08 PM.png",
+      "width": 1672,
+      "height": 941,
+      "subject": "Modern select-service hotel at dusk, light trails"
+    },
+    {
+      "slug": "resort-pool-loungers",
+      "file": "ChatGPT Image Aug 8, 2026, 04_04_27 PM.png",
+      "width": 1672,
+      "height": 941,
+      "subject": "Resort pool, loungers, lush palms"
+    }
+  ],
+  "placements": [
+    {
+      "label": "hero-theme-g",
+      "slug": "beachfront-aerial",
+      "variant": "hero",
+      "cropMode": "centre",
+      "requestedWidths": [
+        1024,
+        1440,
+        1920
+      ],
+      "generatedWidths": [
+        1024,
+        1440,
+        1920
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1941
+    },
+    {
+      "label": "hero-theme-b",
+      "slug": "full-service-sunset",
+      "variant": "hero",
+      "cropMode": "centre",
+      "requestedWidths": [
+        1024,
+        1440,
+        1672
+      ],
+      "generatedWidths": [
+        1024,
+        1440,
+        1672
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1672
+    },
+    {
+      "label": "menu-overlay-portrait",
+      "slug": "hie-dusk",
+      "variant": "portrait",
+      "cropMode": "manual(fx=0.50,fy=0.50)",
+      "requestedWidths": [
+        600,
+        900,
+        1200
+      ],
+      "generatedWidths": [
+        600
+      ],
+      "skippedWidths": [
+        900,
+        1200
+      ],
+      "maxWidthForCrop": 814
+    },
+    {
+      "label": "method-chapter",
+      "slug": "hie-dusk",
+      "variant": "chapter",
+      "cropMode": "centre",
+      "requestedWidths": [
+        800,
+        1200
+      ],
+      "generatedWidths": [
+        800,
+        1200
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1448
+    },
+    {
+      "label": "listing-placeholder-card",
+      "slug": "beachfront-aerial",
+      "variant": "card",
+      "cropMode": "centre",
+      "requestedWidths": [
+        640,
+        1280
+      ],
+      "generatedWidths": [
+        640
+      ],
+      "skippedWidths": [
+        1280
+      ],
+      "maxWidthForCrop": 1213
+    },
+    {
+      "label": "closings-accent-card",
+      "slug": "marriott-tower",
+      "variant": "card",
+      "cropMode": "centre",
+      "requestedWidths": [
+        640,
+        1280
+      ],
+      "generatedWidths": [
+        640,
+        1280
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1536
+    },
+    {
+      "label": "tile-limitedService",
+      "slug": "hie-dusk",
+      "variant": "tile",
+      "cropMode": "attention",
+      "requestedWidths": [
+        400,
+        800,
+        1200
+      ],
+      "generatedWidths": [
+        400,
+        800
+      ],
+      "skippedWidths": [
+        1200
+      ],
+      "maxWidthForCrop": 1086
+    },
+    {
+      "label": "tile-selectService",
+      "slug": "select-service-dusk",
+      "variant": "tile",
+      "cropMode": "attention",
+      "requestedWidths": [
+        400,
+        800,
+        1200
+      ],
+      "generatedWidths": [
+        400,
+        800
+      ],
+      "skippedWidths": [
+        1200
+      ],
+      "maxWidthForCrop": 941
+    },
+    {
+      "label": "tile-fullService",
+      "slug": "historic-urban-dawn",
+      "variant": "tile",
+      "cropMode": "manual(fx=0.70,fy=0.52)",
+      "requestedWidths": [
+        400,
+        800,
+        1200
+      ],
+      "generatedWidths": [
+        400,
+        800
+      ],
+      "skippedWidths": [
+        1200
+      ],
+      "maxWidthForCrop": 941
+    },
+    {
+      "label": "tile-resortBoutique",
+      "slug": "resort-pool-loungers",
+      "variant": "tile",
+      "cropMode": "attention",
+      "requestedWidths": [
+        400,
+        800,
+        1200
+      ],
+      "generatedWidths": [
+        400,
+        800
+      ],
+      "skippedWidths": [
+        1200
+      ],
+      "maxWidthForCrop": 941
+    },
+    {
+      "label": "wide-gateway",
+      "slug": "historic-urban-dawn",
+      "variant": "wide",
+      "cropMode": "centre",
+      "requestedWidths": [
+        800,
+        1600
+      ],
+      "generatedWidths": [
+        800,
+        1600
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1672
+    },
+    {
+      "label": "wide-secondary",
+      "slug": "grand-resort-arrival",
+      "variant": "wide",
+      "cropMode": "centre",
+      "requestedWidths": [
+        800,
+        1600
+      ],
+      "generatedWidths": [
+        800,
+        1600
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1672
+    },
+    {
+      "label": "wide-suburban",
+      "slug": "marriott-tower",
+      "variant": "wide",
+      "cropMode": "centre",
+      "requestedWidths": [
+        800,
+        1600
+      ],
+      "generatedWidths": [
+        800
+      ],
+      "skippedWidths": [
+        1600
+      ],
+      "maxWidthForCrop": 1536
+    },
+    {
+      "label": "wide-tertiary",
+      "slug": "select-service-dusk",
+      "variant": "wide",
+      "cropMode": "centre",
+      "requestedWidths": [
+        800,
+        1600
+      ],
+      "generatedWidths": [
+        800,
+        1600
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1672
+    },
+    {
+      "label": "spare-hero-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "hero",
+      "cropMode": "centre",
+      "requestedWidths": [
+        1024,
+        1440,
+        1672
+      ],
+      "generatedWidths": [
+        1024,
+        1440,
+        1672
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1672
+    },
+    {
+      "label": "spare-tile-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "tile",
+      "cropMode": "attention",
+      "requestedWidths": [
+        400,
+        800,
+        1200
+      ],
+      "generatedWidths": [
+        400,
+        800
+      ],
+      "skippedWidths": [
+        1200
+      ],
+      "maxWidthForCrop": 941
+    },
+    {
+      "label": "spare-hero-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "hero",
+      "cropMode": "centre",
+      "requestedWidths": [
+        1024,
+        1440,
+        1672
+      ],
+      "generatedWidths": [
+        1024,
+        1440,
+        1672
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1672
+    },
+    {
+      "label": "spare-tile-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "tile",
+      "cropMode": "attention",
+      "requestedWidths": [
+        400,
+        800,
+        1200
+      ],
+      "generatedWidths": [
+        400,
+        800
+      ],
+      "skippedWidths": [
+        1200
+      ],
+      "maxWidthForCrop": 941
+    }
+  ],
+  "files": [
+    {
+      "label": "hero-theme-g",
+      "slug": "beachfront-aerial",
+      "variant": "hero",
+      "width": 1024,
+      "height": 427,
+      "format": "avif",
+      "path": "public/art/beachfront-aerial-hero-1024.avif",
+      "bytes": 162715,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "hero-theme-g",
+      "slug": "beachfront-aerial",
+      "variant": "hero",
+      "width": 1024,
+      "height": 427,
+      "format": "webp",
+      "path": "public/art/beachfront-aerial-hero-1024.webp",
+      "bytes": 219818,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "hero-theme-g",
+      "slug": "beachfront-aerial",
+      "variant": "hero",
+      "width": 1440,
+      "height": 600,
+      "format": "avif",
+      "path": "public/art/beachfront-aerial-hero-1440.avif",
+      "bytes": 249313,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "hero-theme-g",
+      "slug": "beachfront-aerial",
+      "variant": "hero",
+      "width": 1440,
+      "height": 600,
+      "format": "webp",
+      "path": "public/art/beachfront-aerial-hero-1440.webp",
+      "bytes": 297168,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "hero-theme-g",
+      "slug": "beachfront-aerial",
+      "variant": "hero",
+      "width": 1920,
+      "height": 800,
+      "format": "avif",
+      "path": "public/art/beachfront-aerial-hero-1920.avif",
+      "bytes": 308179,
+      "quality": 50,
+      "budgetKB": 350,
+      "overBudget": false
+    },
+    {
+      "label": "hero-theme-g",
+      "slug": "beachfront-aerial",
+      "variant": "hero",
+      "width": 1920,
+      "height": 800,
+      "format": "webp",
+      "path": "public/art/beachfront-aerial-hero-1920.webp",
+      "bytes": 469586,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "hero-theme-g",
+      "slug": "beachfront-aerial",
+      "variant": "hero",
+      "width": 1920,
+      "height": 800,
+      "format": "jpg",
+      "path": "public/art/beachfront-aerial-hero-1920.jpg",
+      "bytes": 330748,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "hero-theme-b",
+      "slug": "full-service-sunset",
+      "variant": "hero",
+      "width": 1024,
+      "height": 427,
+      "format": "avif",
+      "path": "public/art/full-service-sunset-hero-1024.avif",
+      "bytes": 131408,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "hero-theme-b",
+      "slug": "full-service-sunset",
+      "variant": "hero",
+      "width": 1024,
+      "height": 427,
+      "format": "webp",
+      "path": "public/art/full-service-sunset-hero-1024.webp",
+      "bytes": 185400,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "hero-theme-b",
+      "slug": "full-service-sunset",
+      "variant": "hero",
+      "width": 1440,
+      "height": 600,
+      "format": "avif",
+      "path": "public/art/full-service-sunset-hero-1440.avif",
+      "bytes": 220517,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "hero-theme-b",
+      "slug": "full-service-sunset",
+      "variant": "hero",
+      "width": 1440,
+      "height": 600,
+      "format": "webp",
+      "path": "public/art/full-service-sunset-hero-1440.webp",
+      "bytes": 251148,
+      "quality": 46,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "hero-theme-b",
+      "slug": "full-service-sunset",
+      "variant": "hero",
+      "width": 1672,
+      "height": 697,
+      "format": "avif",
+      "path": "public/art/full-service-sunset-hero-1672.avif",
+      "bytes": 276613,
+      "quality": 62,
+      "budgetKB": 350,
+      "overBudget": false
+    },
+    {
+      "label": "hero-theme-b",
+      "slug": "full-service-sunset",
+      "variant": "hero",
+      "width": 1672,
+      "height": 697,
+      "format": "webp",
+      "path": "public/art/full-service-sunset-hero-1672.webp",
+      "bytes": 276542,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "hero-theme-b",
+      "slug": "full-service-sunset",
+      "variant": "hero",
+      "width": 1672,
+      "height": 697,
+      "format": "jpg",
+      "path": "public/art/full-service-sunset-hero-1672.jpg",
+      "bytes": 234290,
+      "quality": 42,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "menu-overlay-portrait",
+      "slug": "hie-dusk",
+      "variant": "portrait",
+      "width": 600,
+      "height": 800,
+      "format": "avif",
+      "path": "public/art/hie-dusk-portrait-600.avif",
+      "bytes": 131137,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "menu-overlay-portrait",
+      "slug": "hie-dusk",
+      "variant": "portrait",
+      "width": 600,
+      "height": 800,
+      "format": "webp",
+      "path": "public/art/hie-dusk-portrait-600.webp",
+      "bytes": 212310,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "menu-overlay-portrait",
+      "slug": "hie-dusk",
+      "variant": "portrait",
+      "width": 600,
+      "height": 800,
+      "format": "jpg",
+      "path": "public/art/hie-dusk-portrait-600.jpg",
+      "bytes": 206000,
+      "quality": 74,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "method-chapter",
+      "slug": "hie-dusk",
+      "variant": "chapter",
+      "width": 800,
+      "height": 600,
+      "format": "avif",
+      "path": "public/art/hie-dusk-chapter-800.avif",
+      "bytes": 131238,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "method-chapter",
+      "slug": "hie-dusk",
+      "variant": "chapter",
+      "width": 800,
+      "height": 600,
+      "format": "webp",
+      "path": "public/art/hie-dusk-chapter-800.webp",
+      "bytes": 198890,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "method-chapter",
+      "slug": "hie-dusk",
+      "variant": "chapter",
+      "width": 1200,
+      "height": 900,
+      "format": "avif",
+      "path": "public/art/hie-dusk-chapter-1200.avif",
+      "bytes": 228609,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "method-chapter",
+      "slug": "hie-dusk",
+      "variant": "chapter",
+      "width": 1200,
+      "height": 900,
+      "format": "webp",
+      "path": "public/art/hie-dusk-chapter-1200.webp",
+      "bytes": 264382,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "method-chapter",
+      "slug": "hie-dusk",
+      "variant": "chapter",
+      "width": 1200,
+      "height": 900,
+      "format": "jpg",
+      "path": "public/art/hie-dusk-chapter-1200.jpg",
+      "bytes": 227757,
+      "quality": 42,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "listing-placeholder-card",
+      "slug": "beachfront-aerial",
+      "variant": "card",
+      "width": 640,
+      "height": 427,
+      "format": "avif",
+      "path": "public/art/beachfront-aerial-card-640.avif",
+      "bytes": 99746,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "listing-placeholder-card",
+      "slug": "beachfront-aerial",
+      "variant": "card",
+      "width": 640,
+      "height": 427,
+      "format": "webp",
+      "path": "public/art/beachfront-aerial-card-640.webp",
+      "bytes": 135586,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "listing-placeholder-card",
+      "slug": "beachfront-aerial",
+      "variant": "card",
+      "width": 640,
+      "height": 427,
+      "format": "jpg",
+      "path": "public/art/beachfront-aerial-card-640.jpg",
+      "bytes": 146132,
+      "quality": 82,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "closings-accent-card",
+      "slug": "marriott-tower",
+      "variant": "card",
+      "width": 640,
+      "height": 427,
+      "format": "avif",
+      "path": "public/art/marriott-tower-card-640.avif",
+      "bytes": 92231,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "closings-accent-card",
+      "slug": "marriott-tower",
+      "variant": "card",
+      "width": 640,
+      "height": 427,
+      "format": "webp",
+      "path": "public/art/marriott-tower-card-640.webp",
+      "bytes": 129828,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "closings-accent-card",
+      "slug": "marriott-tower",
+      "variant": "card",
+      "width": 1280,
+      "height": 853,
+      "format": "avif",
+      "path": "public/art/marriott-tower-card-1280.avif",
+      "bytes": 202288,
+      "quality": 44,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "closings-accent-card",
+      "slug": "marriott-tower",
+      "variant": "card",
+      "width": 1280,
+      "height": 853,
+      "format": "webp",
+      "path": "public/art/marriott-tower-card-1280.webp",
+      "bytes": 375650,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "closings-accent-card",
+      "slug": "marriott-tower",
+      "variant": "card",
+      "width": 1280,
+      "height": 853,
+      "format": "jpg",
+      "path": "public/art/marriott-tower-card-1280.jpg",
+      "bytes": 291746,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "tile-limitedService",
+      "slug": "hie-dusk",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "avif",
+      "path": "public/art/hie-dusk-tile-400.avif",
+      "bytes": 41315,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-limitedService",
+      "slug": "hie-dusk",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "webp",
+      "path": "public/art/hie-dusk-tile-400.webp",
+      "bytes": 59714,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-limitedService",
+      "slug": "hie-dusk",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "avif",
+      "path": "public/art/hie-dusk-tile-800.avif",
+      "bytes": 171303,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-limitedService",
+      "slug": "hie-dusk",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "webp",
+      "path": "public/art/hie-dusk-tile-800.webp",
+      "bytes": 242250,
+      "quality": 70,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-limitedService",
+      "slug": "hie-dusk",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "jpg",
+      "path": "public/art/hie-dusk-tile-800.jpg",
+      "bytes": 214523,
+      "quality": 66,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-selectService",
+      "slug": "select-service-dusk",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "avif",
+      "path": "public/art/select-service-dusk-tile-400.avif",
+      "bytes": 50766,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-selectService",
+      "slug": "select-service-dusk",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "webp",
+      "path": "public/art/select-service-dusk-tile-400.webp",
+      "bytes": 69286,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-selectService",
+      "slug": "select-service-dusk",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "avif",
+      "path": "public/art/select-service-dusk-tile-800.avif",
+      "bytes": 194616,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-selectService",
+      "slug": "select-service-dusk",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "webp",
+      "path": "public/art/select-service-dusk-tile-800.webp",
+      "bytes": 243736,
+      "quality": 54,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-selectService",
+      "slug": "select-service-dusk",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "jpg",
+      "path": "public/art/select-service-dusk-tile-800.jpg",
+      "bytes": 254857,
+      "quality": 66,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-fullService",
+      "slug": "historic-urban-dawn",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "avif",
+      "path": "public/art/historic-urban-dawn-tile-400.avif",
+      "bytes": 56870,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-fullService",
+      "slug": "historic-urban-dawn",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "webp",
+      "path": "public/art/historic-urban-dawn-tile-400.webp",
+      "bytes": 76114,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-fullService",
+      "slug": "historic-urban-dawn",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "avif",
+      "path": "public/art/historic-urban-dawn-tile-800.avif",
+      "bytes": 206924,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-fullService",
+      "slug": "historic-urban-dawn",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "webp",
+      "path": "public/art/historic-urban-dawn-tile-800.webp",
+      "bytes": 245788,
+      "quality": 54,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-fullService",
+      "slug": "historic-urban-dawn",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "jpg",
+      "path": "public/art/historic-urban-dawn-tile-800.jpg",
+      "bytes": 224521,
+      "quality": 58,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-resortBoutique",
+      "slug": "resort-pool-loungers",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "avif",
+      "path": "public/art/resort-pool-loungers-tile-400.avif",
+      "bytes": 61123,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-resortBoutique",
+      "slug": "resort-pool-loungers",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "webp",
+      "path": "public/art/resort-pool-loungers-tile-400.webp",
+      "bytes": 80916,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-resortBoutique",
+      "slug": "resort-pool-loungers",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "avif",
+      "path": "public/art/resort-pool-loungers-tile-800.avif",
+      "bytes": 218967,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-resortBoutique",
+      "slug": "resort-pool-loungers",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "webp",
+      "path": "public/art/resort-pool-loungers-tile-800.webp",
+      "bytes": 243150,
+      "quality": 46,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "tile-resortBoutique",
+      "slug": "resort-pool-loungers",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "jpg",
+      "path": "public/art/resort-pool-loungers-tile-800.jpg",
+      "bytes": 251720,
+      "quality": 66,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-gateway",
+      "slug": "historic-urban-dawn",
+      "variant": "wide",
+      "width": 800,
+      "height": 320,
+      "format": "avif",
+      "path": "public/art/historic-urban-dawn-wide-800.avif",
+      "bytes": 89524,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-gateway",
+      "slug": "historic-urban-dawn",
+      "variant": "wide",
+      "width": 800,
+      "height": 320,
+      "format": "webp",
+      "path": "public/art/historic-urban-dawn-wide-800.webp",
+      "bytes": 122510,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-gateway",
+      "slug": "historic-urban-dawn",
+      "variant": "wide",
+      "width": 1600,
+      "height": 640,
+      "format": "avif",
+      "path": "public/art/historic-urban-dawn-wide-1600.avif",
+      "bytes": 244285,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-gateway",
+      "slug": "historic-urban-dawn",
+      "variant": "wide",
+      "width": 1600,
+      "height": 640,
+      "format": "webp",
+      "path": "public/art/historic-urban-dawn-wide-1600.webp",
+      "bytes": 291616,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "wide-gateway",
+      "slug": "historic-urban-dawn",
+      "variant": "wide",
+      "width": 1600,
+      "height": 640,
+      "format": "jpg",
+      "path": "public/art/historic-urban-dawn-wide-1600.jpg",
+      "bytes": 241356,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-secondary",
+      "slug": "grand-resort-arrival",
+      "variant": "wide",
+      "width": 800,
+      "height": 320,
+      "format": "avif",
+      "path": "public/art/grand-resort-arrival-wide-800.avif",
+      "bytes": 86217,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-secondary",
+      "slug": "grand-resort-arrival",
+      "variant": "wide",
+      "width": 800,
+      "height": 320,
+      "format": "webp",
+      "path": "public/art/grand-resort-arrival-wide-800.webp",
+      "bytes": 117414,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-secondary",
+      "slug": "grand-resort-arrival",
+      "variant": "wide",
+      "width": 1600,
+      "height": 640,
+      "format": "avif",
+      "path": "public/art/grand-resort-arrival-wide-1600.avif",
+      "bytes": 230025,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-secondary",
+      "slug": "grand-resort-arrival",
+      "variant": "wide",
+      "width": 1600,
+      "height": 640,
+      "format": "webp",
+      "path": "public/art/grand-resort-arrival-wide-1600.webp",
+      "bytes": 283842,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "wide-secondary",
+      "slug": "grand-resort-arrival",
+      "variant": "wide",
+      "width": 1600,
+      "height": 640,
+      "format": "jpg",
+      "path": "public/art/grand-resort-arrival-wide-1600.jpg",
+      "bytes": 247626,
+      "quality": 42,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-suburban",
+      "slug": "marriott-tower",
+      "variant": "wide",
+      "width": 800,
+      "height": 320,
+      "format": "avif",
+      "path": "public/art/marriott-tower-wide-800.avif",
+      "bytes": 92892,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-suburban",
+      "slug": "marriott-tower",
+      "variant": "wide",
+      "width": 800,
+      "height": 320,
+      "format": "webp",
+      "path": "public/art/marriott-tower-wide-800.webp",
+      "bytes": 129800,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-suburban",
+      "slug": "marriott-tower",
+      "variant": "wide",
+      "width": 800,
+      "height": 320,
+      "format": "jpg",
+      "path": "public/art/marriott-tower-wide-800.jpg",
+      "bytes": 158705,
+      "quality": 82,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-tertiary",
+      "slug": "select-service-dusk",
+      "variant": "wide",
+      "width": 800,
+      "height": 320,
+      "format": "avif",
+      "path": "public/art/select-service-dusk-wide-800.avif",
+      "bytes": 81084,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-tertiary",
+      "slug": "select-service-dusk",
+      "variant": "wide",
+      "width": 800,
+      "height": 320,
+      "format": "webp",
+      "path": "public/art/select-service-dusk-wide-800.webp",
+      "bytes": 115094,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-tertiary",
+      "slug": "select-service-dusk",
+      "variant": "wide",
+      "width": 1600,
+      "height": 640,
+      "format": "avif",
+      "path": "public/art/select-service-dusk-wide-1600.avif",
+      "bytes": 236111,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "wide-tertiary",
+      "slug": "select-service-dusk",
+      "variant": "wide",
+      "width": 1600,
+      "height": 640,
+      "format": "webp",
+      "path": "public/art/select-service-dusk-wide-1600.webp",
+      "bytes": 297704,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "wide-tertiary",
+      "slug": "select-service-dusk",
+      "variant": "wide",
+      "width": 1600,
+      "height": 640,
+      "format": "jpg",
+      "path": "public/art/select-service-dusk-wide-1600.jpg",
+      "bytes": 241136,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "hero",
+      "width": 1024,
+      "height": 427,
+      "format": "avif",
+      "path": "public/art/resort-tower-pool-hero-1024.avif",
+      "bytes": 164486,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "hero",
+      "width": 1024,
+      "height": 427,
+      "format": "webp",
+      "path": "public/art/resort-tower-pool-hero-1024.webp",
+      "bytes": 225662,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "hero",
+      "width": 1440,
+      "height": 600,
+      "format": "avif",
+      "path": "public/art/resort-tower-pool-hero-1440.avif",
+      "bytes": 235386,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "hero",
+      "width": 1440,
+      "height": 600,
+      "format": "webp",
+      "path": "public/art/resort-tower-pool-hero-1440.webp",
+      "bytes": 297278,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "spare-hero-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "hero",
+      "width": 1672,
+      "height": 697,
+      "format": "avif",
+      "path": "public/art/resort-tower-pool-hero-1672.avif",
+      "bytes": 300297,
+      "quality": 56,
+      "budgetKB": 350,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "hero",
+      "width": 1672,
+      "height": 697,
+      "format": "webp",
+      "path": "public/art/resort-tower-pool-hero-1672.webp",
+      "bytes": 388092,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "spare-hero-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "hero",
+      "width": 1672,
+      "height": 697,
+      "format": "jpg",
+      "path": "public/art/resort-tower-pool-hero-1672.jpg",
+      "bytes": 304291,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "spare-tile-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "avif",
+      "path": "public/art/resort-tower-pool-tile-400.avif",
+      "bytes": 57681,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-tile-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "webp",
+      "path": "public/art/resort-tower-pool-tile-400.webp",
+      "bytes": 77324,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-tile-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "avif",
+      "path": "public/art/resort-tower-pool-tile-800.avif",
+      "bytes": 217712,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-tile-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "webp",
+      "path": "public/art/resort-tower-pool-tile-800.webp",
+      "bytes": 248578,
+      "quality": 46,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-tile-resort-tower-pool",
+      "slug": "resort-tower-pool",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "jpg",
+      "path": "public/art/resort-tower-pool-tile-800.jpg",
+      "bytes": 231916,
+      "quality": 58,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "hero",
+      "width": 1024,
+      "height": 427,
+      "format": "avif",
+      "path": "public/art/grand-resort-arrival-hero-1024.avif",
+      "bytes": 150478,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "hero",
+      "width": 1024,
+      "height": 427,
+      "format": "webp",
+      "path": "public/art/grand-resort-arrival-hero-1024.webp",
+      "bytes": 210560,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "hero",
+      "width": 1440,
+      "height": 600,
+      "format": "avif",
+      "path": "public/art/grand-resort-arrival-hero-1440.avif",
+      "bytes": 249439,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "hero",
+      "width": 1440,
+      "height": 600,
+      "format": "webp",
+      "path": "public/art/grand-resort-arrival-hero-1440.webp",
+      "bytes": 254086,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "hero",
+      "width": 1672,
+      "height": 697,
+      "format": "avif",
+      "path": "public/art/grand-resort-arrival-hero-1672.avif",
+      "bytes": 312716,
+      "quality": 62,
+      "budgetKB": 350,
+      "overBudget": false
+    },
+    {
+      "label": "spare-hero-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "hero",
+      "width": 1672,
+      "height": 697,
+      "format": "webp",
+      "path": "public/art/grand-resort-arrival-hero-1672.webp",
+      "bytes": 320132,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "spare-hero-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "hero",
+      "width": 1672,
+      "height": 697,
+      "format": "jpg",
+      "path": "public/art/grand-resort-arrival-hero-1672.jpg",
+      "bytes": 259699,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "label": "spare-tile-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "avif",
+      "path": "public/art/grand-resort-arrival-tile-400.avif",
+      "bytes": 51918,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-tile-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "tile",
+      "width": 400,
+      "height": 400,
+      "format": "webp",
+      "path": "public/art/grand-resort-arrival-tile-400.webp",
+      "bytes": 70524,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-tile-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "avif",
+      "path": "public/art/grand-resort-arrival-tile-800.avif",
+      "bytes": 180127,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-tile-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "webp",
+      "path": "public/art/grand-resort-arrival-tile-800.webp",
+      "bytes": 255740,
+      "quality": 70,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "label": "spare-tile-grand-resort-arrival",
+      "slug": "grand-resort-arrival",
+      "variant": "tile",
+      "width": 800,
+      "height": 800,
+      "format": "jpg",
+      "path": "public/art/grand-resort-arrival-tile-800.jpg",
+      "bytes": 231402,
+      "quality": 66,
+      "budgetKB": 250,
+      "overBudget": false
+    }
+  ],
+  "largest": {
+    "beachfront-aerial:hero": {
+      "width": 1920,
+      "height": 800,
+      "path": "public/art/beachfront-aerial-hero-1920.avif"
+    },
+    "full-service-sunset:hero": {
+      "width": 1672,
+      "height": 697,
+      "path": "public/art/full-service-sunset-hero-1672.avif"
+    },
+    "hie-dusk:portrait": {
+      "width": 600,
+      "height": 800,
+      "path": "public/art/hie-dusk-portrait-600.avif"
+    },
+    "hie-dusk:chapter": {
+      "width": 1200,
+      "height": 900,
+      "path": "public/art/hie-dusk-chapter-1200.avif"
+    },
+    "beachfront-aerial:card": {
+      "width": 640,
+      "height": 427,
+      "path": "public/art/beachfront-aerial-card-640.avif"
+    },
+    "marriott-tower:card": {
+      "width": 1280,
+      "height": 853,
+      "path": "public/art/marriott-tower-card-1280.avif"
+    },
+    "hie-dusk:tile": {
+      "width": 800,
+      "height": 800,
+      "path": "public/art/hie-dusk-tile-800.avif"
+    },
+    "select-service-dusk:tile": {
+      "width": 800,
+      "height": 800,
+      "path": "public/art/select-service-dusk-tile-800.avif"
+    },
+    "historic-urban-dawn:tile": {
+      "width": 800,
+      "height": 800,
+      "path": "public/art/historic-urban-dawn-tile-800.avif"
+    },
+    "resort-pool-loungers:tile": {
+      "width": 800,
+      "height": 800,
+      "path": "public/art/resort-pool-loungers-tile-800.avif"
+    },
+    "historic-urban-dawn:wide": {
+      "width": 1600,
+      "height": 640,
+      "path": "public/art/historic-urban-dawn-wide-1600.avif"
+    },
+    "grand-resort-arrival:wide": {
+      "width": 1600,
+      "height": 640,
+      "path": "public/art/grand-resort-arrival-wide-1600.avif"
+    },
+    "marriott-tower:wide": {
+      "width": 800,
+      "height": 320,
+      "path": "public/art/marriott-tower-wide-800.avif"
+    },
+    "select-service-dusk:wide": {
+      "width": 1600,
+      "height": 640,
+      "path": "public/art/select-service-dusk-wide-1600.avif"
+    },
+    "resort-tower-pool:hero": {
+      "width": 1672,
+      "height": 697,
+      "path": "public/art/resort-tower-pool-hero-1672.avif"
+    },
+    "resort-tower-pool:tile": {
+      "width": 800,
+      "height": 800,
+      "path": "public/art/resort-tower-pool-tile-800.avif"
+    },
+    "grand-resort-arrival:hero": {
+      "width": 1672,
+      "height": 697,
+      "path": "public/art/grand-resort-arrival-hero-1672.avif"
+    },
+    "grand-resort-arrival:tile": {
+      "width": 800,
+      "height": 800,
+      "path": "public/art/grand-resort-arrival-tile-800.avif"
+    }
+  },
+  "blocked": [
+    {
+      "label": "tile-extendedStay",
+      "reason": "no artwork delivered for extended-stay property type"
+    }
+  ]
+}

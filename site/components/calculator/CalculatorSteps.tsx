@@ -10,17 +10,39 @@
  * strings themselves are imported from lib/valuation.ts so they exist in exactly
  * one place.
  *
+ * ── 2026-08-09 REDESIGN (DESIGN-REVISIT §4.6) ───────────────────────────────
+ * The four `<select>` dropdowns became selectable option groups, to §3.8's
+ * locked shape contract — property type as 1:1 image squares, market tier as
+ * wide banded panels, brand / condition / land as text segment chips. All four
+ * are ONE primitive (`OptionTiles`), which is a real radio group.
+ *
+ * NOTHING WAS DROPPED. Every field, every ⓘ, the "Refine my estimate" details
+ * disclosure, the conditional F&B row, the live RevPAR preview and the typical-
+ * figures autofill all still render, with byte-identical copy. The autofill's
+ * ported sentence is now the second line of a "market typical" chip that also
+ * prints the tier's live figures — the STRING and the HANDLER are unchanged, so
+ * the behaviour (fill both fields, latch `usedDefaults`, show the note) is
+ * exactly today's.
+ *
  * STATE SHAPE. Like the source, the form holds the raw <option> DISPLAY STRING
- * for every select, not the CONFIG key. Three reasons:
- *   1. `BRAND_OPTIONS` and `CONDITION_OPTIONS` each contain two labels that
- *      resolve to the SAME key ("Soft-brand / lifestyle" → `branded`, "15+ yrs /
- *      renovation (PIP) due" → `over8`). Keying a <Select> by CONFIG value would
- *      collide and make one option unselectable.
+ * for every choice, not the CONFIG key. Three reasons:
+ *   1. `BRAND_OPTIONS` and `CONDITION_OPTIONS` each contain labels that resolve
+ *      to the SAME key ("Soft-brand / lifestyle" → `branded`, "15+ yrs /
+ *      renovation (PIP) due" → `over8`). Keying a group by CONFIG value would
+ *      collide and make two options unselectable — see OptionTiles.tsx's header
+ *      for how that trap is closed (label identity, index-derived ids).
  *   2. The F&B row's visibility rule is a strict string comparison against two
  *      literal labels (index.html:1670) — a direct port needs the label.
  *   3. The lead prefill carries the raw display strings (index.html:1606-1608).
  * The CONFIG keys are derived with the exported shims (`typeKey`, `tierKey`,
  * `brandKeyCfg`, `condKeyCfg`, `groundLeaseFromLabel`) at calculation time.
+ *
+ * ARTWORK. Property-type and market-tier options resolve their imagery through
+ * `content/artwork.ts`'s manifest resolver, by ARRAY INDEX into the frozen
+ * option list. `tile.extendedStay` is `blocked: awaiting-artwork`, so `getArt`
+ * returns null and OptionTiles renders its designed typographic interim —
+ * never a blank slot, never stock imagery. Landing that square is a one-line
+ * data edit in the manifest; nothing in this file changes.
  *
  * FORMATTERS. `formatNumericField` / `blurNumericField` are the frozen port of
  * the source's `data-fmt` behaviour (index.html:1413-1463). The source assigned
@@ -29,25 +51,21 @@
  * the caret and puts it back where the typist left it — same output, no fight.
  *
  * A11Y. The source nested the ⓘ <button> inside the <label>; here the trigger is
- * a SIBLING of the label (nested interactive elements are a P0 failure). The `$`
- * and `%` adornments are aria-hidden decoration, so the unit is restated as a
- * visually-hidden suffix on the label — the accessible name gains the unit
- * without a single visible string changing.
+ * a SIBLING of the label (nested interactive elements are a P0 failure). For an
+ * option group the visible label is a plain `<span id>` wired with
+ * `aria-labelledby` — a `<label>` may only name a single control. The `$` and
+ * `%` adornments are aria-hidden decoration, so the unit is restated as a
+ * visually-hidden suffix on the label.
  */
 
 import * as React from "react";
 import { AlertCircle, Minus, Plus } from "lucide-react";
 
+import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { getArt, type ArtPlacement } from "@/content/artwork";
 import {
   BRAND_OPTIONS,
   CONDITION_OPTIONS,
@@ -57,12 +75,16 @@ import {
   TIER_OPTIONS,
   blurNumericField,
   formatNumericField,
+  groupInt,
   parseNumericField,
+  tierKey,
+  typicalFor,
   type FieldFormat,
 } from "@/lib/valuation";
 import { cn } from "@/lib/utils";
 
 import { InfoPopover, type CalculatorTipId } from "./InfoPopover";
+import { OptionTiles, type OptionTileItem } from "./OptionTiles";
 
 /* -------------------------------------------------------------------------- */
 /*  Form shape + seeded defaults (index.html:936-1013)                         */
@@ -127,6 +149,63 @@ export function showsFoodAndBeverage(propertyTypeLabel: string): boolean {
   );
 }
 
+/** index.html:1016 — the autofill link's copy, byte-exact. */
+const AUTOFILL_COPY = "I'm not sure of my exact numbers — use typical figures";
+
+/* -------------------------------------------------------------------------- */
+/*  Artwork wiring — placement per option INDEX, never per CONFIG value        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Parallel to `PROPERTY_TYPE_OPTIONS` / `TIER_OPTIONS` by position. Written as
+ * index-parallel arrays rather than keyed by `option.value` on purpose: the
+ * whole option-group design keys on index/label because two of the frozen
+ * lists collide on value, and keeping ONE addressing scheme everywhere is what
+ * stops that bug growing back somewhere else.
+ */
+const PROPERTY_TILE_PLACEMENTS: readonly ArtPlacement[] = [
+  "tile.limitedService",
+  "tile.selectService",
+  "tile.fullService",
+  "tile.resortBoutique",
+  "tile.extendedStay",
+];
+
+const TIER_PANEL_PLACEMENTS: readonly ArtPlacement[] = [
+  "tier.gateway",
+  "tier.secondary",
+  "tier.suburban",
+  "tier.tertiary",
+];
+
+function artItems(
+  name: string,
+  options: readonly { readonly label: string }[],
+  placements: readonly ArtPlacement[],
+): OptionTileItem[] {
+  return options.map((option, index) => ({
+    id: `${name}-${index}`,
+    label: option.label,
+    art: getArt(placements[index]),
+  }));
+}
+
+function textItems(
+  name: string,
+  options: readonly { readonly label: string }[],
+): OptionTileItem[] {
+  return options.map((option, index) => ({
+    id: `${name}-${index}`,
+    label: option.label,
+  }));
+}
+
+const PROPERTY_TILE_ITEMS = artItems("calc-type", PROPERTY_TYPE_OPTIONS, PROPERTY_TILE_PLACEMENTS);
+const TIER_PANEL_ITEMS = artItems("calc-tier", TIER_OPTIONS, TIER_PANEL_PLACEMENTS);
+const BRAND_CHIP_ITEMS = textItems("calc-brand", BRAND_OPTIONS);
+const CONDITION_CHIP_ITEMS = textItems("calc-cond", CONDITION_OPTIONS);
+const LAND_CHIP_ITEMS = textItems("calc-ground", LAND_OPTIONS);
+
 /* -------------------------------------------------------------------------- */
 /*  Field shell — label row + control + error                                  */
 /* -------------------------------------------------------------------------- */
@@ -184,38 +263,58 @@ function FieldShell({ id, label, unit, tip, error, children }: FieldShellProps) 
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Select field                                                               */
+/*  Option-group field — the shell the four former <select>s share             */
 /* -------------------------------------------------------------------------- */
 
-type OptionList = readonly { readonly label: string }[];
-
-type SelectFieldProps = {
+type OptionGroupFieldProps = {
+  /** Doubles as the radio group `name` and the id stem for its option inputs. */
   id: string;
   label: string;
   tip: CalculatorTipId;
-  options: OptionList;
+  items: readonly OptionTileItem[];
   value: string;
   onValueChange: (next: string) => void;
+  shape: "square" | "wide" | "chip";
+  /** Extra classes for the group container (e.g. a max width on the tile row). */
+  groupClassName?: string;
 };
 
-function SelectField({ id, label, tip, options, value, onValueChange }: SelectFieldProps) {
+/**
+ * The visible group label is a `<span id>`, not a `<label>`: a `<label>` names
+ * exactly one control, and this names a radiogroup. The ⓘ stays a sibling of
+ * it, never nested inside an interactive element.
+ */
+function OptionGroupField({
+  id,
+  label,
+  tip,
+  items,
+  value,
+  onValueChange,
+  shape,
+  groupClassName,
+}: OptionGroupFieldProps) {
+  const labelId = `${id}-label`;
+
   return (
-    <FieldShell id={id} label={label} tip={tip}>
-      {(control) => (
-        <Select value={value} onValueChange={onValueChange}>
-          <SelectTrigger id={control.id} aria-describedby={control["aria-describedby"]}>
-            <SelectValue className="min-w-0 truncate text-start" />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((option) => (
-              <SelectItem key={option.label} value={option.label}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-    </FieldShell>
+    <div className="flex flex-col gap-2">
+      <div className="flex min-h-11 items-center gap-1">
+        <span id={labelId} className="flex-1 font-sans text-body font-semibold text-fg">
+          {label}
+        </span>
+        <InfoPopover tip={tip} />
+      </div>
+
+      <OptionTiles
+        name={id}
+        labelledBy={labelId}
+        items={items}
+        value={value}
+        onValueChange={onValueChange}
+        shape={shape}
+        className={groupClassName}
+      />
+    </div>
   );
 }
 
@@ -380,7 +479,7 @@ export function StepOne({
        buttons were bare click handlers and swallowed the keyboard path. */
     <form
       noValidate
-      className="flex flex-col gap-6"
+      className="flex h-full flex-col gap-4 lg:gap-5"
       onSubmit={(event) => {
         event.preventDefault();
         onContinue();
@@ -392,151 +491,177 @@ export function StepOne({
         sub={"No financials yet — just what kind of hotel it is."}
       />
 
-      <div className="flex flex-col gap-5">
-        <SelectField
-          id="calc-type"
-          label="Property Type"
-          tip="propertyType"
-          options={PROPERTY_TYPE_OPTIONS}
-          value={form.propertyType}
-          onValueChange={(propertyType) => onChange({ propertyType })}
-        />
+      {/* PROPERTY TYPE — 1:1 image squares, five across desktop / 2-up mobile
+          (§3.8 shape contract). */}
+      <OptionGroupField
+        id="calc-type"
+        label="Property Type"
+        tip="propertyType"
+        items={PROPERTY_TILE_ITEMS}
+        value={form.propertyType}
+        onValueChange={(propertyType) => onChange({ propertyType })}
+        shape="square"
+        groupClassName="lg:max-w-[54rem]"
+      />
 
-        <FieldShell id="calc-keys" label="Keys" tip="keys" error={keysError}>
-          {(control) => (
-            <NumericInput
-              control={control}
-              value={form.keys}
-              onValueChange={(keys) => onChange({ keys })}
-              format="int"
-              inputMode="numeric"
-              inputRef={keysRef}
-            />
-          )}
-        </FieldShell>
-
-        <SelectField
+      {/* Landscape row: the tier panels take the wide half, the three short
+          fields stack in the narrow half. Both halves are ~the same height, so
+          the row has no dead band on either side. */}
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-6">
+        {/* MARKET TIER — 5:2 wide panels, stacked full-width rows. */}
+        <OptionGroupField
           id="calc-tier"
           label="Where is it?"
           tip="tier"
-          options={TIER_OPTIONS}
+          items={TIER_PANEL_ITEMS}
           value={form.tier}
           onValueChange={(tier) => onChange({ tier })}
+          shape="wide"
         />
 
-        <SelectField
-          id="calc-brand"
-          label="Brand"
-          tip="brand"
-          options={BRAND_OPTIONS}
-          value={form.brand}
-          onValueChange={(brand) => onChange({ brand })}
-        />
-
-        <FieldShell
-          id="calc-market"
-          label={
-            <>
-              {"ZIP code "}
-              <span className="font-normal text-fg-meta">{"— optional"}</span>
-            </>
-          }
-        >
-          {(control) => (
-            <Input
-              id={control.id}
-              type="text"
-              value={form.market}
-              onChange={(event) => onChange({ market: event.currentTarget.value })}
-              placeholder="5-digit ZIP"
-              inputMode="numeric"
-              maxLength={5}
-              autoComplete="postal-code"
-              className="font-mono tabular"
-            />
-          )}
-        </FieldShell>
-      </div>
-
-      {/* index.html:969-971 — closed by default, native <details> so it works
-          with no JS and needs no focus management of its own. */}
-      <details className="group hairline-t pt-2">
-        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-sans text-body text-fg [&::-webkit-details-marker]:hidden">
-          <span>
-            {"Refine my estimate "}
-            <span className="text-fg-meta">{"(optional)"}</span>
-          </span>
-          <PlusMinus />
-        </summary>
-
-        <div className="mt-4 flex flex-col gap-5">
-          <SelectField
-            id="calc-cond"
-            label="Condition / last renovation"
-            tip="condition"
-            options={CONDITION_OPTIONS}
-            value={form.condition}
-            onValueChange={(condition) => onChange({ condition })}
-          />
-
-          <SelectField
-            id="calc-ground"
-            label="Land"
-            tip="land"
-            options={LAND_OPTIONS}
-            value={form.land}
-            onValueChange={(land) => onChange({ land })}
-          />
-
-          {/* index.html:991 — the row exists only for Full-Service and
-              Resort / Boutique. NOTE (source defect D3, ported deliberately):
-              a value entered here KEEPS applying its +25bps after the row is
-              hidden by a property-type change. Changing that changes shipped
-              numbers, so it needs a dated PROJECT-MEMORY decision. */}
-          {showFb ? (
-            <FieldShell
-              id="calc-fb"
-              label={"F&B as % of revenue"}
-              unit=" in percent"
-              tip="fb"
-            >
-              {(control) => (
-                <NumericInput
-                  control={control}
-                  value={form.fb}
-                  onValueChange={(fb) => onChange({ fb })}
-                  format="pct"
-                  inputMode="decimal"
-                  placeholder="optional"
-                  adornment="percent"
-                />
-              )}
-            </FieldShell>
-          ) : null}
-
-          <FieldShell
-            id="calc-noi"
-            label="I know my actual NOI"
-            unit=" in US dollars"
-            tip="noi"
-          >
+        <div className="flex flex-col gap-4">
+          <FieldShell id="calc-keys" label="Keys" tip="keys" error={keysError}>
             {(control) => (
               <NumericInput
                 control={control}
-                value={form.noi}
-                onValueChange={(noi) => onChange({ noi })}
-                format="money"
-                inputMode="decimal"
-                placeholder="annual, optional"
-                adornment="currency"
+                value={form.keys}
+                onValueChange={(keys) => onChange({ keys })}
+                format="int"
+                inputMode="numeric"
+                inputRef={keysRef}
+              />
+            )}
+          </FieldShell>
+
+          {/* BRAND — text segment chips. No imagery on a three-way flag choice
+              (§3.8: pictures on a choice like this read as noise). */}
+          <OptionGroupField
+            id="calc-brand"
+            label="Brand"
+            tip="brand"
+            items={BRAND_CHIP_ITEMS}
+            value={form.brand}
+            onValueChange={(brand) => onChange({ brand })}
+            shape="chip"
+          />
+
+          <FieldShell
+            id="calc-market"
+            label={
+              <>
+                {"ZIP code "}
+                <span className="font-normal text-fg-meta">{"— optional"}</span>
+              </>
+            }
+          >
+            {(control) => (
+              <Input
+                id={control.id}
+                type="text"
+                value={form.market}
+                onChange={(event) => onChange({ market: event.currentTarget.value })}
+                placeholder="5-digit ZIP"
+                inputMode="numeric"
+                maxLength={5}
+                autoComplete="postal-code"
+                className="font-mono tabular"
               />
             )}
           </FieldShell>
         </div>
-      </details>
+      </div>
 
-      <div className="flex flex-wrap gap-3">
-        <Button type="submit" className="w-full sm:w-auto">
+      {/* index.html:969-971 — closed by default, native <details> so it works
+          with no JS and needs no focus management of its own. `mt-auto` parks
+          this footer against the bottom of the step whenever the panel has
+          room to spare, which keeps the Continue button on the same line of
+          the screen across all three steps. */}
+      <div className="mt-auto flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+        <details className="group hairline-t min-w-0 flex-1 pt-2">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-sans text-body text-fg [&::-webkit-details-marker]:hidden">
+            <span>
+              {"Refine my estimate "}
+              <span className="text-fg-meta">{"(optional)"}</span>
+            </span>
+            <PlusMinus />
+          </summary>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-2 lg:gap-6">
+            {/* CONDITION — text segment chips. FOUR labels, THREE CONFIG values
+                ("9–15 yrs" and "15+ yrs / renovation (PIP) due" both resolve to
+                `over8`); the group keys on the label, so both stay selectable. */}
+            <OptionGroupField
+              id="calc-cond"
+              label="Condition / last renovation"
+              tip="condition"
+              items={CONDITION_CHIP_ITEMS}
+              value={form.condition}
+              onValueChange={(condition) => onChange({ condition })}
+              shape="chip"
+            />
+
+            {/* GROUND LEASE — text segment chips. */}
+            <OptionGroupField
+              id="calc-ground"
+              label="Land"
+              tip="land"
+              items={LAND_CHIP_ITEMS}
+              value={form.land}
+              onValueChange={(land) => onChange({ land })}
+              shape="chip"
+            />
+
+            {/* index.html:991 — the row exists only for Full-Service and
+                Resort / Boutique. NOTE (source defect D3, ported deliberately):
+                a value entered here KEEPS applying its +25bps after the row is
+                hidden by a property-type change. Changing that changes shipped
+                numbers, so it needs a dated PROJECT-MEMORY decision.
+                F&B stays a numeric field: §4.6's "chips, no imagery" grouping
+                is about withholding IMAGERY from it, and bucketing a free
+                percentage into chips would change the engine's input space. */}
+            {showFb ? (
+              <FieldShell
+                id="calc-fb"
+                label={"F&B as % of revenue"}
+                unit=" in percent"
+                tip="fb"
+              >
+                {(control) => (
+                  <NumericInput
+                    control={control}
+                    value={form.fb}
+                    onValueChange={(fb) => onChange({ fb })}
+                    format="pct"
+                    inputMode="decimal"
+                    placeholder="optional"
+                    adornment="percent"
+                  />
+                )}
+              </FieldShell>
+            ) : null}
+
+            <FieldShell
+              id="calc-noi"
+              label="I know my actual NOI"
+              unit=" in US dollars"
+              tip="noi"
+            >
+              {(control) => (
+                <NumericInput
+                  control={control}
+                  value={form.noi}
+                  onValueChange={(noi) => onChange({ noi })}
+                  format="money"
+                  inputMode="decimal"
+                  placeholder="annual, optional"
+                  adornment="currency"
+                />
+              )}
+            </FieldShell>
+          </div>
+        </details>
+
+        <Button type="submit" className="w-full sm:w-auto lg:shrink-0">
           Continue
         </Button>
       </div>
@@ -572,10 +697,14 @@ export function StepTwo({
   const adr = parseNumericField(form.adr);
   const showRevpar = occ > 0 && adr > 0;
 
+  /* index.html:1639-1644 — the same tier lookup the autofill handler runs, read
+     here only to PRINT the figures on the chip. Nothing is written from it. */
+  const typical = typicalFor(tierKey(form.tier));
+
   return (
     <form
       noValidate
-      className="flex flex-col gap-6"
+      className="flex h-full flex-col gap-4 lg:gap-5"
       onSubmit={(event) => {
         event.preventDefault();
         onCalculate();
@@ -597,7 +726,7 @@ export function StepTwo({
         <span>{"numbers — your most recent 12 months."}</span>
       </p>
 
-      <div className="flex flex-col gap-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:gap-6">
         <FieldShell
           id="calc-occ"
           label="Occupancy (TTM)"
@@ -630,35 +759,54 @@ export function StepTwo({
         </FieldShell>
       </div>
 
-      {/* Height reserved so the row appearing/disappearing never moves the nav
-          (index.html:483 did the same with min-height: 16px). Deliberately NOT
-          a live region: announcing on every keystroke is noise. */}
-      <p className="min-h-6 font-mono text-data tabular text-fg">
+      {/* The live RevPAR readout, promoted from a 13px line to the step's data
+          moment (D8). Height is reserved so the row appearing/disappearing
+          never moves anything (index.html:483 did the same with a min-height).
+          Deliberately NOT a live region: announcing on every keystroke is
+          noise. */}
+      <p className="flex min-h-14 flex-wrap items-baseline gap-x-2 font-mono text-heading tabular text-fg">
         {showRevpar ? (
           <>
-            {"RevPAR ≈ "}
-            <strong className="font-medium">{"$" + Math.round(adr * occ)}</strong>
-            <span className="ml-2 font-sans text-data text-fg-meta">
+            <span>
+              {"RevPAR ≈ "}
+              <strong className="font-medium">{"$" + Math.round(adr * occ)}</strong>
+            </span>
+            <span className="font-sans text-data text-fg-meta">
               {"(ADR × occupancy — the number buyers anchor on)"}
             </span>
           </>
         ) : null}
       </p>
 
-      <div className="flex flex-col gap-1">
+      {/* MARKET TYPICAL — the source's autofill link (index.html:1016), now a
+          chip that also prints the tier's live figures. Same handler, same
+          copy: one click still fills BOTH fields from `typicalFor(tier)`,
+          latches `usedDefaults`, and prints the ported note below. */}
+      <div className="flex flex-col gap-1.5">
         <button
           type="button"
           onClick={onAutofill}
-          className="flex min-h-11 items-center text-start font-sans text-body text-fg-muted underline decoration-1 underline-offset-4 transition-colors duration-fast ease-out hover:text-accent-text"
+          className="hairline rounded-card flex w-full flex-col items-start gap-1.5 px-4 py-3 text-start transition-colors duration-fast ease-out hover:border-accent-text sm:w-auto"
         >
-          {"I'm not sure of my exact numbers — use typical figures"}
+          <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <MicroLabel as="span" className="font-medium">
+              Market typical
+            </MicroLabel>
+            <span className="font-mono text-data font-medium tabular text-fg">
+              {`${typical.occ}% occupancy`}
+            </span>
+            <span className="font-mono text-data font-medium tabular text-fg">
+              {`$${groupInt(String(typical.adr))} ADR`}
+            </span>
+          </span>
+          <span className="font-sans text-data text-fg-muted">{AUTOFILL_COPY}</span>
         </button>
         <p role="status" aria-live="polite" className="min-h-6 font-sans text-data text-fg-meta">
           {autofillNote}
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="mt-auto flex flex-wrap gap-3">
         <Button type="button" variant="ghost" onClick={onBack} className="w-full sm:w-auto">
           Back
         </Button>
@@ -675,9 +823,9 @@ export function StepTwo({
 /* -------------------------------------------------------------------------- */
 
 /**
- * The step head. Hierarchy comes from VOICE (Fraunces 400 against Inter body),
- * not from a fifth type size — ref 03 caps a section at four and the section
- * already spends them on display2 / body / data / micro.
+ * The step head. D8 steps it up from `text-body` to `text-heading` in Fraunces
+ * Light — the panel needed a real second-level display moment under the
+ * section's Display-2, and the old body-size serif line read as a caption.
  */
 function StepHead({
   headingId,
@@ -690,9 +838,10 @@ function StepHead({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <h3 id={headingId} className="font-display text-body font-normal text-fg">
+      <h3 id={headingId} className="font-display text-heading font-light text-fg">
         {title}
       </h3>
+      {/* text-body, never smaller: body copy below 16px is a P0 (ref 07). */}
       <p className="font-sans text-body text-fg-muted">{sub}</p>
     </div>
   );

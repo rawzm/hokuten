@@ -1,36 +1,132 @@
 "use client";
 
 /**
- * components/calculator/CalculatorResult.tsx — step 03: the estimate.
+ * components/calculator/CalculatorResult.tsx — step 03: the estimate,
+ * rebuilt as a DASHBOARD (DESIGN-REVISIT §4.6, D6/D7/D8, 2026-08-09).
  *
  * Anatomy ported from docs/port/01-calculator.md §B.4 (index.html:1025-1081):
  * value range → "How we got there" chips → "Where you sit" bars → "What this
  * means for you" → "What happens next" → CTAs. Every number and every formatted
  * string arrives ready-made on `ValuationResult`; nothing is computed here.
  *
- * TYPOGRAPHY (the P1 gate that governs this panel). The value range is the
- * section's stat moment, so it is set in FRAUNCES — Display 2, Light 300,
- * tabular figures. Setting a stat numeral in mono is a P1 breach (ref 03:
- * "Stat numerals: Display 1/2 in Fraunces with mono caption beneath — never mono
- * for the big numeral"). The supporting figures — RevPAR, NOI/key, value/key,
- * cap rate, the bar values — ARE deal data and therefore mono + tabular.
+ * ── WHAT CHANGED, AND WHY ───────────────────────────────────────────────────
+ * The old panel was a vertical stack of five bands: the number, then chips,
+ * then bars, then two prose bands, then the CTAs. On a fit-to-viewport section
+ * that reads like a form confirmation and buries the payoff. It is now one
+ * dashboard object plus two supporting rows:
  *
- * RICH TEXT. Three ADVICE bodies carry <strong>/<em>. They are developer-authored
+ *   ┌ dashboard card (surface-card, hairline, one object) ────────────────┐
+ *   │ ROW 1 · the finding            │ ROW 1 · the evidence beside it     │
+ *   │   [ here's where the market… ] │  [ where you sit ] + scope note    │
+ *   │   $22.6M – $26.2M   (display2) │  Occupancy / RevPAR benchmark bars │
+ *   │   both disclaimers             │                                    │
+ *   ├────────────────────────────────┴────────────────────────────────────┤
+ *   │ ROW 2 · [ how we got there ] — four metric chips, 4-across at xl    │
+ *   ├─────────────────────────────────────────────────────────────────────┤
+ *   │ ROW 3 · live-rate footnote (10-Yr Treasury · SOFR), height reserved │
+ *   └─────────────────────────────────────────────────────────────────────┘
+ *   then: [ what this means for you ] | [ what happens next ]   (two-up)
+ *   then: primary CTA + tertiary + start over | email capture   (two-up)
+ *
+ * The benchmark bars are PROMOTED into the dashboard — evidence beside the
+ * number, not an appendix under it. Nothing was dropped to make room: every
+ * band label, gloss, disclaimer, advice body, CTA and status string in §B.4
+ * still renders (see the fidelity checklist at the foot of this comment).
+ *
+ * ── WHY THE SIDE-BY-SIDE STARTS AT `xl`, NOT `lg` ───────────────────────────
+ * Measured, not guessed. The step column is narrowed by the shell's constant
+ * 17rem ContextRail, so at a 1024px viewport it is ~576px wide. `text-display2`
+ * resolves to ~53px there, and the widest realistic range string
+ * ("$122.6M – $126.2M") needs ~440px of Fraunces at that size — more than half
+ * the column. Splitting at `lg` would wrap the payoff figure onto two lines at
+ * exactly the width where it matters most. So the dashboard's first row is one
+ * column up to 1279px and two columns from 1280px, where the step column is
+ * ~832px and the figure has ~445px of its own. Below `lg` nothing is forced —
+ * mobile keeps natural flow (D6).
+ *
+ * ── ZERO CLS ────────────────────────────────────────────────────────────────
+ * Three reserved slots, no measurement anywhere:
+ *   1. The live-rate footnote row is always in the DOM at `min-h-11`; only its
+ *      CONTENTS are conditional. Rates arriving late fill a box that already
+ *      exists (and when they never arrive, nothing pretends to be data — no
+ *      dash-filled skeleton, per the brief).
+ *   2. The email-capture status line keeps its `min-h-6`, so idle → sending →
+ *      sent never moves the CTAs.
+ *   3. Everything else is static markup whose height depends only on strings
+ *      that are present at first paint.
+ *
+ * ── TYPOGRAPHY (D8) ─────────────────────────────────────────────────────────
+ * Four sizes, four jobs: `display2` (the range only) · `body` (prose, metric
+ * values, buttons) · `data` (disclaimers, glosses, bar figures, status) ·
+ * `micro` (every label). The range is the strongest step in the section and
+ * takes Fraunces **500** — D8 explicitly raises the display ceiling from 300 to
+ * 500 (never 600+) where a line needs a firmer step, and this is that line.
+ * Setting a stat numeral in mono is still a P1 breach (ref 03), so the range
+ * stays Fraunces with `tabular` figures; the supporting figures — RevPAR,
+ * NOI/key, value/key, cap rate, the bar values, the live rates — ARE deal data
+ * and are therefore mono + tabular. The result label steps DOWN to the mono
+ * caps micro-voice so the figure has nothing to compete with.
+ *
+ * ── RICH TEXT ───────────────────────────────────────────────────────────────
+ * Three ADVICE bodies carry <strong>/<em>. They are developer-authored
  * constants in lib/valuation.ts, but they still do not go through
  * dangerouslySetInnerHTML — `renderInlineMarkup` turns those two tags into React
  * nodes and drops anything else, so the render path cannot become an injection
  * sink if a future body is ever templated.
  *
- * INSIGHT COUNT. The engine slices to two (index.html:1590) and substitutes a
- * single fallback paragraph when nothing fires, so this band renders ONE OR TWO
- * advice paragraphs — never three, never zero — plus exactly one CTA line.
+ * ── INSIGHT COUNT ───────────────────────────────────────────────────────────
+ * The engine slices to two (index.html:1590) and substitutes a single fallback
+ * paragraph when nothing fires, so this band renders ONE OR TWO advice
+ * paragraphs — never three, never zero — plus exactly one CTA line.
  *
- * CALENDLY. `CALENDLY_URL` is `blocked: calendly-url` and currently null, so the
- * tertiary CTA renders as a real anchor to #bov and NOTHING is requested from
+ * ── LIVE RATES: ONE MECHANISM, NOT A SECOND ONE ─────────────────────────────
+ * The footnote reuses the ticker's existing contract end to end — same route
+ * (`TICKER_ENDPOINT`), same label table (`TICKER_SERIES`), same defensive
+ * parser (`readTickerValues`), same lead chip (`TICKER_LEAD`), same
+ * `X.XX%`-only admission rule. It adds NO polling loop and NO interval: the
+ * request is a module-scoped single-flight promise, so however many times this
+ * panel mounts, unmounts and remounts across a session it issues at most one
+ * GET. The FRED key is not referenced here — not the value, not even the env
+ * var's name, so ref 07's secret-scan grep stays clean on this file. It is read
+ * in exactly one place on the site: `app/api/ticker-data/route.ts`, server-side.
+ *
+ * REPORTED, NOT SILENTLY FIXED: `TickerClient` owns an identical fetch in its
+ * own `useEffect`, so a page that renders both the bar and this footnote makes
+ * two requests rather than one. The fix is one file this agent does not own —
+ * hoist `loadTickerValues()` below into `lib/ticker.ts` and have `TickerClient`
+ * await the same shared promise. Until then the second request is a warm CDN
+ * hit (`s-maxage=3600` on the route) and never touches FRED.
+ *
+ * ── CALENDLY ────────────────────────────────────────────────────────────────
+ * `CALENDLY_URL` is `blocked: calendly-url` and currently null, so the tertiary
+ * CTA renders as a real anchor to #bov and NOTHING is requested from
  * assets.calendly.com. When a URL lands, the widget is injected on the first
  * click and never before. The source appended `hide_gdpr_banner=1`
  * (index.html:1921); that is deliberately NOT carried over — suppressing a third
  * party's consent prompt is a decision nobody has made.
+ *
+ * ── CONTENT-FIDELITY CHECKLIST (docs/port/01-calculator.md §B.4, re-verified
+ *    2026-08-09 after the redesign) ─────────────────────────────────────────
+ *   §B.4.1 result label (STEP_TITLES[3], passed in as `heading`) · #resRange ·
+ *          #resHonest · #resContext + BOTH conditional caveats  ✓
+ *   §B.4.2 band label "How we got there" · all four chips in fixed order with
+ *          byte-exact keys and glosses · the `*` on NOI/key (carried inside the
+ *          frozen `display.noiPerKey`)  ✓
+ *   §B.4.3 band label "Where you sit" + the scope sub, still adjacent  ✓
+ *   §B.4.4 band label "What this means for you" · 1–2 advice bodies · exactly
+ *          one CTA line  ✓
+ *   §B.4.5 band label "What happens next" · intro · all four list items  ✓
+ *   §B.4.6 primary CTA → #bov  ✓
+ *   §B.4.7 email label · placeholder · autocomplete/inputmode · "Send it" /
+ *          "Sent" · all six status strings · focus-on-invalid  ✓
+ *   §B.4.8 Calendly CTA · "Start over"  ✓
+ *   §B.5   both calculator disclaimers (resultHonest + resultContext) render on
+ *          this panel; the third occurrence (methodologyNote) is
+ *          CalculatorSection's and is untouched  ✓
+ * ADDED this round (DESIGN-REVISIT §5.5, ship-gate): `PRIVACY_NOTICE_LINK`
+ * under the email field — the capture collected an address and linked to no
+ * policy. The constant already exists in content/compliance.ts and names this
+ * component in its docstring; nothing is authored here.
  */
 
 import * as React from "react";
@@ -40,8 +136,15 @@ import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CALCULATOR_DISCLAIMER } from "@/content/compliance";
+import { CALCULATOR_DISCLAIMER, PRIVACY_NOTICE_LINK } from "@/content/compliance";
 import { CALENDLY_FALLBACK, CALENDLY_URL, CONTACT } from "@/content/site";
+import {
+  TICKER_ENDPOINT,
+  TICKER_LEAD,
+  TICKER_SERIES,
+  readTickerValues,
+  type TickerSeriesId,
+} from "@/lib/ticker";
 import type { Web3FormsResult } from "@/lib/web3forms";
 import {
   formatOccBandSub,
@@ -167,6 +270,98 @@ function renderInlineMarkup(html: string, keyPrefix: string): React.ReactNode[] 
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Live rates — the ticker's own mechanism, single-flight, no polling         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The two series the footnote carries (DESIGN-REVISIT §4.6: "live ticker rates
+ * (10-Yr, SOFR) as a footnote row"). Addressed by FRED series id and resolved
+ * against `TICKER_SERIES`, so the display labels — `10-Yr Treasury`, capital Y,
+ * lowercase r — are imported, never retyped, and reordering the ticker's table
+ * reorders this row with it.
+ */
+const FOOTNOTE_SERIES_IDS: readonly TickerSeriesId[] = ["DGS10", "SOFR"];
+
+const FOOTNOTE_SERIES = TICKER_SERIES.filter((series) =>
+  FOOTNOTE_SERIES_IDS.includes(series.id),
+);
+
+/**
+ * Module-scoped single flight. One GET for the lifetime of the document no
+ * matter how many times step 3 is entered, left and re-entered — there is no
+ * interval, no retry and no revalidation. Every failure shape resolves to an
+ * empty map, which the caller reads as "render nothing".
+ *
+ * Deliberately NOT abortable: the promise is shared, so aborting it on one
+ * consumer's unmount would poison it for the next one.
+ */
+let tickerLoad: Promise<ReadonlyMap<string, string>> | null = null;
+
+function loadTickerValues(): Promise<ReadonlyMap<string, string>> {
+  if (!tickerLoad) {
+    tickerLoad = fetch(TICKER_ENDPOINT, { headers: { Accept: "application/json" } })
+      .then((response) => (response.ok ? (response.json() as Promise<unknown>) : null))
+      .then(readTickerValues)
+      .catch(() => new Map<string, string>());
+  }
+  return tickerLoad;
+}
+
+type FootnoteRate = { id: TickerSeriesId; label: string; value: string };
+
+/**
+ * The whole client surface of the footnote: one state cell, one effect, no
+ * timers. Kept in its own component so a late payload re-renders 40px of the
+ * dashboard rather than the entire result panel.
+ */
+function LiveRateFootnote() {
+  const [rates, setRates] = React.useState<ReadonlyMap<string, string> | null>(null);
+
+  React.useEffect(() => {
+    let live = true;
+    void loadTickerValues().then((values) => {
+      // An empty map means missing_key / fetch_failed / garbage. Staying null
+      // keeps the row empty rather than re-rendering to the identical thing.
+      if (live && values.size > 0) setRates(values);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const rows: FootnoteRate[] = [];
+  if (rates) {
+    for (const series of FOOTNOTE_SERIES) {
+      const value = rates.get(series.label);
+      if (value) rows.push({ id: series.id, label: series.label, value });
+    }
+  }
+
+  return (
+    /* The box exists from first paint (`min-h-11`); only its contents are
+       conditional. Rates arriving late therefore shift nothing, and rates that
+       never arrive show nothing — no dash-filled skeleton pretending to data. */
+    <div className="hairline-t flex min-h-11 flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2 lg:px-5">
+      {rows.length > 0 ? (
+        <>
+          <MicroLabel as="p" className="font-medium">
+            {TICKER_LEAD}
+          </MicroLabel>
+          <dl className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
+            {rows.map((rate) => (
+              <div key={rate.id} className="flex items-baseline gap-2">
+                <dt className="micro-label">{rate.label}</dt>
+                <dd className="data-line font-medium text-accent-text">{rate.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Calendly (lazy, and only if a URL is ever provisioned)                     */
 /* -------------------------------------------------------------------------- */
 
@@ -260,103 +455,138 @@ export function CalculatorResult({
   ];
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* ---- the number ------------------------------------------------- */}
-      <div className="flex flex-col gap-3">
-        <h3 id={headingId} className="font-sans text-body font-normal text-fg-muted">
-          {heading}
-        </h3>
+    <div className="flex flex-col gap-5">
+      {/* ================= THE DASHBOARD ================================== */}
+      <div className="surface-card hairline rounded-card overflow-hidden">
+        {/* ---- row 1: the finding, and the evidence beside it ------------ */}
+        {/* `gap-px` over a hairline ground draws the dividers: one rule in
+            both orientations, correct on every surface, no per-edge classes. */}
+        <div className="grid gap-px bg-hairline xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+          {/* the number */}
+          <div className="flex flex-col gap-2 bg-surface p-4 lg:p-5">
+            {/* §B.4.1 `.result-label`. D8 steps it DOWN into the mono caps
+                micro-voice so the figure below owns the cell outright. */}
+            <h3 id={headingId} className="micro-label font-medium">
+              {heading}
+            </h3>
 
-        <p className="font-display text-display2 font-light tabular text-accent-text">
-          {result.display.range}
-        </p>
+            <p className="font-display text-display2 font-medium tabular text-accent-text">
+              {result.display.range}
+            </p>
 
-        {/* CALCULATOR_DISCLAIMER is frozen compliance copy — imported, never retyped. */}
-        <p className="font-sans text-data text-fg-muted">{CALCULATOR_DISCLAIMER.resultHonest}</p>
+            {/* CALCULATOR_DISCLAIMER is frozen compliance copy — imported, never retyped. */}
+            <p className="font-sans text-data text-fg-muted">
+              {CALCULATOR_DISCLAIMER.resultHonest}
+            </p>
 
-        <p className="font-sans text-data text-fg-meta">
-          {CALCULATOR_DISCLAIMER.resultContext}
-          {result.usedDefaults ? (
-            <>
-              {" "}
-              {/* Colour steps meta → muted; never italic (see `flush()`). */}
-              <em className="not-italic text-fg-muted">{CALCULATOR_DISCLAIMER.usedDefaults}</em>
-            </>
-          ) : null}
-          {result.usedNoiOverride ? (
-            <>
-              {" "}
-              <em className="not-italic text-fg-muted">{CALCULATOR_DISCLAIMER.usedNoiOverride}</em>
-            </>
-          ) : null}
-        </p>
+            <p className="font-sans text-data text-fg-meta">
+              {CALCULATOR_DISCLAIMER.resultContext}
+              {result.usedDefaults ? (
+                <>
+                  {" "}
+                  {/* Colour steps meta → muted; never italic (see `flush()`). */}
+                  <em className="not-italic text-fg-muted">
+                    {CALCULATOR_DISCLAIMER.usedDefaults}
+                  </em>
+                </>
+              ) : null}
+              {result.usedNoiOverride ? (
+                <>
+                  {" "}
+                  <em className="not-italic text-fg-muted">
+                    {CALCULATOR_DISCLAIMER.usedNoiOverride}
+                  </em>
+                </>
+              ) : null}
+            </p>
+          </div>
+
+          {/* where you sit — promoted out of its old stacked band */}
+          <div className="flex flex-col gap-3 bg-surface p-4 lg:p-5">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <MicroLabel as="p" className="font-medium">
+                {BAND_WHERE}
+              </MicroLabel>
+              {/* The only on-screen text saying these are not local comps. */}
+              <span className="font-sans text-data text-fg-meta">
+                {CALCULATOR_DISCLAIMER.benchmarkBandScope}
+              </span>
+            </div>
+
+            <BenchmarkBars rows={bars} />
+          </div>
+        </div>
+
+        {/* ---- row 2: how we got there, as a metric strip ---------------- */}
+        <div className="hairline-t p-4 lg:p-5">
+          <MicroLabel as="p" className="font-medium">
+            {BAND_HOW}
+          </MicroLabel>
+
+          <dl className="mt-3 grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-4">
+            {CHIP_META.map((meta, i) => (
+              <div key={meta.key} className="flex flex-col gap-1">
+                <dt className="micro-label">{meta.key}</dt>
+                <dd className="font-mono text-body font-medium tabular text-fg">{chips[i]}</dd>
+                <dd className="font-sans text-data text-fg-meta">{meta.gloss}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        {/* ---- row 3: the live-rate footnote ----------------------------- */}
+        <LiveRateFootnote />
       </div>
 
-      {/* ---- how we got there ------------------------------------------- */}
-      <Band label={BAND_HOW}>
-        <dl className="grid gap-5 sm:grid-cols-2">
-          {CHIP_META.map((meta, i) => (
-            <div key={meta.key} className="flex flex-col">
-              <dt className="micro-label">{meta.key}</dt>
-              <dd className="mt-2 font-mono text-body font-medium tabular text-fg">{chips[i]}</dd>
-              <dd className="mt-1 font-sans text-data text-fg-meta">{meta.gloss}</dd>
-            </div>
-          ))}
-        </dl>
-      </Band>
+      {/* ================= THE READING ==================================== */}
+      <div className="grid gap-5 lg:grid-cols-2 lg:gap-8">
+        {/* what this means for you */}
+        <Band label={BAND_MEANS}>
+          <div className="flex flex-col gap-3">
+            {result.topAdvice.map((entry, i) => (
+              <p key={entry.code ?? `advice-${i}`} className="font-sans text-body text-fg-muted">
+                {renderInlineMarkup(entry.html, entry.code ?? `advice-${i}`)}
+              </p>
+            ))}
+            <p className="font-sans text-body font-medium text-fg">{result.ctaLine}</p>
+          </div>
+        </Band>
 
-      {/* ---- where you sit ---------------------------------------------- */}
-      <Band label={BAND_WHERE} sub={CALCULATOR_DISCLAIMER.benchmarkBandScope}>
-        <BenchmarkBars rows={bars} />
-      </Band>
+        {/* what happens next */}
+        <Band label={BAND_NEXT}>
+          <p className="font-sans text-body text-fg-muted">{NEXT_INTRO}</p>
+          <ul className="mt-3 flex list-none flex-col gap-3">
+            {NEXT_ITEMS.map((item) => (
+              <li key={item} className="flex gap-3 font-sans text-body text-fg-muted">
+                <span aria-hidden="true" className="text-fg-meta">
+                  —
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </Band>
+      </div>
 
-      {/* ---- what this means for you ------------------------------------ */}
-      <Band label={BAND_MEANS}>
-        <div className="flex flex-col gap-3">
-          {result.topAdvice.map((entry, i) => (
-            <p
-              key={entry.code ?? `advice-${i}`}
-              className="font-sans text-body text-fg-muted"
-            >
-              {renderInlineMarkup(entry.html, entry.code ?? `advice-${i}`)}
-            </p>
-          ))}
-          <p className="font-sans text-body font-medium text-fg">{result.ctaLine}</p>
+      {/* ================= THE ACTIONS ==================================== */}
+      <div className="hairline-t grid gap-5 pt-5 lg:grid-cols-2 lg:gap-8">
+        <div className="flex flex-col items-start gap-3">
+          <Button asChild className="w-full">
+            <a href="#bov">{PRIMARY_CTA}</a>
+          </Button>
+
+          <TertiaryCta prefill={result.prefill} />
+
+          <button
+            type="button"
+            onClick={onStartOver}
+            className="min-h-11 font-sans text-body text-fg-muted underline decoration-1 underline-offset-4 transition-colors duration-fast ease-out hover:text-accent-text"
+          >
+            {START_OVER}
+          </button>
         </div>
-      </Band>
-
-      {/* ---- what happens next ------------------------------------------ */}
-      <Band label={BAND_NEXT}>
-        <p className="font-sans text-body text-fg-muted">{NEXT_INTRO}</p>
-        <ul className="mt-3 flex list-none flex-col gap-3">
-          {NEXT_ITEMS.map((item) => (
-            <li key={item} className="flex gap-3 font-sans text-body text-fg-muted">
-              <span aria-hidden="true" className="text-fg-meta">
-                —
-              </span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </Band>
-
-      {/* ---- CTAs -------------------------------------------------------- */}
-      <div className="flex flex-col gap-4 hairline-t pt-6">
-        <Button asChild className="w-full">
-          <a href="#bov">{PRIMARY_CTA}</a>
-        </Button>
 
         <EmailCapture onSendEstimate={onSendEstimate} />
-
-        <TertiaryCta prefill={result.prefill} />
-
-        <button
-          type="button"
-          onClick={onStartOver}
-          className="min-h-11 self-start font-sans text-body text-fg-muted underline decoration-1 underline-offset-4 transition-colors duration-fast ease-out hover:text-accent-text"
-        >
-          {START_OVER}
-        </button>
       </div>
     </div>
   );
@@ -366,21 +596,18 @@ export function CalculatorResult({
 /*  Pieces                                                                     */
 /* -------------------------------------------------------------------------- */
 
-function Band({
-  label,
-  sub,
-  children,
-}: {
-  label: string;
-  sub?: string;
-  children: React.ReactNode;
-}) {
+/**
+ * The two prose bands under the dashboard. The `sub` slot the old version
+ * carried is gone: its only user was the benchmark scope note, which now sits
+ * beside its band label INSIDE the dashboard's bars cell (same adjacency the
+ * source had at index.html:1047, different container).
+ */
+function Band({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="hairline-t pt-5">
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <MicroLabel as="p">{label}</MicroLabel>
-        {sub ? <span className="font-sans text-data text-fg-meta">{sub}</span> : null}
-      </div>
+      <MicroLabel as="p" className="font-medium">
+        {label}
+      </MicroLabel>
       <div className="mt-4">{children}</div>
     </div>
   );
@@ -513,11 +740,7 @@ function EmailCapture({
       >
         {errorMessage ? (
           <>
-            <AlertCircle
-              aria-hidden="true"
-              strokeWidth={1.5}
-              className="mt-0.5 size-4 shrink-0"
-            />
+            <AlertCircle aria-hidden="true" strokeWidth={1.5} className="mt-0.5 size-4 shrink-0" />
             <span>{errorMessage}</span>
           </>
         ) : null}
@@ -528,6 +751,26 @@ function EmailCapture({
             <span>{EMAIL_STATUS.ok}</span>
           </>
         ) : null}
+      </p>
+
+      {/*
+        DESIGN-REVISIT §5.5 — the capture takes a contact detail and, until now,
+        linked to no policy. Composed from PRIVACY_NOTICE_LINK, never authored
+        here. `target="_blank" rel="noopener"` so a half-typed form survives the
+        click; `py-3` expands the anchor's hit box to ~44px WITHOUT changing the
+        line box, the same trick ui/button.tsx uses for its small sizes.
+      */}
+      <p className="font-sans text-data text-fg-meta">
+        {PRIVACY_NOTICE_LINK.lead}
+        <a
+          href={PRIVACY_NOTICE_LINK.href}
+          target="_blank"
+          rel="noopener"
+          className="py-3 text-accent-text underline underline-offset-4"
+        >
+          {PRIVACY_NOTICE_LINK.label}
+        </a>
+        {PRIVACY_NOTICE_LINK.tail}
       </p>
     </form>
   );

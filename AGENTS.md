@@ -33,7 +33,7 @@ Working rules for every agent (Claude Code, Cursor, or human) in this workspace.
 
 - Spelling: HOKUTEN. Brand: THE HOKUTEN GROUP. Never "Hakuten" in any artifact.
 - Website gold `#B8902E`; kit gold `#B8943D` only inside raster assets. Hex values live in skill reference 01 and `site/app/globals.css` only.
-- Hokuten-first branding; KW Commercial only as footer compliance mark + verbatim disclosure line; compliance/TCPA blocks are byte-exact ports.
+- Header brand mark: the theme-matched KW/Hokuten lockup (blue lockup on Theme B, gold on Theme G) **is** the header mark — a real-text brand line stays adjacent (visually-hidden is acceptable) for SEO/AT; names baked only into an image, with no real-text fallback, is the Sarhan-era anti-pattern to avoid. Footer keeps exactly ONE KW Commercial compliance mark instance (the 2026-08-08 audit found it rendering twice — the duplicate is a bug, not a feature) plus the verbatim disclosure line; compliance/TCPA blocks stay byte-exact ports. **(D1, Razim 2026-08-08 — supersedes "Hokuten-first branding; KW Commercial only as footer compliance mark + verbatim disclosure line" from 2026-08-07; the old "no KW lockup in the header" P0 is retired. Full text: docs/DESIGN-REVISIT.md §2.)**
 - Calculator math, defaults, and cap-rate `CONFIG` are a frozen port from the kwc site — changes require a dated PROJECT-MEMORY.md decision.
 - No Sarhan Hotel Group branding anywhere on the new site.
 - Secrets: `FRED_API_KEY` is a Vercel env var, server-side only. Never commit `.env*`.

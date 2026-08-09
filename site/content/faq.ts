@@ -25,13 +25,24 @@
  *   · any NDA workflow — the source's only NDA reference is `lender NDAs` as a
  *     deal category (index.html:1223).
  *
- * COMPLIANCE: the brokerage disclosure in the last answer is byte-exact from
- * docs/port/02-compliance.md §1.1 — no comma after "Forward Wilshire Inc", no
- * period inside the parenthetical, lowercase `dba`, one space before each `#`.
- * Do not paraphrase, re-space, or re-punctuate it.
+ * COMPLIANCE: the brokerage disclosure in the last answer is no longer retyped
+ * here — it is IMPORTED from content/compliance.ts, the single owner of that
+ * string (ship-gate finding, DESIGN-REVISIT §5.3). The two copies were diffed
+ * character by character before the swap and were byte-identical over all 145
+ * characters, with no non-ASCII codepoints on either side, so this change is
+ * refactor-only: the rendered answer is unchanged. Never retype it back.
  */
 
+import { BROKERAGE_DISCLOSURE } from "@/content/compliance";
 import type { FaqItem } from "@/lib/types";
+
+/**
+ * The disclosure as one inline sentence pair. content/compliance.ts documents
+ * this join: the source uses a hard line break between the two elements in the
+ * footer, and a single space in the inline form used on the legal pages. An FAQ
+ * answer is a plain string, so the inline form is the correct one here.
+ */
+const DISCLOSURE_INLINE = BROKERAGE_DISCLOSURE.join(" ");
 
 export const faq = [
   {
@@ -79,12 +90,20 @@ export const faq = [
       "The written BOV is no cost and no obligation, and it is delivered before the listing agreement — asking for a number does not start an engagement, and no listing agreement follows automatically. [PLACEHOLDER:confirm — commission structure, marketing-cost allocation, listing term and exclusivity, and cancellation terms; the source site states none of these]",
   },
   {
-    // Disclosure sentences byte-exact from docs/port/02-compliance.md §1.1
+    // Disclosure sentences IMPORTED from content/compliance.ts, which owns them
     // (kwc index.html:1140, :1241, :1249 — the same string 7 times across 4 files).
-    // Coverage sentence from index.html:1152. The whole block is gated on the
-    // KW / Forward Wilshire paperwork item tracked in PROJECT-MEMORY.md.
+    //
+    // The coverage sentence is a deliberate NARROWING of index.html:1152, not a
+    // port of it: the source line ("Nationwide referral network and formal
+    // partner-brokerage relationships in every U.S. state…") is now exported
+    // byte-exact as compliance.ts `OUT_OF_STATE_QUALIFIER` for the footer, and
+    // asserting "every U.S. state" inside an FAQ answer would widen a coverage
+    // claim that has no register row yet. Keep the narrower wording here until
+    // ref 06 carries the row; then this becomes a one-line swap, not a rewrite.
+    //
+    // The whole block is gated on the KW / Forward Wilshire paperwork item
+    // tracked in PROJECT-MEMORY.md.
     question: "Who is the brokerage of record, and can you work outside California?",
-    answer:
-      "Brokerage services are provided through Forward Wilshire Inc dba Keller Williams Larchmont (CA DRE #01870534). Dino Monteverde, CA DRE #01948432. Out-of-California engagements run through formal partner-brokerage relationships, and Forward Wilshire is brokerage of record for all listings. [PLACEHOLDER:confirm — the KW / Forward Wilshire paperwork gate must clear before this answer ships publicly under the Hokuten name, and whether the named licensee is a team block or Dino individually]",
+    answer: `${DISCLOSURE_INLINE} Out-of-California engagements run through formal partner-brokerage relationships, and Forward Wilshire is brokerage of record for all listings. [PLACEHOLDER:confirm — the KW / Forward Wilshire paperwork gate must clear before this answer ships publicly under the Hokuten name, and whether the named licensee is a team block or Dino individually]`,
   },
 ] satisfies FaqItem[];

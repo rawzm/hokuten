@@ -23,6 +23,18 @@
  * same build wave disagree on convention (`ClosingsSection` default-exports,
  * `FaqSection` named-exports) — whichever the page-assembly agent expects,
  * this file satisfies it.
+ *
+ * ── Design revisit, 2026-08-08 (D6 density / D8 hierarchy) ─────────────────
+ * `section-fit` targets one screen on desktop (`lg:flex lg:flex-col
+ * lg:justify-center` centres the header+panel stack inside that min-height —
+ * `section-fit` itself only sets `min-height`, ref AGENT-BRIEF.md). No
+ * `section-join`: this section's neighbours in `page.tsx` (`#method`,
+ * `#mandates`) are both `.surface-dark` while this is `.surface-paper`, so
+ * every adjacent pair alternates surface and none qualifies for the shared-
+ * gutter treatment. Panel headline stepped `font-light` → `font-normal`
+ * (D8: Fraunces may firm up 300→500 for contrast) so the two door titles
+ * read as a clear secondary step under the section's own Display-2 headline,
+ * which stays the one dominant focal step by size alone.
  */
 
 import { ArrowUpRight } from "lucide-react";
@@ -46,16 +58,16 @@ function DoorPanel({ door, primary }: { door: Door; primary: boolean }) {
           mid-page and made the whole index read as decoration. The section's
           own header carries `05`; the panels carry names. `door.index` stays
           in content/doors.ts for a future standalone route. */}
-      <MicroLabel as="p" className="mb-4">
+      <MicroLabel as="p" className="mb-3">
         {door.label}
       </MicroLabel>
 
-      <h3 className="font-display font-light text-heading">{door.headline}</h3>
-      <AccentRule width="sm" className="mt-4" />
+      <h3 className="font-display font-normal text-heading">{door.headline}</h3>
+      <AccentRule width="sm" className="mt-3" />
 
-      <p className="mt-6 max-w-[46ch] text-body text-fg-muted">{door.body}</p>
+      <p className="mt-4 max-w-[46ch] text-body text-fg-muted">{door.body}</p>
 
-      <div className="mt-8 flex flex-wrap items-center gap-4">
+      <div className="mt-6 flex flex-wrap items-center gap-4">
         <Button asChild variant={primary ? "primary" : "ghost"}>
           <a href={door.cta.href}>{door.cta.label}</a>
         </Button>
@@ -85,7 +97,11 @@ function DoorPanel({ door, primary }: { door: Door; primary: boolean }) {
 
 export function DoorsSection() {
   return (
-    <section id="doors" aria-labelledby="doors-heading" className="surface-paper section-pad">
+    <section
+      id="doors"
+      aria-labelledby="doors-heading"
+      className="surface-paper section-pad section-fit lg:flex lg:flex-col lg:justify-center"
+    >
       <div className="container-hk">
         <Reveal>
           <SectionHeader
@@ -96,7 +112,7 @@ export function DoorsSection() {
           />
         </Reveal>
 
-        <Reveal delay={0.1} className="mt-12 flex flex-col md:mt-16 md:flex-row md:items-stretch">
+        <Reveal delay={0.1} className="mt-10 flex flex-col md:mt-12 md:flex-row md:items-stretch">
           <DoorPanel door={ownerDoor} primary />
 
           <div

@@ -2,11 +2,13 @@
 
 /**
  * components/calculator/BenchmarkBars.tsx — the result panel's "Where you sit"
- * bars.
+ * bars, now a CELL OF THE STEP-3 DASHBOARD rather than a stacked band.
  *
  * Port of `bar()` at index.html:1614-1618 (docs/port/01-calculator.md §A.8).
  * The position formula lives in `pctBar()` in lib/valuation.ts and is FROZEN —
- * this component only paints the number it is handed.
+ * this component only paints the number it is handed. Both rows, both value
+ * strings and both `…typical` sub-labels are produced upstream by the frozen
+ * formatters; nothing here computes or rewords anything.
  *
  * Two things the source did not do, both required here:
  *
@@ -24,6 +26,28 @@
  *     so the band's own numbers would be an invalid min/max pair). Its
  *     accessible name is the row's label + value, and the typical-band line is
  *     its description, so no string is duplicated for screen readers.
+ *
+ * ── REDESIGN NOTES (D6/D8, 2026-08-09) ──────────────────────────────────────
+ * The bars are now evidence sitting BESIDE the valuation number inside the
+ * dashboard card (see CalculatorResult.tsx), not an appendix beneath it. Three
+ * changes follow from that:
+ *   · Density. The row rhythm compresses (gap-4, 6px between the parts) so two
+ *     bars plus their band captions occupy roughly one third of the dashboard's
+ *     height instead of a screen of their own.
+ *   · D8 micro-voice. The row label steps to mono 500 caps and the value to the
+ *     `data-line` utility (mono + tabular-nums + zero tracking) at 500, so the
+ *     two figures read as instrument data against the Fraunces range above.
+ *   · The track thickens 6px → 8px and keeps `rounded-card`. A pill radius on a
+ *     meter reads as a toy; 2px reads as an instrument.
+ * Nothing about the props, the meter semantics or the frozen inputs changed —
+ * `BenchmarkRow` is byte-identical to the shipped shape, so the only caller
+ * (CalculatorResult) needs no migration.
+ *
+ * NO INVENTED LANDMARKS. An earlier pass drew the band's MID value (`band[1]`)
+ * as a tick on the track. It was dropped: the mid is not named anywhere in the
+ * result panel's text, so the tick would have been information conveyed by
+ * position alone with no text equivalent (ref 07 a11y gate). The mid is already
+ * surfaced, in words, by ContextRail's "Typical" column.
  */
 
 import * as React from "react";
@@ -66,7 +90,7 @@ export function BenchmarkBars({ rows, className }: BenchmarkBarsProps) {
   const transitions = useTransitionsEnabled();
 
   return (
-    <div className={cn("flex flex-col gap-5", className)}>
+    <div className={cn("flex flex-col gap-4", className)}>
       {rows.map((row) => {
         /* index.html:1616 printed the fill percentage with toFixed(0). */
         const pct = Math.round(row.pct);
@@ -77,10 +101,13 @@ export function BenchmarkBars({ rows, className }: BenchmarkBarsProps) {
         return (
           <div key={row.id}>
             <div className="flex items-baseline justify-between gap-3">
-              <span id={labelId} className="micro-label">
+              {/* D8: the label is the heavier mono/caps micro-voice … */}
+              <span id={labelId} className="micro-label font-medium">
                 {row.label}
               </span>
-              <span id={valueId} className="font-mono text-data font-medium tabular text-fg">
+              {/* … and the figure is deal data, so it takes `data-line`
+                  (mono + tabular-nums + zero tracking) at 500. */}
+              <span id={valueId} className="data-line font-medium text-fg">
                 {row.value}
               </span>
             </div>
@@ -92,7 +119,7 @@ export function BenchmarkBars({ rows, className }: BenchmarkBarsProps) {
               aria-valuenow={pct}
               aria-labelledby={`${labelId} ${valueId}`}
               aria-describedby={subId}
-              className="mt-2 h-1.5 w-full overflow-hidden rounded-card bg-hairline"
+              className="mt-1.5 h-2 w-full overflow-hidden rounded-card bg-hairline"
             >
               <span
                 aria-hidden="true"
@@ -105,7 +132,7 @@ export function BenchmarkBars({ rows, className }: BenchmarkBarsProps) {
               />
             </div>
 
-            <p id={subId} className="mt-2 font-sans text-data text-fg-meta">
+            <p id={subId} className="mt-1.5 font-sans text-data text-fg-meta">
               {row.sub}
             </p>
           </div>

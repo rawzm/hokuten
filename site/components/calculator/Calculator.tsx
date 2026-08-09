@@ -3,13 +3,37 @@
 /**
  * components/calculator/Calculator.tsx — the controlled 3-step wizard shell.
  *
- * Composes the already-built pieces (CalculatorSteps, CalculatorResult) around
- * the FROZEN engine in lib/valuation.ts. This file owns exactly the things the
- * source's calculator IIFE owned outside the math: input state, the two
- * validation gates, step navigation, focus management, and the one call out to
- * Web3Forms. It reimplements none of the arithmetic.
+ * Composes the already-built pieces (CalculatorSteps, ContextRail,
+ * CalculatorResult) around the FROZEN engine in lib/valuation.ts. This file
+ * owns exactly the things the source's calculator IIFE owned outside the math:
+ * input state, the two validation gates, step navigation, focus management, and
+ * the one call out to Web3Forms. It reimplements none of the arithmetic.
  *
  * Spec: docs/design/specs/calculator.md. Source: docs/port/01-calculator.md.
+ * Redesign: docs/DESIGN-REVISIT.md §4.6.
+ *
+ * ── LANDSCAPE CHASSIS + ZERO-CLS STEP CHANGES (D6, 2026-08-09) ──────────────
+ * The old portrait "text left / form right" split is gone. The console is now
+ * one full-width object: a horizontal stepper across the top, then a two-column
+ * body — the live step on the left, the market-data `ContextRail` pinned on the
+ * right. The rail renders on ALL THREE steps: dropping it on step 3 would
+ * re-flow the step column's width mid-wizard, and a horizontal shift counts
+ * against CLS exactly like a vertical one.
+ *
+ * Vertical CLS is solved structurally rather than by measuring:
+ *   1. `CalculatorSection` makes the section a flex column with `section-fit`'s
+ *      min-height, and hands this component `lg:flex-1`. The console therefore
+ *      occupies the same box on every step at every desktop size.
+ *   2. Inside it, the step/rail grid is `lg:flex-1`, so the step column's box
+ *      is fixed by the console, not by the step's content.
+ *   3. Steps 1 and 2 use `mt-auto` on their footer rows, so their buttons park
+ *      at the same screen line instead of floating up when the content is short.
+ *   4. Step 3 is the only step whose content can exceed the box, so it — and
+ *      only it — gets a native `scroll-well`: real `overflow-y: auto` with the
+ *      masked fade affordance, `tabIndex={0}` + `role="region"` so a keyboard
+ *      user can reach and scroll it. No wheel is ever hijacked (ref 05).
+ * The step panel is consequently the same height on step 1, 2 and 3, and the
+ * measured shift on a step change is the reserved-slot case: 0.
  *
  * ── STATE SHAPE ──────────────────────────────────────────────────────────────
  * `form` holds the raw <option> DISPLAY STRINGS exactly as CalculatorSteps.tsx
@@ -17,7 +41,8 @@
  * `brandKeyCfg` / `condKeyCfg` / `groundLeaseFromLabel` — the source's own
  * display-string → CONFIG-key shims (index.html:1385-1394, :1512) — resolve the
  * typed `ValuationInput` at the two points that need it: priming on mount and
- * every entry into step 3.
+ * every entry into step 3. `typeKey`/`tierKey` are also read (cheaply, in
+ * render) to address the frozen benchmark bands for the rail.
  *
  * ── PRIMED ON MOUNT (index.html:1687, "prime Step 3 so it's correct the moment
  * the user reaches it") ──────────────────────────────────────────────────────
@@ -98,6 +123,7 @@ import {
   StepTwo,
   type CalculatorForm,
 } from "./CalculatorSteps";
+import { ContextRail } from "./ContextRail";
 
 /* -------------------------------------------------------------------------- */
 /*  Step machine                                                              */
@@ -108,6 +134,10 @@ const STEPS: readonly Step[] = [1, 2, 3];
 
 /** Only one step panel is ever mounted, so one id serves all three headings. */
 const STEP_HEADING_ID = "calculator-step-heading";
+
+/** Accessible name of step 3's scroll region (ref 07: a scrollable container
+ *  must be keyboard-reachable AND named). */
+const RESULT_REGION_LABEL = "Your estimate";
 
 /* -------------------------------------------------------------------------- */
 /*  Form -> engine input (index.html:1385-1394, :1512 shims)                  */
@@ -311,41 +341,72 @@ export function Calculator({ className }: CalculatorProps) {
   return (
     <div
       className={cn(
-        "surface-deep hairline rounded-card flex flex-col gap-8 p-6 sm:p-10",
+        "surface-deep hairline rounded-card flex flex-col gap-5 p-5 sm:p-6",
         className,
       )}
     >
       <Stepper step={step} onSelect={goToStep} />
 
-      <div ref={panelRef} role="group" tabIndex={-1} aria-labelledby={STEP_HEADING_ID}>
-        {step === 1 ? (
-          <StepOne
-            headingId={STEP_HEADING_ID}
-            form={form}
-            onChange={handleFormChange}
-            keysError={keysError}
-            keysRef={keysRef}
-            onContinue={() => goToStep(2)}
-          />
-        ) : step === 2 ? (
-          <StepTwo
-            headingId={STEP_HEADING_ID}
-            form={form}
-            onChange={handleFormChange}
-            autofillNote={autofillNote}
-            onAutofill={handleAutofill}
-            onBack={() => goToStep(1)}
-            onCalculate={() => goToStep(3)}
-          />
-        ) : (
-          <CalculatorResult
-            headingId={STEP_HEADING_ID}
-            heading={STEP_TITLES[3]}
-            result={result}
-            onSendEstimate={sendEstimate}
-            onStartOver={() => goToStep(1)}
-          />
-        )}
+      {/* Landscape body. The rail is a constant column on every step — see the
+          CLS note in the file header. */}
+      <div className="grid gap-6 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-8">
+        {/*
+          Deliberately NO `min-h-0` here. As a grid item its automatic minimum
+          size is its min-content, so steps 1 and 2 push the row (and the whole
+          section past `section-fit`'s MINIMUM height) rather than overflowing
+          into the disclaimer below. Step 3's inner scroll container has an
+          automatic minimum size of 0, so that step alone lets the row settle
+          back to the height the flex chassis gives it — which is exactly the
+          asymmetry we want.
+        */}
+        <div ref={panelRef} role="group" tabIndex={-1} aria-labelledby={STEP_HEADING_ID}>
+          {step === 1 ? (
+            <StepOne
+              headingId={STEP_HEADING_ID}
+              form={form}
+              onChange={handleFormChange}
+              keysError={keysError}
+              keysRef={keysRef}
+              onContinue={() => goToStep(2)}
+            />
+          ) : step === 2 ? (
+            <StepTwo
+              headingId={STEP_HEADING_ID}
+              form={form}
+              onChange={handleFormChange}
+              autofillNote={autofillNote}
+              onAutofill={handleAutofill}
+              onBack={() => goToStep(1)}
+              onCalculate={() => goToStep(3)}
+            />
+          ) : (
+            /* The one step whose content genuinely exceeds one screen. Native
+               overflow + the masked fade affordance, keyboard-reachable, wheel
+               untouched. Mobile keeps natural flow — the cap is lg-only. */
+            <div
+              role="region"
+              aria-label={RESULT_REGION_LABEL}
+              tabIndex={0}
+              className="lg:scroll-well lg:h-full lg:max-h-[56svh] lg:pe-3"
+            >
+              <CalculatorResult
+                headingId={STEP_HEADING_ID}
+                heading={STEP_TITLES[3]}
+                result={result}
+                onSendEstimate={sendEstimate}
+                onStartOver={() => goToStep(1)}
+              />
+            </div>
+          )}
+        </div>
+
+        <ContextRail
+          propertyType={typeKey(form.propertyType)}
+          propertyTypeLabel={form.propertyType}
+          tier={tierKey(form.tier)}
+          tierLabel={form.tier}
+          className="lg:sticky lg:top-6 lg:self-start"
+        />
       </div>
     </div>
   );
@@ -360,6 +421,11 @@ type StepperProps = {
   onSelect: (target: Step) => void;
 };
 
+const STEP_BUTTON_BASE =
+  "flex size-11 items-center justify-center rounded-pill border font-mono text-data font-medium tabular transition-colors duration-fast ease-out";
+const STEP_BUTTON_ON = `${STEP_BUTTON_BASE} border-accent bg-accent-chip text-accent-text`;
+const STEP_BUTTON_OFF = `${STEP_BUTTON_BASE} border-hairline text-fg-meta hover:border-accent-text hover:text-fg`;
+
 /**
  * The source's three decorative dots (`.dot`, cumulative `<=` active state, no
  * ARIA at all) become numbered, keyboard-navigable buttons: `aria-current=
@@ -368,29 +434,25 @@ type StepperProps = {
  * that name is not doubled for screen-reader users. The adjacent "Step N of 3"
  * paragraph is the single live region (spec IA #5); the buttons announce
  * nothing on their own.
+ *
+ * D8: the numerals step to mono 500 and the source's middle dot becomes a
+ * drawn hairline connector — the stepper now reads as a horizontal track
+ * across the top of the console rather than three loose pills.
  */
 function Stepper({ step, onSelect }: StepperProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
-      <ol role="list" className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+      <ol role="list" className="flex items-center gap-3">
         {STEPS.map((s, i) => (
-          <li key={s} className="flex items-center gap-2">
+          <li key={s} className="flex items-center gap-3">
             {i > 0 ? (
-              <span aria-hidden="true" className="text-fg-meta">
-                {"·"}
-              </span>
+              <span aria-hidden="true" className="block h-px w-6 bg-hairline sm:w-10" />
             ) : null}
             <button
               type="button"
               onClick={() => onSelect(s)}
               aria-current={s === step ? "step" : undefined}
-              className={cn(
-                "flex size-11 items-center justify-center rounded-pill border font-mono text-data tabular",
-                "transition-colors duration-fast ease-out",
-                s === step
-                  ? "border-accent bg-accent-chip text-accent-text"
-                  : "border-hairline text-fg-meta hover:text-fg",
-              )}
+              className={s === step ? STEP_BUTTON_ON : STEP_BUTTON_OFF}
             >
               <span aria-hidden="true">{String(s).padStart(2, "0")}</span>
               <span className="visually-hidden">{`Step ${s} of 3: ${STEP_TITLES[s]}`}</span>
@@ -399,7 +461,7 @@ function Stepper({ step, onSelect }: StepperProps) {
         ))}
       </ol>
 
-      <p role="status" aria-live="polite" className="font-mono text-data tabular text-fg-meta">
+      <p role="status" aria-live="polite" className="micro-label font-medium">
         {`Step ${step} of 3`}
       </p>
     </div>

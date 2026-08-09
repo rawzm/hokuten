@@ -1,3 +1,17 @@
+> **✓ Re-verified current — Design Revisit round (2026-08-08/09).** Checked
+> against `site/components/sections/TeamSection.tsx`'s own header comment on
+> 2026-08-09 (not skimmed): the IA, component plan and every Decision below
+> still hold — this section was not structurally rebuilt, only compressed.
+> D6 density: `section-fit` (desktop-only min-height) +
+> `lg:flex lg:flex-col lg:justify-center` centres the content block when it's
+> shorter than the fit-viewport floor (same pattern as `MethodSection`);
+> header-to-content and grid gaps compress at `lg:` only, mobile is
+> untouched, per D6's "do not compress below `lg`" rule. D8: no change beyond
+> spacing — the section's one focal step is still `SectionHeader`'s
+> Display-2 headline. Confirms the portrait-vs-glyph-plate decision (§"Portrait
+> vs. glyph plate") is unaffected — see `docs/PLACEHOLDERS.md` row 40a for
+> the current-state record of that gap.
+
 # `#team` — The Principals
 
 **Section/Route:** `#team` (landing page, section 10 of 13 per ref 04 — between `#mandates` and `#faq`)

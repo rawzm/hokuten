@@ -1,3 +1,47 @@
+> ## ⚠️ PARTIALLY SUPERSEDED — D6 compaction, Design Revisit round (2026-08-08/09)
+>
+> Verified against `site/components/sections/SiteFooter.tsx`'s own header
+> comment on 2026-08-09, not skimmed. That file states its own scope
+> precisely, quoted here rather than re-derived: **"the compaction below
+> supersedes its 'Component plan' section; the IA, states, motion and a11y
+> sections still hold."** In other words: this spec's §"IA", §"States",
+> §"Motion" and §"Accessibility" are still accurate; only §"Component plan"
+> (the DOM/layout structure) is stale.
+>
+> What changed, per `SiteFooter.tsx`'s header: rebuilt from a six-gap
+> vertical stack into two blocks — one `lg:flex-row` (brand cluster left,
+> three nav columns right) and one dense hairline-separated stack (disclosure
+> → legal links + brand line). `section-pad` → `section-pad-tight`.
+> Measured block-height reduction at 1440px: ~640px → ~330px (~52%, short of
+> this file's/the work order's 40%-of-original stretch target because every
+> stacked nav link keeps its genuine 44px tap target — a11y law, not a
+> shortcut).
+>
+> **The KW-mark duplication this spec's §"Finding carried into this spec"
+> flagged is now RESOLVED, not just chip-mitigated.** `SiteFooter.tsx`
+> previously rendered the KW mark twice (the co-brand `lockup-stacked-gold.png`
+> in the brand cluster, which already bakes in the full "KW COMMERCIAL"
+> glyph, **and** a second standalone `KW_COMMERCIAL_MARK` image further down)
+> — the second, redundant instance is now REMOVED; the lockup in the brand
+> cluster is the file's one KW-mark-bearing element. `BROKERAGE_DISCLOSURE`
+> is untouched and still renders byte-exact. This spec's line 64 acceptance
+> criterion ("KW Commercial mark renders only in this file sitewide") should
+> be re-read as "renders once, inside the lockup, in this file" — the
+> standalone chipped mark this spec's IA item 3 describes no longer exists as
+> a separate element.
+>
+> The **contrast finding on `lockup-stacked-gold.png`** (§"Finding carried
+> into this spec") is still live and still unresolved upstream — `SiteFooter.tsx`'s
+> header confirms the same `surface-card` chip mitigation is still in place,
+> the source PNG is still untouched, and the theme-matched lockup swap
+> (`lockup-{gold,blue}.png`) the file anticipates has not landed as of
+> 2026-08-09 (none of the four files exist in `site/public/brand/` yet, per
+> that same header). `content/compliance.ts`'s doc comment on
+> `KW_COMMERCIAL_MARK` ("appears ONLY in the footer … never in the header")
+> is now stale next to D1 (the header carries a KW-bearing lockup too, via
+> `Wordmark variant="brand"`) — flagged by `SiteFooter.tsx`'s own header, not
+> fixed there (out of that file's scope); repeated here for visibility.
+
 # Footer — `SiteFooter`
 
 **Section/Route**: Site-wide chrome (`<footer>` landmark, main landing page). Not a numbered anchor section — `content/site.ts` `SECTION_IDS` documents that the footer shares slot 13 with `#ticker` and carries no anchor of its own.

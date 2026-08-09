@@ -37,6 +37,24 @@
  * on first paint. If the row can be empty on first paint (the ticker before its
  * data resolves), pass a min-height on `className` — e.g. the ticker's
  * `min-h-[var(--ticker-h)]`.
+ *
+ * ── `will-change` is scoped to "actually animating", not declared at rest ──
+ * Ship-gate finding (2026-08-08), fixed here: `will-change: transform` was
+ * unconditional on `[data-marquee]`, which pins EVERY marquee on the page
+ * (brands + ticker) into its own compositor layer for the whole session, even
+ * while paused (hover/focus-within) or fully stopped (reduced motion / the
+ * `data-motion="off"` kill switch) — real memory for an effect that, once
+ * paused or stopped, is not running. This is a Server Component with zero JS,
+ * so the scoping has to be pure CSS: arbitrary Tailwind variants reference the
+ * same `[data-marquee-viewport]:hover`/`:focus-within` ancestor selectors
+ * globals.css already keys its own pause rule off, plus `motion-reduce:` (the
+ * `@media (prefers-reduced-motion: reduce)` core variant) and the
+ * `:root[data-motion="off"]` kill switch. All four collapse `will-change`
+ * back to `auto` in exactly the states where the transform is not moving;
+ * `will-change-transform` only actually holds while the animation is
+ * genuinely running. Verified by compiling this file's classes through
+ * `@tailwindcss/postcss` directly (no `pnpm build`/`pnpm dev`) and inspecting
+ * the emitted selectors before shipping this change.
  */
 
 import type { ReactNode } from "react";
@@ -95,7 +113,19 @@ export function Marquee({
       <div className={cn("w-full overflow-hidden", edgeFade && "rail-mask")}>
         <div
           data-marquee
-          className={cn("flex w-max will-change-transform", SPEED_CLASS[speed])}
+          className={cn(
+            "flex w-max will-change-transform",
+            // Collapse back to `auto` in every state where the transform is
+            // not actually moving — see file header "`will-change` is
+            // scoped" note. `_` stands in for the space Tailwind can't carry
+            // inside a class token; each compiles to a real descendant
+            // selector rooted at `[data-marquee-viewport]` or `:root`.
+            "motion-reduce:will-change-auto",
+            "[[data-marquee-viewport]:hover_&]:will-change-auto",
+            "[[data-marquee-viewport]:focus-within_&]:will-change-auto",
+            "[:root[data-motion=off]_&]:will-change-auto",
+            SPEED_CLASS[speed],
+          )}
         >
           <div className={half}>{children}</div>
           {/* The clone is scenery: `inert` keeps it out of the tab order and the

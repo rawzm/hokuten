@@ -43,6 +43,83 @@
 
 ## 4. Log
 
+### 2026-08-09 — Design revisit 1 EXECUTED (D1–D8 shipped, both themes)
+
+Executed [docs/DESIGN-REVISIT.md](docs/DESIGN-REVISIT.md) end to end across five Workflow
+orchestrations (30 subagents; Sonnet for pattern work, Opus for frozen-math parity, byte-exact
+compliance and content-fidelity audit). Integration, build-fixing and all screenshot QA stayed in
+the main loop, per the §0 working rules.
+
+**Shipped**
+- **D1** Theme-matched KW/Hokuten lockup is the header mark (44px tall; gold 59×44, blue 53×44),
+  with a real-text brand line beside it. Prepared from `Ref/site/` into `site/public/brand/`.
+- **D2** `#brands` renders 15 real franchise chips **in colour** at 52px/36px, closing the hero's
+  first viewport. Prepared from Razim's 16 supplied 3D glass squircles by a scripted bbox +
+  knockout + optical-height normalisation (`site/scripts/brand-chips.ts`).
+- **D3** Real CoStar badges render: three quarterly banners in `#stats`, the two 2025 Annual badges
+  in a recognition strip in `#closings` so neither moment is congested. Register rows added (ref 06).
+- **D4** Listing/closing cards are dimensional deal tickets on a shared `Ticket` chassis — colour
+  header band, perforated tear line with real punched notches, tiny-caps/bold-mono metrics grid,
+  resting ink-tinted shadow, and a rotated hairline SOLD overprint on the retired state.
+- **D5** The hero and section art is Razim's supplied 「北天」 glyph-mosaic, prepared into 92
+  responsive AVIF/WebP/JPEG derivatives (`site/scripts/artwork-prep.ts`) behind a typed placement
+  manifest (`site/content/artwork.ts`). **AsciiCanvas is retired from the page** — scripts and JSON
+  stay in the repo, uninvested. `<KanjiAccent>` (our own SVG motif) ships.
+- **D6** Fit-to-viewport rhythm: `--nav-h` 88px → 68px, `section-pad` compressed, plus
+  `section-pad-tight` / `section-join` / `section-fit` / `scroll-well`. **Zero dead bands between
+  sections, measured.** Footer down to 0.81 screens with exactly one KW compliance mark.
+- **D7** Landing route measures **316.8 KB gzip against the new 340 KB budget** (PASS). Calculator,
+  BOV form and MenuOverlay are dynamically imported; LazyMotion + `domAnimation` converted.
+- **D8** New `text-display0` step (hero h1 only), amplified hierarchy sitewide.
+- Calculator rebuilt as a landscape, tile-based experience with a live market-data context rail —
+  **math untouched, 128/128 vitest green, field-for-field parity re-verified**.
+- Ship-gate carry-overs cleared: `OUT_OF_STATE_QUALIFIER` ported byte-exact from `index.html:1152`
+  and rendered under the footer disclosure; `layout.tsx` composes its description from
+  `content/stats.ts`; `faq.ts` imports `BROKERAGE_DISCLOSURE`; a vitest block binds the two
+  calculator-disclaimer owners; the `will-change` and nav active-state reflow fixes landed.
+
+**Decisions taken during execution (these are new law, not restatements)**
+- **The brand-chip marquee renders on a LIGHT surface in both themes.** Verified by compositing the
+  real PNGs on every candidate ground: the chips carry baked light-on-white drop shadows, so on a
+  dark surface they show grey halo boxes. Light band is also what the runcycle reference does.
+- **The hero's nav sentinel reports `data-surface="light"` in both themes.** It used to derive from
+  `themePresentation.heroSurface`; correct only while the nav overlaid the hero. Under the runcycle
+  anatomy the nav sits *above* the art on the paper page top, and deriving it painted Theme G's nav
+  links and menu trigger ivory-on-ivory — invisible controls, no mobile menu at all.
+- **`text-display0` capped at 4.75rem, not 8.25rem, and the hero art band is the flexible element.**
+  The first pass sized the type from the ramp with no browser to check it: the ~60-character
+  manifesto wrapped to four lines in a half-width column and the hero measured 1.78 viewports.
+  The art now absorbs the remainder of `--screen-fit - --brands-h`, so the hero is exactly one
+  screen at any viewport height. Measured 604px + 180px = 784px of 788px at 1440×900.
+- **AVIF encoder effort is 4, not 9**, in `artwork-prep.ts`. At effort 9 the full set took ~50
+  minutes; effort 4 takes 6m23s for low-single-digit-percent more bytes, all inside budget.
+- Artwork masters stay in `Ref/artwork/` and `Ref/hotel-brands/`; a delivered piece is a one-line
+  edit to the script's placement config plus a manifest row.
+
+**Ship-gate findings fixed this round (found by audit, not guessed)**
+- P0 — the trademark disclaimer under `#brands` shipped at `text-fg-meta/70` = **2.81:1**, an AA
+  failure on a legal string. Opacity modifier removed. Reduced emphasis on legal text comes from
+  size and placement, never from dropping below AA.
+- P0 — scroll-revealed sections **printed blank**. `Reveal` arms below-fold elements with an inline
+  `opacity:0`, and the `@media print` block never reset it, so an owner printing the track record
+  without scrolling first got blank paper. Printing listings and closings is an explicit ref 07
+  gate. Print block now force-resets, with the deliberate exceptions (visually-hidden text, marquee
+  clones) still hidden.
+- P0 — Theme B only: `plate-frame`'s −5px registration marks sat on the full-bleed hero container
+  and gave the document a 4px horizontal scroll at 375 and 768. Moved to an inset inner wrapper,
+  which is also the correct reading of a plate frame.
+
+**Verification**: build green; `tsc` clean; vitest 128/128; landing route 316.8 KB gz; no console
+errors, no failed asset requests, no horizontal overflow at 375/768/1440 in **both** themes;
+screenshots captured for gold and blue at all three viewports.
+
+**Still needed from Razim** (tracked in [docs/PLACEHOLDERS.md](docs/PLACEHOLDERS.md)): the
+extended-stay property square; chips for Radisson and Choice Hotels; a name for the unidentified
+amber chip (`site/public/logos/_hold-amber-mark.png`, master `…03_44_42 PM.png`); real photography
+for the five active listings; portraits for Razim and William. The counsel flag on third-party marks
+and on artwork containing third-party signage stays open until the public-launch gate; the site is
+internal-only and Razim accepts the interim posture.
+
 ### 2026-08-08 — Design revisit 1 ordered after Razim's live review (evening)
 
 Razim reviewed both theme URLs and issued a full design revisit. **New executor brief: [docs/DESIGN-REVISIT.md](docs/DESIGN-REVISIT.md)** — kickoff: *"Read docs/DESIGN-REVISIT.md in the hokuten repo and execute it."* (For OPUS-5; brief authored by Fable per Razim's model switch.)

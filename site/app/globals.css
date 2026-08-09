@@ -23,6 +23,24 @@
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* — Type ramp (ref 03). Max 4 sizes per section. Body floor 16px. — */
+
+  /* D8 (2026-08-08): a display step ABOVE display1, for the hero manifesto only.
+     The page read too uniform; hierarchy is amplified from the top down. One
+     element per page may use it — the h1.
+
+     RETUNED 2026-08-09 after measuring the real render: the max was 8.25rem
+     (132px), set from the type ramp alone with no browser to check it against.
+     The actual hero manifesto is ~60 characters, and at 132px it wrapped to
+     four or five lines and pushed the CTAs and the brand marquee off the
+     screen — the hero measured 1.78 viewports against a one-viewport spec.
+     4.75rem (76px) sets that headline in two lines at full container width,
+     which is what the runcycle anatomy actually wants. Anyone raising this
+     again must re-measure the hero's height, not just the type scale: this
+     value is bound to the length of the headline in heroContent.ts. */
+  --text-display0: clamp(2.75rem, 1.4rem + 4.6vw, 4.75rem);
+  --text-display0--line-height: 0.98;
+  --text-display0--letter-spacing: -0.03em;
+
   --text-display1: clamp(2.5rem, 1.2rem + 5.6vw, 6rem);
   --text-display1--line-height: 1.02;
   --text-display1--letter-spacing: -0.02em;
@@ -60,6 +78,16 @@
   /* — Shadows: floating elements only, ink-tinted, never gray halos — */
   --shadow-overlay: 0 24px 64px -24px rgb(26 28 31 / 0.28), 0 2px 8px -2px rgb(26 28 31 / 0.12);
   --shadow-bar: 0 -1px 0 0 var(--hairline), 0 -8px 24px -12px rgb(26 28 31 / 0.18);
+
+  /* D4 (2026-08-08): deal tickets are dimensional objects, so they carry a
+     RESTING shadow — the one documented exception to "1px borders over
+     shadows" (ref 03). Ink-tinted, never a gray blur halo, and it does not
+     change on hover: the dimension is at rest, so nothing lifts. */
+  --shadow-ticket: 0 10px 28px -14px rgb(26 28 31 / 0.26), 0 2px 6px -3px rgb(26 28 31 / 0.14);
+  --shadow-ticket-dark: 0 12px 32px -16px rgb(0 0 0 / 0.55), 0 2px 6px -3px rgb(0 0 0 / 0.4);
+  /* Brand chips already carry a rendered gloss + shadow inside the raster; this
+     is only the seat they sit on when a chip needs a surface behind it. */
+  --shadow-chip: 0 4px 12px -6px rgb(26 28 31 / 0.2);
 
   /* — Motion (ref 05). Exactly two easings sitewide. No bounce, ever. — */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -132,12 +160,36 @@
   --black: #000000;
   --brick: #a33b2c; /* form errors only */
 
-  /* Layout rhythm */
-  --nav-h: 88px;
+  /* Layout rhythm.
+     D6 (2026-08-08): the nav compresses from 88px to 68px. Every desktop
+     section now targets fit-to-viewport, and 88px of chrome was the single
+     largest fixed tax on that budget. The header lockup renders 40–44px tall
+     inside it (D1), so 68px still leaves 12px of breathing room top and
+     bottom. `scroll-margin-top` tracks this token, so anchors stay correct. */
+  --nav-h: 68px;
+  --nav-h-mobile: 60px;
   --ticker-h: 44px;
   --ticker-h-mobile: 32px;
   --container: 1200px;
   --container-wide: 1440px;
+
+  /* The usable height of one desktop screen: viewport minus the sticky nav and
+     the persistent ticker. `section-fit` is defined in terms of this. */
+  --screen-fit: calc(100svh - var(--nav-h) - var(--ticker-h));
+
+  /* D2: the brand-chip marquee closes the hero's first viewport, but it is a
+     SIBLING landmark of <section id="hero">, not a child — it owns its own
+     <section id="brands">. So the hero cannot simply take `section-fit`, or
+     hero + marquee together overflow the screen by exactly the marquee's
+     height. The hero claims `--screen-fit` minus this instead. Measured from
+     the rendered strip (section-pad-tight + a 52px chip row + the one-line
+     asterisked disclaimer); keep the two in step if either changes. */
+  --brands-h: 184px;
+
+  /* D5 (2026-08-08): <KanjiAccent> ceiling. The 北天 motif is background, never
+     content — past these values it competes with the type. */
+  --kanji-opacity-dark: 0.08;
+  --kanji-opacity-light: 0.06;
 
   /* Motion mirrors (readable from JS via getComputedStyle / lib/motion.ts) */
   --dur-fast: 150ms;
@@ -540,9 +592,98 @@
   }
 }
 
-/* Section rhythm: 96–160px desktop, 64–96px mobile (ref 03) */
+/* Section rhythm.
+   D6 (2026-08-08) compressed this sitewide: was clamp(4rem, 2rem + 8vw, 10rem)
+   — 64px mobile to 160px desktop, which put dead bands between every section
+   and made fit-to-viewport unreachable. Now 40px mobile to 88px desktop. */
 @utility section-pad {
-  padding-block: clamp(4rem, 2rem + 8vw, 10rem);
+  padding-block: clamp(2.5rem, 1.25rem + 4vw, 5.5rem);
+}
+
+/* The tighter step, for sections that carry a lot of content (calculator, BOV)
+   or that sit adjacent to a same-surface neighbour and would otherwise double
+   their gutter. */
+@utility section-pad-tight {
+  padding-block: clamp(1.75rem, 1rem + 2.5vw, 3rem);
+}
+
+/* Two adjacent sections on the SAME surface share one gutter instead of
+   stacking two. Put this on the second of the pair (ref 03 "Global rhythm"). */
+@utility section-join {
+  padding-block-start: 0;
+}
+
+/* D6 fit-to-viewport. Desktop only — mobile keeps natural flow, always.
+   Deliberately does NOT set display/flex: a section decides its own inner
+   layout, and forcing a flex context here silently broke grid children.
+   `min-height`, not `height`, so content that genuinely overflows still
+   scrolls the page rather than being clipped. */
+@utility section-fit {
+  @media (width >= 64rem) {
+    min-height: var(--screen-fit);
+  }
+}
+
+/* Where a section's content genuinely exceeds the viewport (calculator step 3),
+   it scrolls INSIDE the section — native overflow, keyboard reachable, never a
+   hijacked wheel (ref 05 still forbids scroll-jacking). The fade is the visible
+   affordance that there is more below. */
+@utility scroll-well {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 2rem), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 2rem), transparent 100%);
+}
+
+/* ── D4: the deal-ticket chassis ──────────────────────────────────────────
+   Boarding-pass anatomy, translated — never cloned. Three parts:
+     ticket        the body: resting dimensional shadow + card radius
+     ticket-perf   the tear line between header block and stub
+     ticket-notch  the two punched notches that sit on that line
+   The notches are drawn with radial-gradient masks so they knock a real hole
+   in the card and the section surface shows through — a painted circle in the
+   surface colour would break the moment a ticket sat on a different surface. */
+@utility ticket {
+  position: relative;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-ticket);
+}
+
+@utility ticket-dark {
+  box-shadow: var(--shadow-ticket-dark);
+}
+
+@utility ticket-perf {
+  position: relative;
+  border-top: 1px dashed var(--hairline);
+}
+
+@utility ticket-notch {
+  /* 14px half-circles bitten out of both edges, centred on the tear line. */
+  -webkit-mask-image:
+    radial-gradient(14px 14px at 0 50%, transparent 13px, #000 13.5px),
+    radial-gradient(14px 14px at 100% 50%, transparent 13px, #000 13.5px);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(14px 14px at 0 50%, transparent 13px, #000 13.5px),
+    radial-gradient(14px 14px at 100% 50%, transparent 13px, #000 13.5px);
+  mask-composite: intersect;
+}
+
+/* SOLD/CLOSED overprint on a retired ticket. A hairline rotated stamp mark,
+   hanko-adjacent — never a red rubber-stamp cliché. Colour comes from the
+   surface scope, so it is correct on both themes and on dark. */
+@utility overprint {
+  color: var(--accent-text);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-card);
+  transform: rotate(-8deg);
+  opacity: 0.72;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-micro);
+  text-transform: uppercase;
 }
 
 /* Skip-to-content link — first in DOM, visible on focus */
@@ -585,12 +726,17 @@
   transition:
     filter var(--dur-base) var(--ease-out),
     transform var(--dur-base) var(--ease-out);
-  will-change: filter;
 
+  /* `will-change` is promised on HOVER INTENT, not at rest. Ship-gate finding
+     2026-08-08: declaring it unconditionally pinned every card photo on the
+     page into its own compositor layer for the whole session — on a 3-up
+     listings grid plus a 6-up closings grid that is real memory for an effect
+     almost none of them will ever run. */
   @media (hover: hover) and (pointer: fine) {
     :where(a, button, .card-hit):hover & {
       filter: grayscale(0);
       transform: scale(1.02);
+      will-change: filter, transform;
     }
   }
 }
@@ -663,6 +809,32 @@
   [data-print-hide],
   nav,
   .ticker-bar {
+    display: none !important;
+  }
+
+  /* Force every scroll-revealed element visible.
+     P0 found in the 2026-08-09 ship-gate audit: `Reveal` arms anything starting
+     below the first viewport by setting opacity:0 / translateY(16px) as an
+     INLINE style, and only clears it when a real IntersectionObserver crossing
+     happens. An owner who opens the page and prints the track record without
+     first scrolling it into view gets blank paper where six closed deals should
+     be — and printing listings and closings is an explicit gate (ref 07).
+     Inline styles outrank normal rules, so this needs `!important`; it is scoped
+     to the print block, where nothing animates anyway. */
+  * {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+    clip-path: none !important;
+  }
+
+  /* …except the things that are hidden ON PURPOSE. The blanket reset above
+     would otherwise un-hide visually-hidden screen-reader text and every
+     marquee's duplicated clone, printing each brand name twice. */
+  .visually-hidden,
+  [data-marquee-clone],
+  [aria-hidden="true"][data-decorative],
+  [data-print-hide] {
     display: none !important;
   }
 

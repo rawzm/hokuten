@@ -1,3 +1,40 @@
+> ## ⚠️ PARTIALLY SUPERSEDED — Design Revisit round (D1, 2026-08-08/09)
+>
+> Verified against the shipped code (`site/components/sections/SiteNav.tsx`,
+> `site/components/nav/MenuOverlay.tsx`, `site/components/nav/AnchorLink.tsx`)
+> on 2026-08-09, not skimmed. Two things below are stale; everything else —
+> the sentinel contract, the scroll/surface state model, the cascade-layer
+> background gotcha, `MenuOverlay`'s anatomy, and the acceptance criteria not
+> named here — still holds and was not re-litigated.
+>
+> 1. **"No KW lockup" P0 (line 74, and the grep gate at line 118) is
+>    RETIRED.** `docs/DESIGN-REVISIT.md` §2 D1 (Razim, 2026-08-08) makes the
+>    theme-matched lockup the header mark. `SiteNav.tsx` now renders
+>    `<Wordmark variant="brand" height={44} />` inside the `<a href="#hero">`
+>    slot this spec calls "Wordmark" — `Wordmark`'s own `"brand"` variant is
+>    the lockup + a real-text brand line, not the old text-only fallback this
+>    spec's line 72 ("Wordmark: `<a href="#hero"><Wordmark className="text-data" />`")
+>    describes. `SiteNav.tsx`'s own header comment says it straight: "its
+>    Wordmark/'no KW lockup' passages predate D1 … and are stale, flagged for
+>    the doc owner, not corrected here." This is that correction. Do not
+>    re-add the "no KW lockup" P0 to any audit against this file.
+> 2. **The "duplicated ~15 lines" `focusAnchorTarget` note (line 87) is
+>    stale — a shared `<AnchorLink>` client island now exists.**
+>    `site/components/nav/AnchorLink.tsx` is imported and used by both
+>    `SiteNav.tsx` (wordmark link, all 5 `navLinks`, the CTA) and
+>    `Hero.tsx`'s two CTAs — the exact consolidation this spec flagged as a
+>    future improvement ("a small shared client `<AnchorLink>` island … used
+>    by the hero CTAs and the scroll cue") has shipped. `MenuOverlay.tsx` was
+>    not re-diffed line-for-line this round to confirm whether it was
+>    migrated too, or still carries its own local duplicate — verify before
+>    relying on this note for that file specifically.
+>
+> Everything else in this file (sentinel contract, IA, component plan for
+> both files' non-lockup parts, states, motion, a11y, the remaining
+> acceptance criteria) was re-read against the current `SiteNav.tsx` header
+> comment and found consistent — not contradicted, not re-verified line by
+> line against `MenuOverlay.tsx`.
+
 # Nav — `SiteNav` + `MenuOverlay`
 
 **Section/Route**: Site-wide chrome (sticky top bar + full-screen menu overlay, main landing page). Not a numbered anchor section — chrome, like the footer, carries no `SECTION_IDS` entry of its own.

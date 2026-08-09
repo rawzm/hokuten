@@ -1,3 +1,39 @@
+> ## ⚠️ FULLY SUPERSEDED — D2, Design Revisit round (2026-08-08/09)
+>
+> **Every design decision below (grayscale text marks, nine flags, `text-heading`/
+> `tracking-micro` typography, no `SectionHeader`, 40s marquee) describes the
+> pre-D2 build.** `docs/DESIGN-REVISIT.md` §2 D2 and §3.7 replaced it wholesale:
+> the marquee now renders 15 real, colour, dimensional chip **images**
+> (`site/public/logos/<slug>.png`, Razim's own 3D glass-squircle renderings —
+> not the Wikimedia-vector research this file's §"Intent"/`LOGO-MANIFEST.md`
+> reasoning was built on), at ~44–52px desktop / ~36px mobile, never
+> grayscaled, never hovered-to-colour (they're already in colour at rest).
+> `BrandsMarquee` (not the old default-exported `BrandsSection`) now renders
+> **inside the hero's first viewport** as a sibling landmark after
+> `<section id="hero">` (D2's own text: "moved the franchise-flag band INTO
+> the hero's first viewport") — it is no longer the section-after-`#stats`
+> band this file's IA block describes. Verified against
+> `site/components/sections/BrandsSection.tsx` (now exports both `BrandsMarquee`
+> and a legacy `BrandsSection`) and `site/components/hero/Hero.tsx` on
+> 2026-08-09, not skimmed.
+>
+> **VERIFIED CONSTRAINT, carried down from the main loop (2026-08-09):** the
+> chips carry baked light-on-white drop shadows (confirmed by compositing the
+> real PNGs) — correct only on a light surface. On a dark surface they show
+> grey halo boxes. The marquee must stay on a light band in both themes; if
+> an audit finds it on a dark surface, that is a live finding, not something
+> this superseded spec anticipated.
+>
+> `site/content/brands.ts`'s own header comment carries the full, dated D2
+> reasoning (including why the copyright research below no longer controls,
+> and the trademark/trade-dress question that replaces it — see
+> `docs/PLACEHOLDERS.md` row 35) and is more current than anything in this
+> file. `docs/design/LOGO-MANIFEST.md` §0/§5 has the per-chip provenance.
+> This file's compliance framing ("flags we transact across," never
+> "partners"/"clients," the `BRANDS_MICRO_LABEL` string, the trademark-microcopy
+> requirement) is the one part that is still correct — D2 did not touch the
+> legal posture, only the rendering. Not re-specified here; read `content/brands.ts`.
+
 # `#brands` — Franchise-flag marquee
 
 Status: **approved**

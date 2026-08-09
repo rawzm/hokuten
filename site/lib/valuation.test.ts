@@ -31,6 +31,7 @@
 
 import { describe, expect, it } from "vitest";
 
+import { CALCULATOR_DISCLAIMER } from "@/content/compliance";
 import {
   ADR_BAND,
   ADR_BAND_BY_LABEL,
@@ -1348,5 +1349,97 @@ describe("frozen copy and named constants", () => {
     expect(capAdjustment({ ...base, fbPct: 26 })).toBeCloseTo(-0.0025 + 0.0025, 12); // fires
     expect(capAdjustment({ ...base, fbPct: 0.26 })).toBeCloseTo(-0.0025, 12); // does NOT fire
     expect(capAdjustment({ ...base, fbPct: 25 })).toBeCloseTo(-0.0025, 12); // `>` not `>=`
+  });
+});
+
+/* ===========================================================================
+   19. THE TWO DISCLAIMER OWNERS ARE BOUND TOGETHER
+   The calculator's disclaimer text exists TWICE in this codebase: lib/valuation.ts
+   holds it as part of the frozen port (the UI renders from there), and
+   content/compliance.ts holds it as frozen compliance copy (the rule that no
+   legal string may be retyped into a component). Two owners, one string, no
+   mechanism keeping them equal — an edit to either alone ships a divergence
+   silently, and the frozen one is the one a reviewer would trust.
+
+   These tests exist so the next person to touch one is forced to touch both.
+   They are equality assertions ONLY. If one fails, do not "fix" it by editing
+   lib/valuation.ts — that file is the byte-equivalent port of index.html and its
+   strings are frozen. Reconcile against the source lines cited below, and change
+   either owner only under a dated PROJECT-MEMORY.md decision.
+   =========================================================================== */
+
+describe("content/compliance.ts and lib/valuation.ts hold the same disclaimer bytes", () => {
+  it("canonical / resultHonest === RESULT_DISCLAIMER (:920, :1566)", () => {
+    expect(CALCULATOR_DISCLAIMER.canonical).toBe(RESULT_DISCLAIMER);
+    expect(CALCULATOR_DISCLAIMER.resultHonest).toBe(RESULT_DISCLAIMER);
+    // The two compliance keys are the same sentence under two names — the source
+    // renders it at :920 and again at :1566. If they ever diverge from each
+    // other the divergence is inside content/compliance.ts alone.
+    expect(CALCULATOR_DISCLAIMER.resultHonest).toBe(CALCULATOR_DISCLAIMER.canonical);
+  });
+
+  it("resultContext === RESULT_CONTEXT_BASE (:1568, the em-dash join)", () => {
+    expect(CALCULATOR_DISCLAIMER.resultContext).toBe(RESULT_CONTEXT_BASE);
+  });
+
+  it("usedDefaults === RESULT_CONTEXT_DEFAULTS_NOTE (:1569)", () => {
+    expect(CALCULATOR_DISCLAIMER.usedDefaults).toBe(RESULT_CONTEXT_DEFAULTS_NOTE);
+  });
+
+  it("usedNoiOverride === RESULT_CONTEXT_NOI_NOTE (:1570)", () => {
+    expect(CALCULATOR_DISCLAIMER.usedNoiOverride).toBe(RESULT_CONTEXT_NOI_NOTE);
+  });
+
+  it("methodologyNote is the canonical sentence plus the period-joined variant (:920)", () => {
+    // :920 and :1568 are NOT the same string — the methodology note ends
+    // "…pricing recommendation. Request a written BOV below." while the result
+    // panel joins with an em dash and lowercases the verb. Port rule R5 says do
+    // not unify them, so this asserts the relationship instead of equality.
+    expect(CALCULATOR_DISCLAIMER.methodologyNote).toBe(
+      `${RESULT_DISCLAIMER} A full BOV includes verified comps backed by CoStar and RCA, market analysis, and a pricing recommendation. Request a written BOV below.`,
+    );
+    expect(CALCULATOR_DISCLAIMER.methodologyNote).not.toBe(
+      `${RESULT_DISCLAIMER} ${RESULT_CONTEXT_BASE}`,
+    );
+    expect(CALCULATOR_DISCLAIMER.methodologyNote.endsWith("Request a written BOV below.")).toBe(true);
+    expect(RESULT_CONTEXT_BASE.endsWith("request a written BOV below.")).toBe(true);
+  });
+
+  it("resultContextHtml() is assembled from the compliance strings, not from a third copy", () => {
+    // The full rendered variants (:1567-1570). If any owner drifts, this fails
+    // even when the individual equalities are read past.
+    expect(resultContextHtml(false, false)).toBe(CALCULATOR_DISCLAIMER.resultContext);
+    expect(resultContextHtml(true, false)).toBe(
+      `${CALCULATOR_DISCLAIMER.resultContext} <em>${CALCULATOR_DISCLAIMER.usedDefaults}</em>`,
+    );
+    expect(resultContextHtml(false, true)).toBe(
+      `${CALCULATOR_DISCLAIMER.resultContext} <em>${CALCULATOR_DISCLAIMER.usedNoiOverride}</em>`,
+    );
+  });
+
+  it("the shared punctuation survives on both sides — U+2014 em dash, no U+2013, no ASCII hyphen swap", () => {
+    for (const text of [RESULT_DISCLAIMER, CALCULATOR_DISCLAIMER.canonical]) {
+      expect([...text].filter((c) => c === "—")).toHaveLength(1); // em dash
+      expect(text).not.toContain("–"); // en dash would be the wrong dash
+      expect(text).not.toContain(" - "); // and a hyphen would be a Prettier-grade regression
+    }
+    for (const text of [RESULT_CONTEXT_BASE, CALCULATOR_DISCLAIMER.resultContext]) {
+      expect([...text].filter((c) => c === "—")).toHaveLength(1);
+    }
+    for (const text of [RESULT_CONTEXT_NOI_NOTE, CALCULATOR_DISCLAIMER.usedNoiOverride]) {
+      expect([...text].filter((c) => c === "—")).toHaveLength(1);
+    }
+  });
+
+  it("benchmarkBandScope is compliance-only — it has no twin in lib/valuation.ts (:1047)", () => {
+    // Guards the opposite failure: someone "tidying" compliance.ts by deleting
+    // the keys that look unused from the calculator's perspective. This one is
+    // the only on-screen text saying the bars are not local comps, it opens with
+    // an em dash and one space, and it deliberately has NO terminal period.
+    expect(CALCULATOR_DISCLAIMER.benchmarkBandScope).toBe(
+      "— broad national reference for this type, not your local comp set",
+    );
+    expect(CALCULATOR_DISCLAIMER.benchmarkBandScope.startsWith("— ")).toBe(true);
+    expect(CALCULATOR_DISCLAIMER.benchmarkBandScope.endsWith(".")).toBe(false);
   });
 });

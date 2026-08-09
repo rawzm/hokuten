@@ -3,9 +3,21 @@
 Asset manifest required by PHASE-1-EXECUTION §4.3 ("record source + license per logo in an asset manifest") and §8.4 (trademarks).
 Audit performed 2026-08-08. Scope: the nine target flags in design-skill ref 04 `#brands` + the "& independents" text mark.
 
-**Outcome: zero vectors shipped. `site/public/logos/` is empty and stays empty until counsel clears it. All nine flags render as brand names set in our own typography.** Rationale in §3; the per-mark evidence is §2.
+**Outcome as of the original 2026-08-08 audit: zero vectors shipped, `site/public/logos/` empty.** Superseded the same evening — see the header note immediately below. Do not read §§1–4 as current law; they are kept verbatim as the record of what was checked and why the vector question stayed open. §5 is current.
 
-Honesty rule for this file: every row states what was *actually verified* and what was not. A Wikimedia "PD-textlogo" tag is a volunteer's assertion about US copyright, not a legal determination and not a trademark clearance. Nothing below upgrades a tag into a licence opinion.
+---
+
+## 0. 2026-08-08 (later) — D2 supersedes §§1–4's "zero vectors" outcome
+
+Razim supplied 16 real chip assets that evening — 3D glass-squircle renderings of hotel brand marks, `Ref/hotel-brands/`, one PNG per chip, ~1672×941, centred on a near-white ground with visible gloss/shadow. `docs/DESIGN-REVISIT.md` §2 D2 and §3.7 record the design decision; this file records the per-chip provenance §5 requires.
+
+**Why this is not a reversal of §§2–4's reasoning, but a different question.** The research in §§2–4 evaluated REPRODUCING each franchisor's own logo file sourced from Wikimedia Commons — a copyright question (is the file free-licensed?) layered under a trademark/brand-guidelines question (may we recolor/reproduce it?). Both answers were "no, not safely, for seven of nine." D2's chips are not that: they are Razim's own 3D renderings — his interpretation of each mark, generated and composed by him, not a downloaded file. Nothing here is a reproduction of a franchisor's source asset. That sidesteps the specific PD-textlogo/Commons copyright question §2 chased.
+
+**What does NOT change.** Rendering an AI-assisted approximation of a trademarked mark is still a trademark question — likelihood of confusion / nominative fair use / trade dress — independent of copyright, and that question has NOT been cleared by counsel. It carries the same open flag as every other third-party mark on this site (the brands-marquee posture itself, and the visible third-party signage inside the `content/artwork.ts` glyph-mosaic pieces). **Internal-only until the KW / Forward Wilshire launch gate clears** (AGENTS.md, PROJECT-MEMORY.md open items). Razim has accepted this interim posture for the internal build; it is not a substitute for a clearance decision before public launch.
+
+**Scope widened.** The shipped set includes luxury flags (Four Seasons, Auberge Resorts Collection) the original nine-flag "economy → upper-upscale" research didn't cover. `site/content/brands.ts`'s coverage-claim comment and ref 06's `#brands` register row wording widen to **"economy through luxury"** to match what's actually rendered — still framed as "flags we transact across," never partners/clients.
+
+**Directory state, corrected**: `site/public/logos/` now HOLDS the 15 chip PNGs listed in §5 (plus `_hold-amber-mark.png` for the unidentified 16th, not wired to any flag). §4's "stays empty" line is superseded.
 
 ---
 
@@ -65,6 +77,48 @@ Rows 3 and 4 are the only ones with usable candidates; the exact file URLs and t
 
 ---
 
-## 4. Directory state
+## 4. Directory state (as of the original 2026-08-08 audit — superseded, see §0 and §5)
 
 `site/public/logos/` — **empty, intentionally.** Do not add files to it without a manifest row above and a PROJECT-MEMORY.md entry.
+
+**Superseded the same evening (§0):** the directory now holds the 16 D2 chip assets. §5 is the current manifest for that directory's contents.
+
+---
+
+## 5. D2 brand-chip provenance — CURRENT (2026-08-08)
+
+One row per delivered chip. **Source for every row**: Razim-supplied 3D rendering, 2026-08-08 (`Ref/hotel-brands/`, one PNG per chip, ~1672×941, near-white ground). **Licence posture for every row**: nominative use, identical framing to §1 ("flags we transact across," never partners/clients/affiliation); as an AI-rendered approximation of a trademarked mark it carries the SAME counsel flag as the rest of this round's brand work (§0) — trademark/trade-dress clearance not obtained, internal-only until the KW / Forward Wilshire launch gate. Not repeated per row below; it is identical for all sixteen.
+
+Master → slug mapping was established by opening each master and reading the mark (wordmark, monogram, or device) directly — not guessed from context. `site/content/brands.ts` is the consumer; `slug` there matches the `slug` column here and the `<slug>.png` filename.
+
+| # | Brand (flag) | Slug | Master filename (`Ref/hotel-brands/`) | Mark identified |
+|---|---|---|---|---|
+| 1 | Marriott | `marriott` | `ChatGPT Image Aug 8, 2026, 03_44_31 PM.png` | Red squircle, stylized double-stroke "M" script mark |
+| 2 | Hyatt | `hyatt` | `ChatGPT Image Aug 8, 2026, 03_44_34 PM.png` | Blue squircle, "HYATT" wordmark with underscore arc |
+| 3 | Hilton | `hilton` | `ChatGPT Image Aug 8, 2026, 03_44_36 PM.png` | Black squircle, boxed "Hilton" wordmark |
+| 4 | IHG | `ihg` | `ChatGPT Image Aug 8, 2026, 03_44_38 PM.png` | Black squircle, "IHG" wordmark |
+| 5 | Wyndham | `wyndham` | `ChatGPT Image Aug 8, 2026, 03_44_40 PM.png` | Blue squircle, "WYNDHAM" wordmark with swept underline |
+| — | **UNIDENTIFIED — held out, not a `franchiseFlags` row** | `_hold-amber-mark` | `ChatGPT Image Aug 8, 2026, 03_44_42 PM.png` | Amber/orange squircle, abstract two-quarter-circle device, **no legible name or wordmark** — cannot be identified from the image alone. Prepared and named as a placeholder asset; blocked pending Razim naming the brand. Do not guess and do not ship as a numbered flag. |
+| 6 | Accor | `accor` | `ChatGPT Image Aug 8, 2026, 03_44_44 PM.png` | Gold squircle, abstract "A"/flame-leaf device (current Accor "heartist" mark), no wordmark |
+| 7 | Best Western | `best-western` | `ChatGPT Image Aug 8, 2026, 03_44_46 PM.png` | Blue squircle, "BW" monogram |
+| 8 | Sonesta | `sonesta` | `ChatGPT Image Aug 8, 2026, 03_44_48 PM.png` | Black squircle, flame/"S" device + "SONESTA" wordmark |
+| 9 | Extended Stay America | `extended-stay-america` | `ChatGPT Image Aug 8, 2026, 03_44_50 PM.png` | Green squircle, star-burst device + "extended STAY AMERICA" wordmark |
+| 10 | G6 Hospitality | `g6-hospitality` | `ChatGPT Image Aug 8, 2026, 03_44_53 PM.png` | Split white/blue squircle, "G6" mark |
+| 11 | Omni Hotels | `omni` | `ChatGPT Image Aug 8, 2026, 03_44_56 PM.png` | Black squircle, "OMNI HOTELS" wordmark + fleur-de-lis device |
+| 12 | Loews Hotels & Resorts | `loews` | `ChatGPT Image Aug 8, 2026, 03_44_58 PM.png` | Dark-blue squircle, "LH" monogram + "LOEWS / HOTELS · RESORTS" wordmark |
+| 13 | Auberge Resorts Collection | `auberge` | `ChatGPT Image Aug 8, 2026, 03_45_06 PM.png` | Charcoal squircle, gold sunburst device + "Auberge Collection" wordmark |
+| 14 | Four Seasons | `four-seasons` | `ChatGPT Image Aug 8, 2026, 03_45_13 PM.png` | Black squircle, tree/leaf device + "FOUR SEASONS" wordmark |
+| 15 | Aloft Hotels | `aloft` | `ChatGPT Image Aug 8, 2026, 04_04_00 PM.png` | Magenta squircle, "aloft" wordmark + "HOTELS" |
+
+**Fifteen chips ship** (rows 1–15, minus the held-out unidentified mark). `site/content/brands.ts`'s `franchiseFlags` reorders these economy → upper-upscale/luxury (G6 → Four Seasons) rather than the delivery order above; this table is provenance, not display order.
+
+### Missing — evidenced in deals, no chip delivered
+
+| Brand | Why it's expected | Status |
+|---|---|---|
+| Radisson | §2 row 5 — evidenced in closed deals (ref 06); had a Commons vector candidate rejected in the original audit for carrying a device | `blocked: awaiting-asset` — requested from Razim, tracked in code as `FLAGS_AWAITING_CHIP` in `site/content/brands.ts`. Must not render until a chip exists. |
+| Choice Hotels | §2 row 2 — same | `blocked: awaiting-asset` — same tracking. |
+
+### Prep pipeline (spec, §3.7 of DESIGN-REVISIT.md)
+
+sharp-based, scripted and repeatable: detect each chip's content bounding box against the near-white ground (the gloss edge and soft shadow are the 3D dimension — kept, never flattened), crop with uniform margin, knock the surround to transparency, normalize every chip to the same square canvas so the marquee row sits optically even. Output `site/public/logos/<slug>.png` @2x + AVIF. Render height ~44–52px desktop / ~36px mobile (dimensional objects carry more presence than flat marks, hence larger than the retired 28px/22px text-mark rule — ref 04 updated). This file's job is the provenance row per chip, not the pipeline script itself — see the generation agent's own output for pipeline verification.

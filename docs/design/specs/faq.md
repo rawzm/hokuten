@@ -1,3 +1,17 @@
+> **✓ Re-verified current — Design Revisit round (2026-08-08/09).** Checked
+> against `site/components/sections/FaqSection.tsx`'s own header comment on
+> 2026-08-09 (not skimmed): that file states outright that "the placeholder
+> notices themselves are UNCHANGED by the D6/D8 pass below and stay fully"
+> intact — the §"Placeholder-marker handling" section here is unaffected.
+> The IA and component plan otherwise still hold; D6 applied a density pass
+> (this section joins onto `#team` above it via `section-join` rather than
+> its own full `section-pad` — see `FaqSection.tsx`'s header for the surface-
+> adjacency reasoning) and D8 applied its typography pass (`font-medium` per
+> "mono 500 for emphasised data values" on the placeholder caption per the
+> file's own comment). None of this changes the accordion mechanics, the
+> `[PLACEHOLDER:confirm — …]` parsing contract, or the acceptance criteria
+> below.
+
 # `#faq` — Diligence FAQ
 
 Status: **approved**

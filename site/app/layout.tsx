@@ -2,8 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { LazyMotion, domAnimation } from "motion/react";
 import { ConsentProvider } from "@/components/modals/ConsentProvider";
 import { TickerBar } from "@/components/ticker/TickerBar";
+import { stats } from "@/content/stats";
+import { SITE_NAME } from "@/content/site";
 import { THEME, themePresentation } from "@/lib/theme";
 import "./globals.css";
 
@@ -31,16 +34,60 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
-const SITE_NAME = "The Hokuten Group";
-const SITE_DESCRIPTION =
-  "Hospitality investment sales, nationwide. $200M+ closed across 12 hospitality transactions. Written BOV in 48 hours on receipt of T-12, STR, and PIP.";
+/* ---------------------------------------------------------------------------
+   Metadata description.
 
+   The figures are READ FROM content/stats.ts, never retyped. This file used to
+   hardcode "$200M+ closed across 12 hospitality transactions", which is a
+   second, unowned copy of two register-backed numbers — the day stats.ts is
+   corrected, a stale claim keeps shipping in the document head where nobody
+   looks. Composition is byte-identical to the string that was hardcoded here.
+
+   `statValue` throws rather than falling back. A silent fallback is how the
+   drift being fixed got in; if a label is renamed in stats.ts the build should
+   stop. It belongs in content/stats.ts as a shared helper — it lives here only
+   because this agent does not own that file. See the build report.
+
+   NOT the same string as content/site.ts's SITE_DESCRIPTION, deliberately: that
+   one is the verbatim port of the source `og:description` (index.html:20) and is
+   what app/page.tsx and lib/seo.ts serve. This one is the proof-carrying
+   fallback for any route that does not set its own description.
+   --------------------------------------------------------------------------- */
+
+function statValue(label: string): string {
+  const row = stats.find((stat) => stat.label === label);
+  if (!row) {
+    throw new Error(
+      `content/stats.ts has no row labelled "${label}" — the metadata description cannot be composed without it.`,
+    );
+  }
+  return row.value;
+}
+
+const METADATA_DESCRIPTION = `Hospitality investment sales, nationwide. ${statValue(
+  "Aggregate volume",
+)} closed across ${statValue(
+  "Closed transactions",
+)} hospitality transactions. Written BOV in 48 hours on receipt of T-12, STR, and PIP.`;
+
+/* `SITE_NAME` is imported from content/site.ts, not redeclared — the local copy
+   was byte-identical to the export and there is only ever one site name.
+
+   Wider consolidation, deliberately NOT done here: lib/seo.ts already exports
+   `buildMetadata()`, written to replace this whole object. Adopting it is the
+   right end state but it is not a no-op — it would change the root title to the
+   tracked-caps `SITE_TITLE`, swap this description for content/site.ts's
+   `SITE_DESCRIPTION`, and add metadataBase / canonical / OG images / robotsMeta.
+   That is an SEO decision for the main loop, coordinated with app/page.tsx.
+   Note while deciding: every route today (page.tsx, privacy, sms-terms,
+   accessibility) sets its own `description`, so the string below is currently
+   shadowed everywhere — correct, and inert until a route stops overriding it. */
 export const metadata: Metadata = {
   title: {
     default: `${SITE_NAME} — Hospitality Investment Sales`,
     template: `%s — ${SITE_NAME}`,
   },
-  description: SITE_DESCRIPTION,
+  description: METADATA_DESCRIPTION,
   applicationName: SITE_NAME,
   authors: [{ name: SITE_NAME }],
   icons: {
@@ -51,12 +98,12 @@ export const metadata: Metadata = {
     type: "website",
     siteName: SITE_NAME,
     title: `${SITE_NAME} — Hospitality Investment Sales`,
-    description: SITE_DESCRIPTION,
+    description: METADATA_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} — Hospitality Investment Sales`,
-    description: SITE_DESCRIPTION,
+    description: METADATA_DESCRIPTION,
   },
   robots: { index: false, follow: false },
 };
@@ -81,20 +128,47 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
 
-        {/* ConsentProvider belongs HERE, not on the landing page.
-            It installs the measurement guard that <Analytics /> and
-            <SpeedInsights /> below respect. Mounted only on `/`, a stored
-            "Reject all" was silently ignored on /privacy, /sms-terms and
-            /accessibility — the visitor was measured with no way to decline,
-            while our own consent copy claimed otherwise. Compliance P0,
-            found by the ship gate 2026-08-08. */}
-        <ConsentProvider>{children}</ConsentProvider>
+        {/* D7 LazyMotion boundary (2026-08-08). Every `m.*` element in the app
+            resolves its renderer from LazyContext via React context — a
+            component with no <LazyMotion> ancestor gets `lazyContext.renderer
+            === undefined` and never mounts a visualElement at all (verified
+            against framer-motion 13.0.0's useVisualElement source, not
+            memory). So this provider must be a genuine ANCESTOR of every
+            `m.*` render site, not just "present somewhere on the page".
+            That's exactly why it lives here and not inside app/template.tsx:
+            ConsentProvider renders <ConsentModal> (a Dialog, i.e. `m.div` ×2
+            + AnimatePresence) as a SIBLING of {"{children}"} below, not a
+            descendant — template.tsx only wraps {"{children}"}, so a
+            provider placed there would silently leave the consent modal
+            un-animated on every route. Wrapping here also covers <TickerBar
+            /> should it ever grow a motion element. `domAnimation` (not
+            domMax) is deliberate: it buys animation + exit + hover/tap/focus/
+            inView, never drag or layout — this codebase has zero `drag` or
+            `layout`/`layoutId` props on any motion element (grepped
+            repo-wide), so domMax's extra ~cost buys nothing here.
+            LazyMotion is already a "use client" component inside the motion
+            package itself, so wrapping it around {"{children}"} here does
+            NOT make this Server Component client — {"{children}"} is passed
+            through as a prop from the server render, same as any other
+            Client Component "slot" composition (ConsentProvider, one line
+            up, already does exactly this). */}
+        <LazyMotion features={domAnimation}>
+          {/* ConsentProvider belongs HERE, not on the landing page.
+              It installs the measurement guard that <Analytics /> and
+              <SpeedInsights /> below respect. Mounted only on `/`, a stored
+              "Reject all" was silently ignored on /privacy, /sms-terms and
+              /accessibility — the visitor was measured with no way to decline,
+              while our own consent copy claimed otherwise. Compliance P0,
+              found by the ship gate 2026-08-08. */}
+          <ConsentProvider>{children}</ConsentProvider>
 
-        {/* Outside {children} on purpose: app/template.tsx wraps children in a
-            transform for the route transition, and a transformed ancestor
-            becomes the containing block for `position: fixed`, detaching the
-            ticker from the viewport for the length of every navigation. */}
-        <TickerBar />
+          {/* Outside {children} on purpose: app/template.tsx wraps children in
+              a transform for the route transition, and a transformed
+              ancestor becomes the containing block for `position: fixed`,
+              detaching the ticker from the viewport for the length of every
+              navigation. Still inside <LazyMotion> — see note above. */}
+          <TickerBar />
+        </LazyMotion>
 
         <Analytics />
         <SpeedInsights />

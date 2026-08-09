@@ -26,16 +26,29 @@
  *
  * The `armed` variant is the hidden state applied with `duration: 0` — that is
  * the ABSENCE of motion, not a new motion token.
+ *
+ * D7 LazyMotion (2026-08-08): `motion[as]` below is `m[as]` — dynamic
+ * property access into the "motion/react-m" namespace import, fed by the
+ * `<LazyMotion features={domAnimation}>` provider in app/layout.tsx (an
+ * ancestor of every route, so of every Reveal on the page). The dynamic
+ * lookup was checked against a real risk before converting: `import * as m`
+ * plus a computed `m[as]` defeats *named-export* tree-shaking (a bundler
+ * cannot know at build time which of the ~150 tag exports `as` will select,
+ * so it keeps all of them reachable) — verified with an isolated esbuild
+ * bundle of this exact pattern. That is cheap here specifically because each
+ * `m.<tag>` is a thin `createMinimalMotionComponent("<tag>")` call sharing
+ * one factory, not a per-tag copy of the render/gesture engine — bundling
+ * all ~150 measured at +2KB gzip over bundling one, nowhere near the ~34KB
+ * the full `motion` proxy costs regardless of how many tags it's asked for.
+ * `useIsomorphicLayoutEffect`/`useReducedMotion` stay on "motion/react":
+ * standalone hook modules, independently verified under 300 bytes gzip each,
+ * that do not pull the render pipeline in with them.
  */
 
 "use client";
 
-import {
-  motion,
-  useIsomorphicLayoutEffect,
-  useReducedMotion,
-  type HTMLMotionProps,
-} from "motion/react";
+import { useIsomorphicLayoutEffect, useReducedMotion, type HTMLMotionProps } from "motion/react";
+import * as m from "motion/react-m";
 import {
   Children,
   useEffect,
@@ -193,9 +206,9 @@ function RevealRoot({
     };
   }, [stagger, delay]);
 
-  // `motion.div` stands in for every DOM tag: the props we use (className,
+  // `m.div` stands in for every DOM tag: the props we use (className,
   // style, variants, viewport, aria-*) are identical across all of them.
-  const Tag = motion[as] as typeof motion.div;
+  const Tag = m[as] as typeof m.div;
 
   return (
     <Tag
@@ -217,7 +230,7 @@ function RevealRoot({
  * its variant state from that parent and animates nothing on its own.
  */
 function RevealItem({ children, as = "div", ...rest }: RevealItemProps) {
-  const Tag = motion[as] as typeof motion.div;
+  const Tag = m[as] as typeof m.div;
   return (
     <Tag {...rest} variants={REVEAL}>
       {children}

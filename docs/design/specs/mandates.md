@@ -1,3 +1,16 @@
+> **✓ Re-verified current — Design Revisit round (2026-08-08/09).** Checked
+> against `site/components/sections/MandatesSection.tsx`'s own header
+> comment on 2026-08-09 (not skimmed): the IA, all six Decisions, and the
+> "Why not `CardShell`" reasoning below still hold — not structurally
+> rebuilt. D6/D8 pass, per the file's own "Design revisit, 2026-08-08 (D6
+> density / D8 hierarchy)" section: outer rhythm compressed to the D6 scale,
+> and card headlines step `font-normal` → `font-medium` (D8: Fraunces
+> 300→500 for firmness) — same weight-only step as `#doors` above it, so the
+> "exactly 4 type sizes" budget (Decision §4) and the acceptance criteria
+> below are unaffected. This section's "no `star-grain`, no engraved art
+> object" decision (§3) is unrelated to D5 (that decision predates and is
+> independent of the hero art-program change) and still binds.
+
 # `#mandates` — Capital & Standing Mandates
 
 **Section/Route:** `#mandates` (landing page, section 9 of 13 per ref 04 — second dark panel, between `#doors` and `#team`)

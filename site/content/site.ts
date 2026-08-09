@@ -11,9 +11,16 @@
  * Evidence status: `verified-current`. Every string here is either brand identity
  * from ref 01 / PROJECT-MEMORY, a verbatim source URL, or literal wayfinding.
  * No metric, award, coverage or capability claim is authored in this file — the
- * source's "Nationwide coverage delivered through formal partner-brokerage
- * relationships in every U.S. state." and "Personal practice site of…" lines are
- * deliberately NOT ported (no register row / prior-affiliation guardrail).
+ * source's "Personal practice site of…" line is deliberately NOT ported
+ * (prior-affiliation guardrail).
+ *
+ * SUPERSEDED 2026-08-09 (DESIGN-REVISIT §5.1, a compliance P0 from the ship
+ * gate): this comment used to say the source's nationwide/partner-brokerage
+ * line was also unported for want of a register row. It now HAS a register row
+ * (ref 06) and ships — but as OUT_OF_STATE_QUALIFIER in content/compliance.ts,
+ * ported byte-exact from the brokerage-of-record card at index.html:1152, not
+ * from the run-on footer variant at :1249 that this comment was describing.
+ * Compliance strings live in compliance.ts; this file still authors none.
  *
  * Unprovisioned values are exported as `null` with a `blocked:` marker and a
  * safe fallback. Never invent a URL.

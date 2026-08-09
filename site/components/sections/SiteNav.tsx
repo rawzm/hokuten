@@ -2,10 +2,13 @@
 
 /**
  * components/sections/SiteNav.tsx — the sticky primary nav.
- * Spec of record: docs/design/specs/nav.md (read that first — the state
- * model, the cascade-layer background gotcha, and every acceptance criterion
- * live there). Governed by hokuten-design-director ref 04 ("Nav"), ref 03
- * (surfaces, type ramp), ref 07 (P0: 44px targets, focus, no KW lockup).
+ * Spec of record: docs/design/specs/nav.md (read that first for the state
+ * model, the cascade-layer background gotcha, and every acceptance
+ * criterion — those still hold; its Wordmark/"no KW lockup" passages predate
+ * D1 below and are stale, flagged for the doc owner, not corrected here).
+ * Governed by hokuten-design-director ref 04 ("Nav"), ref 03 (surfaces, type
+ * ramp), ref 07 (P0: 44px targets, focus — its "no KW lockup" P0 is
+ * superseded by D1, DESIGN-REVISIT.md §2, 2026-08-08).
  *
  * ┌── THE SENTINEL CONTRACT — this agent DEFINES it, the hero agent reads it ─┐
  * │ Neither site/components/hero/HeroCoverPanel.tsx nor Wordmark.tsx exists   │
@@ -72,15 +75,58 @@
  * Verified against site/app/globals.css's actual structure, not assumed.
  */
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIsomorphicLayoutEffect } from "motion/react";
+import dynamic from "next/dynamic";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { MenuOverlay } from "@/components/nav/MenuOverlay";
+import { AnchorLink } from "@/components/nav/AnchorLink";
 import { SECTION_IDS } from "@/content/site";
 import { navCta, navLinks } from "@/content/nav";
+
+/**
+ * D7 (2026-08-08): MenuOverlay's Radix Dialog JS no longer ships on the
+ * hero's critical path — it renders nothing until the trigger is pressed, so
+ * it has no business being in the initial bundle. NO `ssr: false` here (that
+ * option would drop the trigger button from the server-rendered HTML
+ * entirely, failing the "trigger stays server-rendered, keyboard reachable,
+ * correctly labelled BEFORE the chunk loads" requirement) and deliberately
+ * NO custom `loading` fallback either: with the default `ssr: true`, Next
+ * still renders MenuOverlay's real markup (trigger button + closed dialog)
+ * into the initial HTML — the same DOM the previous static import produced —
+ * while its JS still code-splits into a separate chunk fetched and hydrated
+ * on the client. Because there is exactly ONE version of that markup
+ * throughout (no placeholder swapped for a different real component later),
+ * there is no "click the placeholder, lose the click" gap for a `loading`
+ * fallback to solve; the only remaining gap is the ordinary hydration window
+ * every interactive element on the page has, dynamic or not. Same pattern as
+ * `BovSection.tsx`'s `BovForm` import — see that file's header for the full
+ * "ssr:false throws in a Server Component" citation (moot here since this
+ * file is already "use client", but the ssr:true reasoning is identical).
+ *
+ * MenuOverlay.tsx currently owns its own `<DialogTrigger>` — composing
+ * trigger and panel as one unit rather than exposing a controlled
+ * open/onOpenChange pair this file could drive with its own static trigger.
+ * That's not a file I own this round; flagged in this round's report rather
+ * than edited.
+ */
+const MenuOverlay = dynamic(() =>
+  import("@/components/nav/MenuOverlay").then((mod) => mod.MenuOverlay),
+);
+
+/**
+ * `navLinks`/`navCta` type `href` as plain `string` (lib/types.ts `NavLink`),
+ * but every value in content/nav.ts is built through `anchor()`, which only
+ * ever returns `"#<id>"`. `AnchorLink`'s `href` is intentionally typed
+ * narrower (`` `#${string}` ``) to keep it a same-page-only primitive — this
+ * assertion documents that invariant rather than widening `NavLink` or
+ * `AnchorLinkProps` (neither file is mine to edit this round).
+ */
+function asAnchorHref(href: string): `#${string}` {
+  return href as `#${string}`;
+}
 
 /** ref 04: "paper with blur ... on scroll". A local constant — this axis has
  *  nothing to do with the hero sentinel and needs no shared token. */
@@ -97,53 +143,16 @@ const TAP_TARGET = "inline-flex min-h-11 items-center";
 
 type Surface = "dark" | "light";
 
-/** Reads the live --nav-h custom property rather than hard-coding 88 — if the
- *  token ever changes, this observer stays correct without a matching edit. */
+/** Reads the live --nav-h custom property rather than hard-coding the bar
+ *  height — if the token ever changes, this observer stays correct without a
+ *  matching edit. Fallback 68 (was 88) — D6 (2026-08-08) compressed --nav-h
+ *  from 88px to 68px; kept in sync by hand since a CSS custom property can't
+ *  be read at module scope. */
 function readNavHeightPx(): number {
-  if (typeof window === "undefined") return 88;
+  if (typeof window === "undefined") return 68;
   const raw = getComputedStyle(document.documentElement).getPropertyValue("--nav-h");
   const parsed = Number.parseFloat(raw);
-  return Number.isFinite(parsed) ? parsed : 88;
-}
-
-/**
- * Moves DOM focus to a section's heading after native hash navigation has
- * already scrolled to it. Duplicated (not shared) in MenuOverlay.tsx — see
- * that file's header for why. Every section pairs `<section id
- * aria-labelledby="{id}-heading">` with a heading carrying that exact id
- * (verified against Closings/Listings/Stats/Faq/Mandates/Doors/Method); the
- * plain `#{id}` fallback covers today's interim `Blocked` placeholders for
- * `#calculator`/`#team`, which have no heading yet.
- */
-function focusAnchorTarget(hash: string): void {
-  const id = hash.replace(/^#/, "");
-  if (!id) return;
-  const target = document.getElementById(`${id}-heading`) ?? document.getElementById(id);
-  if (!target) return;
-
-  const hadTabIndex = target.hasAttribute("tabindex");
-  if (!hadTabIndex) target.setAttribute("tabindex", "-1");
-  target.focus({ preventScroll: true });
-
-  if (!hadTabIndex) {
-    const clear = () => {
-      target.removeAttribute("tabindex");
-      target.removeEventListener("blur", clear);
-    };
-    target.addEventListener("blur", clear);
-  }
-}
-
-/**
- * Shared click handler for every internal `#id` link in this file. Never
- * preventDefaults — native hash navigation keeps ownership of the scroll
- * (honouring the global `scroll-margin-top`) and the URL; this only adds the
- * a11y requirement layered on top of it (P0, task brief: "Anchor clicks must
- * move FOCUS to the target section heading, not merely scroll").
- */
-function handleAnchorClick(event: MouseEvent<HTMLAnchorElement>): void {
-  const href = event.currentTarget.getAttribute("href");
-  if (href?.startsWith("#")) focusAnchorTarget(href);
+  return Number.isFinite(parsed) ? parsed : 68;
 }
 
 export function SiteNav() {
@@ -279,18 +288,17 @@ export function SiteNav() {
         }}
       >
         <div className="container-hk flex h-full items-center justify-between gap-6">
-          {/* components/brand/Wordmark.tsx landed mid-build (verified via git
-              status partway through this task) — wired in directly rather
-              than shipping the brand-line fallback this file originally
-              planned for. Default `variant="text"` is exactly the real-text,
-              indexable, screen-reader-native treatment ref 04 wants here. */}
-          <a
-            href="#hero"
-            onClick={handleAnchorClick}
-            className={cn("shrink-0 whitespace-nowrap", TAP_TARGET)}
-          >
-            <Wordmark className="text-data" />
-          </a>
+          {/* D1 (2026-08-08): the theme lockup + a real-text brand line
+              replaces the old text-only Wordmark here — see
+              components/brand/Wordmark.tsx's "brand" variant for the full
+              reasoning. `min-w-0` (not `shrink-0`) lets this whole unit
+              shrink inside the row on narrow viewports — the CTA/menu group
+              on the right stays `shrink-0` (below), so any space pressure at
+              375px lands here first, where Wordmark's own `truncate` turns
+              it into a graceful ellipsis rather than an overflow. */}
+          <AnchorLink href="#hero" className={cn(TAP_TARGET, "min-w-0")}>
+            <Wordmark variant="brand" height={44} />
+          </AnchorLink>
 
           <ul className="hidden items-center gap-8 lg:flex">
             {navLinks.map((link) => {
@@ -298,20 +306,45 @@ export function SiteNav() {
               const isActive = activeId === id;
               return (
                 <li key={link.href}>
-                  <a
-                    href={link.href}
-                    onClick={handleAnchorClick}
+                  {/* Reflow fix (ship-gate carry-over, 2026-08-08): the active
+                      link used to swap font-normal -> font-semibold in place,
+                      re-measuring the text and shifting every sibling as the
+                      user scrolled. Fixed with a CSS Grid overlap: both the
+                      real label and an invisible, permanently-semibold ghost
+                      copy occupy the SAME grid cell (col-start-1/row-start-1),
+                      so the grid track's intrinsic width is always the WIDER
+                      (bold) measurement regardless of which state is showing.
+                      The ghost is `aria-hidden` + `invisible` (not
+                      `display:none`) — invisible preserves its box for
+                      sizing, aria-hidden keeps assistive tech from hearing
+                      the label twice. Accent underline + aria-current are
+                      unchanged. */}
+                  <AnchorLink
+                    href={asAnchorHref(link.href)}
                     aria-current={isActive ? "location" : undefined}
                     className={cn(
                       TAP_TARGET,
-                      "border-b-2 px-0.5 text-body transition-colors duration-fast ease-out",
-                      isActive
-                        ? "border-accent-text font-semibold text-fg"
-                        : "border-transparent font-normal text-fg-muted hover:text-fg",
+                      "group inline-grid border-b-2 px-0.5 text-body transition-colors duration-fast ease-out",
+                      isActive ? "border-accent-text" : "border-transparent",
                     )}
                   >
-                    {link.label}
-                  </a>
+                    <span
+                      aria-hidden="true"
+                      className="invisible col-start-1 row-start-1 font-semibold"
+                    >
+                      {link.label}
+                    </span>
+                    <span
+                      className={cn(
+                        "col-start-1 row-start-1 transition-colors duration-fast ease-out",
+                        isActive
+                          ? "font-semibold text-fg"
+                          : "font-normal text-fg-muted group-hover:text-fg",
+                      )}
+                    >
+                      {link.label}
+                    </span>
+                  </AnchorLink>
                 </li>
               );
             })}
@@ -319,9 +352,7 @@ export function SiteNav() {
 
           <div className="flex shrink-0 items-center gap-3">
             <Button asChild variant="primary" size="md" className="hidden sm:inline-flex">
-              <a href={navCta.href} onClick={handleAnchorClick}>
-                {navCta.label}
-              </a>
+              <AnchorLink href={asAnchorHref(navCta.href)}>{navCta.label}</AnchorLink>
             </Button>
             <MenuOverlay />
           </div>
@@ -330,8 +361,3 @@ export function SiteNav() {
     </>
   );
 }
-
-// Re-exported so a caller can reuse the exact focus-management contract
-// (e.g. the eventual Hero CTA) without re-deriving it. Not required by any
-// current consumer — kept narrow rather than promoted to lib/ (out of scope).
-export { focusAnchorTarget, handleAnchorClick };

@@ -22,11 +22,23 @@
  * for this one caller. `CardShell` also has no fourth slot for a
  * compliance-adjacent DRE line and forces its `data` slot to mono type —
  * wrong for prose. So this file applies the same chassis TOKENS `CardShell`
- * itself is built from (`rounded-card`, `border-hairline`, `surface-card`,
- * the `card-hit` hover marker) directly, rather than duplicating a second
- * generic card abstraction — see `MandatesSection.tsx` for the identical
- * precedent with mandate cards ("a different shape ref 04 asks for
- * explicitly, not a duplicated primitive").
+ * itself is built from (`border-hairline`, `surface-card`, the `card-hit`
+ * hover marker) directly, rather than duplicating a second generic card
+ * abstraction — see `MandatesSection.tsx` for the identical precedent with
+ * mandate cards ("a different shape ref 04 asks for explicitly, not a
+ * duplicated primitive").
+ *
+ * ── D4 ticket kinship — a LIGHT borrow, deliberately not the full anatomy ──
+ * Design-revisit §4.8 offers the deal-ticket system (colour header band,
+ * perforated tear line, metrics grid) and says "adopt it only if it
+ * genuinely improves the cards … don't force it." Verdict: the tear-line-
+ * and-metrics-grid anatomy is built to say "this is a transaction" — a
+ * person is not a deal, and stamping a bio card with a perforation reads as
+ * a category error, not a system. What DOES transfer cleanly: the `ticket`
+ * utility's resting ink-tinted dimensional shadow (replacing the flat
+ * `rounded-card`, whose radius `ticket` already supplies) and the D8
+ * mono/caps micro-voice for the role line, below. That is the full borrow —
+ * no header band, no tear line, no `ticket-perf`/`ticket-notch`.
  *
  * ── Portrait vs. glyph plate ────────────────────────────────────────────
  * Only Dino has a sourced photo (ref 04; ref 06; `content/team.ts`). Every
@@ -126,8 +138,11 @@ export function TeamCard({ member, className }: TeamCardProps) {
       className={cn(
         // `card-hit` is the marker `photo-reveal` (globals.css) hovers off —
         // the same convention `CardShell` uses, applied directly here since
-        // this file doesn't compose `CardShell` (see file header).
-        "card-hit flex h-full flex-col rounded-card border border-hairline surface-card",
+        // this file doesn't compose `CardShell` (see file header). `ticket`
+        // (D4, light borrow — see file header) supplies both the card
+        // radius and the resting ink-tinted shadow, so `rounded-card` is not
+        // repeated separately.
+        "card-hit ticket flex h-full flex-col border border-hairline surface-card",
         "transition-colors duration-base ease-out hover:border-accent-text/40",
         className,
       )}
@@ -146,9 +161,15 @@ export function TeamCard({ member, className }: TeamCardProps) {
       )}
 
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="font-display text-heading text-fg">{member.name}</h3>
+        {/* D8: Fraunces steps 300 → 500 here — the name is this card's one
+            firm moment, never 600+ (ref 03 type ramp). */}
+        <h3 className="font-display font-medium text-heading text-fg">{member.name}</h3>
 
-        <p className="mt-2 text-body text-fg-muted">{member.role}</p>
+        {/* D8 + D4 light-borrow: the role reads as the tiny-caps micro-voice
+            (the raw `micro-label` utility, not the `<MicroLabel>` component —
+            no bracket/index device belongs on a job title) rather than a
+            second block of prose competing with the bio below. */}
+        <p className="micro-label mt-2">{member.role}</p>
 
         {member.dre ? <p className="data-line text-fg-meta mt-1">{member.dre}</p> : null}
 

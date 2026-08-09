@@ -11,7 +11,29 @@
  * blending into shipped body copy. That split relocates the marker's own
  * words out of the bracket syntax the same way `MicroLabel` composes its
  * brackets separately from its words — punctuation scaffolding, not content —
- * and never touches, trims, or invents the words themselves.
+ * and never touches, trims, or invents the words themselves. The placeholder
+ * notices themselves are UNCHANGED by the D6/D8 pass below and stay fully
+ * visible — design-revisit §4.8: "they are a launch gate, not a bug."
+ *
+ * ── D6 density pass (2026-08-08/09) ──────────────────────────────────────
+ * `#faq` sits between `#team` (`surface-paper`) and `#bov` (`surface-deep`).
+ * `#team` → `#faq` is a same-surface pair (`surface-paper` → `surface-paper`),
+ * so this section — the SECOND of that pair — carries `section-join` to zero
+ * its own top padding and share `#team`'s gutter instead of stacking two.
+ * (`#bov` below is a different surface, so no join applies on that side.)
+ * `section-fit` + `lg:flex lg:flex-col lg:justify-center` follow the same
+ * pattern as `MethodSection`
+ * and `TeamSection` — a no-op once the accordion genuinely runs past one
+ * viewport, which design-revisit §4.8 explicitly allows ("a genuine
+ * candidate for exceeding one screen … let the page scroll"). The accordion
+ * itself is never put in a `scroll-well` — a collapsed accordion inside a
+ * fixed-height well is a usability trap the brief calls out by name.
+ *
+ * ── D8 typography pass ────────────────────────────────────────────────────
+ * The headline (`SectionHeader`, unmodified) stays the section's one focal
+ * step — already carries its one italic accent word ("closer"). The only
+ * type change here is the placeholder-notice caption stepping to mono 500
+ * ("mono 500 for emphasised data values … leaned on more heavily").
  */
 
 import { AlertTriangle } from "lucide-react";
@@ -69,7 +91,10 @@ function parseAnswer(answer: string): AnswerSegment[] {
  * with `text-brick` on the same element, Tailwind's cascade order between two
  * same-specificity utilities is undefined. `atoms/Badge.tsx` hits the same
  * collision and solves it the same way (type on the wrapper, colour kept off
- * the utility that would fight it).
+ * the utility that would fight it). `font-medium` (D8: "mono 500 for
+ * emphasised data values") gives the caption a firmer step than the note
+ * text beneath it — this is the one moment in the section that should read
+ * as an alarm, not a label.
  */
 function PlaceholderNotice({ note }: { note: string }) {
   return (
@@ -79,7 +104,7 @@ function PlaceholderNotice({ note }: { note: string }) {
     >
       <AlertTriangle aria-hidden="true" strokeWidth={1.5} className="mt-0.5 size-4 shrink-0" />
       <span className="flex flex-col gap-1">
-        <span className="font-mono text-micro uppercase tracking-micro">
+        <span className="font-mono text-micro font-medium uppercase tracking-micro">
           Placeholder — confirm before launch
         </span>
         <span className="text-data">{note}</span>
@@ -105,7 +130,11 @@ function FaqAnswer({ answer }: { answer: string }) {
 
 export function FaqSection() {
   return (
-    <section id="faq" aria-labelledby="faq-heading" className="surface-paper section-pad">
+    <section
+      id="faq"
+      aria-labelledby="faq-heading"
+      className="surface-paper section-pad section-join section-fit lg:flex lg:flex-col lg:justify-center"
+    >
       <div className="container-hk">
         <Reveal>
           <SectionHeader
@@ -117,7 +146,7 @@ export function FaqSection() {
           />
         </Reveal>
 
-        <Reveal delay={0.1} className="mt-12 md:mt-16">
+        <Reveal delay={0.1} className="mt-12 md:mt-16 lg:mt-8">
           <Accordion type="single" collapsible>
             {faq.map((item, index) => (
               <AccordionItem key={item.question} value={`faq-${index}`}>

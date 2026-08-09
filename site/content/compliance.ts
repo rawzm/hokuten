@@ -7,7 +7,8 @@
  * ("Compliance text"), which is canonical wherever the two disagree.
  * Verified byte-for-byte against the read-only kwc source on 2026-08-08
  * (index.html:920, :1047, :1140, :1174, :1175, :1199, :1200, :1203, :1564-1570;
- * sms-terms.html:87-114).
+ * sms-terms.html:87-114). `index.html:1152` (OUT_OF_STATE_QUALIFIER) was added
+ * and hexdump-verified against the same source on 2026-08-09.
  *
  * Evidence status: `verified-current` — every string below is a verbatim port of a
  * shipped legal/compliance block, not a new claim.
@@ -60,6 +61,38 @@ export const BROKERAGE_DISCLOSURE = [
   "Brokerage services are provided through Forward Wilshire Inc dba Keller Williams Larchmont (CA DRE #01870534).",
   "Dino Monteverde, CA DRE #01948432.",
 ] as const satisfies readonly [string, string];
+
+/**
+ * The out-of-state qualifier. index.html:1152, one `<p>` inside the "— The
+ * Brokerage of Record" team card (:1149-1154), ported as one string because the
+ * source ships it as one paragraph. Hexdump-verified 2026-08-09: pure ASCII, no
+ * NBSP, no smart punctuation, two periods, one trailing newline stripped.
+ *
+ * WHY IT EXISTS: the site says "nationwide" (metadata description, TAGLINE_STACK
+ * "NATIONWIDE COVERAGE"). Unqualified, that reads as a claim to be licensed in
+ * every state, which is false — Forward Wilshire is a California brokerage. This
+ * line is the qualifier the source shipped alongside the same claim, and the
+ * ship-gate compliance finding (DESIGN-REVISIT §5.1) is that the Hokuten build
+ * dropped it. It must render wherever the disclosure renders.
+ *
+ * RENDERS: in the footer, immediately after BROKERAGE_DISCLOSURE, inside the
+ * same disclosure block. It is not a substitute for the disclosure and never
+ * renders alone.
+ *
+ * NOT PORTED, deliberately: the source's second, differently-worded footer
+ * variant at index.html:1249 ("Nationwide coverage delivered through formal
+ * partner-brokerage relationships in every U.S. state.") — it is one clause of a
+ * run-on legal row that also carries Sarhan branding and a personal-practice-site
+ * framing, neither of which may appear on a Hokuten page. If a shorter footer
+ * wording is ever wanted, it is a dated PROJECT-MEMORY decision, not an edit here.
+ *
+ * EVIDENCE: verbatim port of shipped copy, same footing as everything else in
+ * this file. The claim it qualifies ("nationwide") still owes a `verified-current`
+ * row in design-skill reference 06 — requested in the 2026-08-08 revisit round;
+ * ref 06 is owned elsewhere and is not edited from here.
+ */
+export const OUT_OF_STATE_QUALIFIER =
+  "Nationwide referral network and formal partner-brokerage relationships in every U.S. state for out-of-California engagements. Brokerage of record for all listings.";
 
 /* -------------------------------------------------------------------------- */
 /*  2 — SMS / TCPA consent block (BOV form)                                    */
@@ -253,4 +286,36 @@ export const TRADEMARK_MICROCOPY =
 export const KW_COMMERCIAL_MARK = {
   src: "/brand/kw-commercial.png",
   alt: "Keller Williams Commercial",
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  6 — Privacy-notice link (any form that collects an address, non-SMS)       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The privacy link for forms that take a contact detail WITHOUT asking for SMS
+ * consent — today that is the calculator's "email me this estimate" capture,
+ * which collects an email address and links to no policy at all (ship-gate
+ * finding, DESIGN-REVISIT §5.5).
+ *
+ * Why this is not `SMS_CONSENT.links`: that row is the byte-exact TCPA/10DLC
+ * consent artefact (index.html:1203) and is scoped to SMS. Rendering it under an
+ * email field would assert an SMS programme that the field does not create, and
+ * any future edit to the registered consent row would silently follow it onto a
+ * form it does not govern. Same words, separate constant, separate blast radius.
+ *
+ * The wording is NOT authored: composed, it reads "See our Privacy Policy." —
+ * exactly index.html:1203 with the SMS half removed, so it stays a subset of
+ * shipped copy rather than a new representation about data handling. Do not
+ * prepend a data-use sentence without Razim's sign-off; a privacy promise we
+ * cannot audit is worse than a bare link.
+ *
+ * Render like the BOV row: real `<a>`, `target="_blank"`, `rel="noopener"` so
+ * form state survives, 44px tap target, visible focus ring.
+ */
+export const PRIVACY_NOTICE_LINK = {
+  lead: "See our ",
+  label: "Privacy Policy",
+  href: "/privacy",
+  tail: ".",
 } as const;

@@ -1,3 +1,14 @@
+> **✓ Re-verified current — Design Revisit round (2026-08-08/09).** Checked
+> against `site/components/sections/DoorsSection.tsx`'s own header comment on
+> 2026-08-09 (not skimmed): the IA, component plan, and every Decision below
+> still hold — not structurally rebuilt. D6/D8 pass, per the file's own
+> "Design revisit, 2026-08-08 (D6 density / D8 hierarchy)" section: outer
+> rhythm compressed to the D6 scale, and the two door-title headlines step
+> `font-normal` → `font-medium` (D8: "Fraunces may firm up 300→500 for
+> contrast") — a weight step, not a size step, so the "2–4 sizes per
+> section" budget and the acceptance criteria below (h2/h3 count, one
+> italic word, equal-width panels) are unaffected.
+
 # `#doors` — The Owner / The Investor
 
 Section · Status: `approved`

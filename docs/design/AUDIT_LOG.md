@@ -344,3 +344,36 @@ Remedy, verified feasible against `node_modules` (not against a build): `domAnim
 **Commands run:** `npx vitest run` → `Test Files 1 passed (1) · Tests 120 passed (120)`. `npx tsc --noEmit --incremental false` → exit 0, **zero output lines** (whole project clean).
 
 **Verdict:** pass — the port is bit-exact to the authority; two P1 regression-exposure findings fixed in scope, two items escalated.
+
+---
+
+## DESIGN REVISIT ROUND — RE-AUDIT SCOPE + BUILD-LEVEL FACTS (2026-08-08/09)
+
+**Not a gate verdict.** This entry is the round header for the four re-audits below, appended by the documentation-refresh agent (`docs/PLACEHOLDERS.md`, this file, `docs/design/specs/*.md` — see those files for the parallel refresh). It records what changed under Razim's design-revisit review (`docs/DESIGN-REVISIT.md`, D1–D8; compressed rulebook `docs/AGENT-BRIEF.md`) and the build-level facts known at the time this entry was written, then hands off to the four concurrent gate audits, each of which appends its own **Artifact:**/**Date:**/P0/P1/P2/**Verdict:** block below in the file's established format.
+
+**What changed, in one line each (full text: `docs/DESIGN-REVISIT.md` §2):** D1 header lockup replaces the text-only wordmark, retiring the "no KW lockup in header" P0 · D2 `#brands` renders 15 real franchise-flag chips in colour inside the hero's first viewport, retiring "grayscale only" · D3 the two 2025 Annual CoStar badges + the three quarterly banners render as real assets · D4 listing/closing cards rebuilt as dimensional "deal tickets" (`components/cards/Ticket.tsx`) with a resting ink-tinted shadow, suspending "1px borders over shadows" for cards only · D5 the hero/section art is Razim-supplied 「北天」 glyph-mosaic photography (`content/artwork.ts`), replacing `AsciiCanvas`/the ASCII pipeline, which is retired from every page (files kept, uninvested) · D6 desktop sections target fit-to-viewport density (`section-fit`/`section-join`/`scroll-well`), mobile keeps natural flow · D7 the JS budget is re-based to ≤200KB gzip critical path / ≤340KB gzip full landing route (superseding the unreachable 180KB figure) · D8 amplified typographic hierarchy (Fraunces 300→500 ceiling, heavier mono/caps voice), still exactly one italic word per headline.
+
+**Re-audited by four concurrent gate agents**, each scoped to the surface named:
+1. **Tokens + dual-theme gate** — every file under `site/components/` and `site/app/`, re-swept for raw hex/`rgb()`, Tailwind default-palette colour, and the new D2/D4/D6/D8 utilities (`ticket`/`ticket-dark`/`ticket-perf`/`ticket-notch`/`overprint`, `section-pad-tight`/`section-join`/`section-fit`/`scroll-well`, `text-display0`) used only where the round's rules license them.
+2. **Accessibility gate** — WCAG 2.1 AA re-checked against the shipped ticket cards (focus ring on the whole tile, no gray-blur-halo-as-only-signal), the D2 brand-chip marquee (each chip's accessible name still real text, not conveyed by colour/image alone), and the D6 density pass (44px targets survive the tighter `section-pad-tight` rhythm).
+3. **Content-fidelity / compliance gate** — the D2/D3 claim changes against ref 06's evidence gate (coverage-claim wording now "economy through luxury"; the two new CoStar Annual badges each need a `verified-current` row), plus the carried-forward P0/P1 items from the previous compliance gate (consent-provider mount point, the nationwide-coverage qualifier, the footer KW-mark duplication) re-checked against this round's `SiteFooter.tsx`/`app/page.tsx` state.
+4. **Design / anti-slop gate** — the shipped page re-read section by section against ref 07 and ref 03/04 as amended by D1–D8: the light-surface constraint on the brand-chip marquee (chips carry baked light-on-white drop shadows — confirmed by compositing the real PNGs; wrong on a dark surface), the "never translate a card" / "shadow doesn't change on hover" split D4 draws, and the D8 hierarchy pass for over-application (Fraunces stepping past 500, more than one italic word appearing under the loosened "more headlines carry an accent" language).
+
+**Build-level facts, measured at the time of this entry (2026-08-09):**
+- `npx tsc --noEmit --incremental false` from `site/` → exit 0, zero output — clean.
+- `npx vitest run` from `site/` → `lib/valuation.test.ts` (128 tests), **Test Files 1 passed (1), Tests 128 passed (128)** — the frozen calculator engine's own parity suite, unchanged by this round's UI-only redesign (`lib/valuation.ts` is off-limits to design work per the calculator-frozen guardrail).
+- Both commands above were run directly by this entry's author; both are independently reproducible.
+- **Landing route JS: 316.8 KB gzip against the D7 340 KB gzip full-landing-route budget** — reported per this round's task brief as the perf measurement taken by the build/perf pass; not independently re-measured here (this agent does not run `pnpm build`, which is reserved for the main loop to avoid clobbering the shared `.next` directory — same constraint the previous performance gate entry above documents at length). Down from the prior round's measured 270.2 KB gzip against the then-180KB budget (P0 in the performance-gate entry above) — consistent with D5 retiring the ~200KB gzip ASCII JSON fetch + canvas playback JS from the hero's critical path, the stated mechanism in `docs/DESIGN-REVISIT.md` §3.6 and `Hero.tsx`'s own header comment.
+- **No horizontal overflow at 375/768/1440; no console errors; no failed asset requests in the rendered page** — reported per this round's task brief as the screenshot-QA result from the concurrent build pass; this agent has no browser/dev-server access this round (docs-only assignment) and did not independently reproduce these three checks. Flagged here as relayed, not verified, consistent with this file's own convention of separating what an entry's author ran themselves from what they are recording on another agent's authority.
+
+**Verified by this entry's author:** `tsc`, `vitest` (both above), and the doc-refresh cross-checks recorded in `docs/PLACEHOLDERS.md` and `docs/design/specs/*.md` (component headers read directly, not assumed — see those files' own change notes for what was read).
+**Not verified by this entry's author:** the landing-route gzip figure, the screenshot-QA results (overflow/console/network), and none of the four gate audits below — each is that audit's own responsibility and carries its own verification statement.
+
+---
+
+**[SLOT FOR THE FOUR CONCURRENT AUDITS — main loop appends each as its own `**Artifact:**`/`**Date:**`/P0/P1/P2/`**Verdict:**` block below, in this same file, below this line, in the order run. Do not overwrite the round-header entry above when filling this in — append after it.]**
+
+1. Tokens + dual-theme gate — **PENDING**
+2. Accessibility gate — **PENDING**
+3. Content-fidelity / compliance gate — **PENDING**
+4. Design / anti-slop gate — **PENDING**

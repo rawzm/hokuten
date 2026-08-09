@@ -29,6 +29,19 @@
  * mandate card has no photo, no meta line, no badge, and must sit
  * transparent on the dark surface with only a hairline border — a different
  * shape ref 04 asks for explicitly, not a duplicated primitive.
+ *
+ * ── Design revisit, 2026-08-08 (D6 density / D8 hierarchy) ─────────────────
+ * `section-fit` targets one screen on desktop; the section is made a flex
+ * column so the header+grid+CTA stack centres inside that min-height rather
+ * than hugging the top (`section-fit` only sets `min-height`, ref
+ * AGENT-BRIEF.md). No `section-join`: this section's neighbours in
+ * `page.tsx` (`#doors`, `#team`) are both `.surface-paper` while this is
+ * `.surface-dark`, so every adjacent pair alternates surface and none
+ * qualifies for the shared-gutter treatment. Mandate-card padding and the
+ * outer rhythm are compressed to the D6 scale; card headlines step
+ * `font-normal` → `font-medium` (D8: Fraunces 300→500 for firmness) so the
+ * four mandates read with more presence without competing with the
+ * section's own Display-2 headline, which stays the one dominant focal step.
  */
 
 import { mandates, mandatesCta, mandatesDeck, mandatesDiscretion } from "@/content/mandates";
@@ -39,7 +52,11 @@ import { Button } from "@/components/ui/button";
 
 export function MandatesSection() {
   return (
-    <section id="mandates" aria-labelledby="mandates-heading" className="surface-dark section-pad">
+    <section
+      id="mandates"
+      aria-labelledby="mandates-heading"
+      className="surface-dark section-pad section-fit lg:flex lg:flex-col lg:justify-center"
+    >
       <div className="container-hk">
         <Reveal>
           <SectionHeader
@@ -54,15 +71,15 @@ export function MandatesSection() {
         <Reveal
           stagger
           delay={0.1}
-          className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 md:mt-16"
+          className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 md:mt-12"
         >
           {mandates.map((mandate) => (
             <RevealItem
               key={mandate.headline}
               as="article"
-              className="hairline flex flex-col gap-4 rounded-card p-6 sm:p-8"
+              className="hairline flex flex-col gap-3 rounded-card p-5 sm:p-6"
             >
-              <h3 className="font-display font-normal text-body-lg text-fg">
+              <h3 className="font-display font-medium text-body-lg text-fg">
                 {mandate.headline}
               </h3>
               <DataLine parts={[mandate.criteria]} className="text-fg-meta" />
@@ -70,7 +87,7 @@ export function MandatesSection() {
           ))}
         </Reveal>
 
-        <Reveal className="hairline-t mt-12 flex flex-col items-start gap-4 pt-8 sm:flex-row sm:items-center sm:justify-between md:mt-16">
+        <Reveal className="hairline-t mt-10 flex flex-col items-start gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between md:mt-12">
           <Button asChild variant="ghost" size="sm">
             <a
               href={mandatesCta.href}

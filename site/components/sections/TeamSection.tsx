@@ -20,6 +20,25 @@
  * precedent of a section composing its own lighter-weight local block rather
  * than overloading a card component with a variant prop for a one-off shape.
  * See docs/design/specs/team.md → "Operations is not a TeamCard variant".
+ *
+ * ── D6 density pass (2026-08-08/09) ─────────────────────────────────────
+ * `section-fit` (desktop-only min-height) + `lg:flex lg:flex-col
+ * lg:justify-center` centres the whole content block when it's shorter than
+ * the fit-viewport floor — the same pattern `MethodSection` already ships.
+ * When the roster genuinely runs taller than the floor (long bios, narrow
+ * viewport), `justify-center` is a no-op against a flex container with no
+ * free space, so nothing clips — it degrades to ordinary top-down flow.
+ * `#team` sits between `#mandates` (`surface-dark`) and `#faq`
+ * (`surface-paper`) — different surface above, so this section keeps its
+ * own full `section-pad` gutter rather than a `section-join`; `#faq` is the
+ * one that joins onto it (see FaqSection.tsx). Header-to-content and grid
+ * gaps compress at `lg:` only — mobile keeps the original values, per D6
+ * ("do not compress below lg").
+ *
+ * ── D8 typography pass ───────────────────────────────────────────────────
+ * No change here beyond spacing: the section's one focal step is still
+ * `SectionHeader`'s Display-2 headline. The hierarchy work for this section
+ * lives inside `TeamCard` (name weight, role voice) — see that file's header.
  */
 
 import { team } from "@/content/team";
@@ -34,7 +53,11 @@ const operations = team[3];
 
 export function TeamSection() {
   return (
-    <section id="team" aria-labelledby="team-heading" className="surface-paper section-pad">
+    <section
+      id="team"
+      aria-labelledby="team-heading"
+      className="surface-paper section-pad section-fit lg:flex lg:flex-col lg:justify-center"
+    >
       <div className="container-hk">
         <Reveal>
           <SectionHeader
@@ -48,7 +71,7 @@ export function TeamSection() {
         <Reveal
           as="ul"
           stagger
-          className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
+          className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:mt-8 lg:grid-cols-3 lg:gap-6"
         >
           {principals.map((member) => (
             <RevealItem key={member.name} as="li">
@@ -59,7 +82,7 @@ export function TeamSection() {
 
         {/* Operations — lighter treatment, own Reveal, outside the stagger group. */}
         {operations ? (
-          <Reveal delay={0.1} className="hairline-t mt-16 pt-10">
+          <Reveal delay={0.1} className="hairline-t mt-12 pt-8 lg:mt-8 lg:pt-6">
             <MicroLabel as="p" className="mb-4">
               Operations
             </MicroLabel>

@@ -38,12 +38,35 @@ export const IS_GOLD = THEME === "gold";
 export const THEME_PRESENTATION = {
   gold: {
     label: "Kit Gold",
-    /** Hero chassis component key — dark cover panel with gold/ivory ASCII */
+    /**
+     * @deprecated D5/D6 (Razim, 2026-08-08). Both themes now share ONE hero
+     * chassis: a full-bleed supplied 「北天」 glyph-mosaic art band with the
+     * headline row below it. The art carries its own colours in both themes;
+     * the theme governs only the chrome around it. Kept so nothing that still
+     * reads the record breaks mid-round — do not branch on it in new code.
+     */
     heroChassis: "cover-panel",
-    /** Which pre-generated ASCII palette set the hero loads */
+    /** @deprecated with the ASCII canvas — the hero art is a static image now. */
     artPalette: "gold",
-    /** Surface class for the hero section */
+    /** Surface the hero's copy rows sit on (the art band is edge-to-edge). */
     heroSurface: "surface-black",
+
+    /**
+     * D1 (Razim, 2026-08-08): the theme-matched KW COMMERCIAL / THE HOKUTEN
+     * GROUP lockup replaces the text wordmark top-left. Prepared from the
+     * masters in Ref/site/ — production-approved by Razim's explicit exception
+     * to the "Ref/ never imports to production" rule.
+     *
+     * Render it with alt="" (decorative) and put a REAL-TEXT brand line beside
+     * it. The name must exist as text somewhere: a brand name that lives only
+     * inside a raster is the Sarhan anti-pattern and fails the audit — and at a
+     * 44px render height the words baked into the lockup are not legible anyway.
+     */
+    lockup: "/brand/lockup-gold.png",
+
+    /** D5: which artwork.ts placement the hero band resolves. */
+    heroArtPlacement: "hero.gold",
+
     /** Theme-specific brand assets under /public/brand/ */
     wordmark: "/brand/hokuten-wordmark-gold.svg",
     hanko: "/brand/hanko-gold.svg",
@@ -56,10 +79,13 @@ export const THEME_PRESENTATION = {
   },
   blue: {
     label: "Hokuten Blue",
-    /** Coronal plate chassis — cool-white plate, hairline frame, reg marks */
+    /** @deprecated — see the gold entry. One shared hero chassis since D5/D6. */
     heroChassis: "plate",
+    /** @deprecated with the ASCII canvas. */
     artPalette: "blue",
     heroSurface: "surface-paper",
+    lockup: "/brand/lockup-blue.png",
+    heroArtPlacement: "hero.blue",
     wordmark: "/brand/hokuten-wordmark-blue.svg",
     hanko: "/brand/hanko-blue.svg",
     hankoMonochromeOnDark: "/brand/hanko-blue-on-dark.svg",

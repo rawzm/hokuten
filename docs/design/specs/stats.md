@@ -1,3 +1,18 @@
+> **✓ Re-verified current — Design Revisit round (2026-08-08/09).** Checked
+> against `site/components/sections/StatsSection.tsx`'s own header comment on
+> 2026-08-09 (not skimmed): the IA and component plan below still hold —
+> this section was not structurally rebuilt. Two things worth knowing before
+> building or auditing against it: (1) a real clipping bug Razim found (stat
+> numerals cut off under the sticky nav) was diagnosed and fixed this round —
+> see the file's own "DESIGN REVISIT 1 — CLIPPING BUG, DIAGNOSED AND FIXED"
+> section for the root cause and fix, not re-derived here; (2) a **local,
+> deliberate D8 divergence**: the numeral weight is bumped up from
+> `StatNumeral`'s own `font-light` default (the file's header calls this out
+> explicitly as "a deliberate LOCAL divergence, not drift"). D3's CoStar
+> badge placements (`docs/DESIGN-REVISIT.md` §4.4 — three quarterly banners +
+> two Annual badges) were not confirmed as landed inside this specific file
+> during this pass; verify directly if auditing D3.
+
 # `#stats` — Trust metrics band
 
 ## Section / Route

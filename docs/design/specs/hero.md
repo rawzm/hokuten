@@ -1,3 +1,36 @@
+> ## ⚠️ FULLY SUPERSEDED — Design Revisit round (D2/D5/D6/D7, 2026-08-08/09)
+>
+> **Everything below describes a chassis that no longer exists.** Verified
+> against the filesystem on 2026-08-09: `site/components/hero/HeroCoverPanel.tsx`,
+> `HeroPlate.tsx`, and `site/components/art/PlateChrome.tsx` are gone —
+> `site/components/hero/` now holds exactly two files, `Hero.tsx` and
+> `heroContent.ts`. `<AsciiCanvas>` is retired from the page entirely (D5);
+> the ASCII JSON/SVG assets and the generator script stay in the repo,
+> uninvested, per `docs/AGENT-BRIEF.md`'s "What already exists" section.
+>
+> Do not implement or audit against anything in this file. The current
+> anatomy — read `docs/DESIGN-REVISIT.md` §4.2 for the work order and
+> `site/components/hero/Hero.tsx`'s own header comment for the as-built
+> record (both read in full for this note, 2026-08-09) — is, in one
+> paragraph: ONE chassis for both themes (no more `HeroCoverPanel`/`HeroPlate`
+> split), four rows — nav (not this component's job), a full-bleed supplied
+> 「北天」 glyph-mosaic art band (`next/image`, resolved via
+> `content/artwork.ts`'s `getArt("hero.gold"|"hero.blue")`, the LCP element),
+> a headline row below the art at the new hero-only `text-display0` step
+> (D8), and `<BrandsMarquee />` as a **sibling** landmark (not a child of
+> `<section id="hero">`) closing the first viewport per D2. The nav
+> scroll-sentinel contract this file's §"Nav sentinel contract" documents
+> (`data-nav-sentinel` / `data-surface`) is the one piece that carried
+> forward unchanged — `Hero.tsx`'s header confirms it is "PRESERVED
+> VERBATIM." The "seam row" requirement this file's §"Layout" spent several
+> paragraphs resolving no longer exists as a build concern at all (D5 — it is
+> now, if wanted, something Razim puts in his own img2img prompt, not
+> something this repo's layout math defends against).
+>
+> `Hero.tsx` was being actively edited by the main loop at the time this note
+> was written (2026-08-09) — read that file directly for the current state
+> rather than trusting this note's summary as exhaustive.
+
 # Hero — `Hero` / `HeroCoverPanel` / `HeroPlate` / `PlateChrome`
 
 **Section/Route**: `#hero`, section 1 of 13 (ref 04 "Section order"), both theme chassis on the same landing route.

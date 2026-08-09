@@ -1,3 +1,44 @@
+> ## ⚠️ PARTIALLY SUPERSEDED — D4 ticket cards, Design Revisit round (2026-08-08/09)
+>
+> Verified against `site/components/cards/ListingCard.tsx` and
+> `site/components/cards/Ticket.tsx` on 2026-08-09, not skimmed. **The
+> `ListingCard` §"Component plan" table below (the `CardShell` slot mapping)
+> describes a chassis that has been rebuilt.** `docs/DESIGN-REVISIT.md` §2 D4
+> and §4.5: listing cards are now dimensional "deal tickets" composing the
+> new `Ticket` chassis (`components/cards/Ticket.tsx`), not `CardShell`.
+> Concretely, per `ListingCard.tsx`'s own header ("D4: what moved where"):
+> - The EXCLUSIVE status badge moved from `CardShell`'s bottom badge row to a
+>   "class" chip **overlaid on the header photo band**.
+> - Cap rate moved from a separate `<Badge>` chip into a structured metrics
+>   grid row ("Cap rate" / the `displayCapRate` string) — `Ticket`'s
+>   no-reflow contract spans a lone metric across both grid columns when only
+>   price is present (true for all 5 Phase-1 seed rows today).
+> - "View on Crexi →" became the stub action below a perforated tear line
+>   (CSS dashed + punched notches via `Ticket`'s `ticket-notch` utility),
+>   with a Lucide `ArrowUpRight`, not the literal `→` glyph.
+> - Photo aspect changed from this file's "4/3, closest registered ratio to
+>   the SVG's 5:4" reasoning (§"Photo aspect — decision, locked") to **3:2**
+>   — the artwork manifest's fixed "card" variant, shared with `#closings`'
+>   `closings.accent` placement so every ticket in a mixed grid reads at one
+>   aspect. The "closest ratio to the SVG" reasoning is now moot: the header
+>   resolves `content/artwork.ts`'s `"listing.placeholder"` art (the supplied
+>   `beachfront-aerial` 「北天」 piece) as primary, falling back to the raw SVG
+>   only if that placement is ever reported blocked. See `docs/PLACEHOLDERS.md`
+>   row 41.
+> - `Ticket` carries a resting, soft, ink-tinted `--shadow-ticket` shadow
+>   (D4) — this supersedes the sitewide "1px borders over shadows" rule **for
+>   cards only**; the shadow does not change on hover, and "never translate a
+>   card" still binds unchanged.
+>
+> **Still accurate, not touched by D4:** the Intent, the 5-second gate framing,
+> the Crexi trust-boundary logic (`isTrustedCrexiUrl`), the empty-state
+> design, the grid breakpoints (1/2/3-up), the price-fallback rule
+> (`PRICE_ON_REQUEST`), and the accessibility section's substance (though
+> re-verify the exact DOM shape against `Ticket.tsx`, not `CardShell.tsx`,
+> since the underlying elements changed). `content/artwork.ts` and
+> `Ticket.tsx`'s own header comments are more current than the component-plan
+> table below for anything about the visual chassis.
+
 # `#listings` — Hotels for Sale
 
 ## Section / Route

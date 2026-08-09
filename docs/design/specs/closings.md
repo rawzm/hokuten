@@ -1,3 +1,40 @@
+> ## ⚠️ PARTIALLY SUPERSEDED — D4 ticket cards, Design Revisit round (2026-08-08/09)
+>
+> Verified against `site/components/cards/ClosingCard.tsx` and
+> `site/components/cards/Ticket.tsx` on 2026-08-09, not skimmed. **The IA
+> block and `CardShell`-based component plan below describe a chassis that
+> has been rebuilt.** `docs/DESIGN-REVISIT.md` §2 D4 and §4.5: closing cards
+> are now the "retired" state of the shared `Ticket` chassis
+> (`components/cards/Ticket.tsx`), not `CardShell` + `PhotoFrame` + `Badge`.
+> Per `ClosingCard.tsx`'s own header ("What moved, D4 → the new ticket
+> anatomy"):
+> - **`<Badge status="closed" />` is RETIRED.** The "closed" signal now lives
+>   entirely in the header band: `Ticket`'s `retired` prop grays the photo
+>   (regardless of hover state) and adds a "Sold" `overprint` stamp
+>   positioned bottom-right on the photo — hanko-adjacent, deliberately not a
+>   "cheesy red rubber stamp" (D4's own wording). This spec's line "`badge`
+>   `<Badge status="closed" />` → 'CLOSED'" no longer describes shipped code.
+> - The single joined `data` line (metrics string + accent price span) became
+>   a real **two-row structured metrics grid** (`Ticket`'s `metrics` prop):
+>   Price first (matching `ListingCard`'s "price is always first" convention),
+>   Terms (the LP/SP/days string) second.
+> - The resting ink-tinted `--shadow-ticket-dark`/`--shadow-ticket` shadow
+>   (D4) is new — this section's own "No shadow lift" framing (§"States",
+>   "no translate, no shadow, no size change") is now half-superseded: **no
+>   shadow change on hover** still holds, but a resting shadow is now present
+>   at all times (not absent, as this file implies) — "never translate a
+>   card" is unchanged and still binds.
+> - Header aspect changed from this file's 4:3 to the artwork manifest's
+>   fixed 3:2 "card" variant, shared with `closings.accent`
+>   (`content/artwork.ts`).
+>
+> **Still accurate, not touched by D4:** the Intent, the "no click-through
+> target" decision and its reasoning, the grid breakpoints, the print rules,
+> and the accessibility section's substance (re-verify the exact DOM shape
+> against `Ticket.tsx`, not `CardShell.tsx` — the underlying elements
+> changed). `ClosingCard.tsx`'s own header comment is more current than the
+> component-plan/IA blocks below for anything about the visual chassis.
+
 # `#closings` — Recently Closed (Track Record)
 
 Status: **approved**

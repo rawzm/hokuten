@@ -36,10 +36,19 @@
  * hold one Server export and one client export. Both exports are plain markup
  * with no context or heavy imports; `Stamp` still renders in the SSR HTML and
  * is correct with JS off.
+ *
+ * ── D7 LazyMotion (2026-08-08) ───────────────────────────────────────────
+ * `motion.img` below is `m.img`, fed by the `<LazyMotion features={domAnimation}>`
+ * provider in app/layout.tsx (an ancestor of every route, so of every Stamp
+ * placement — footer, #method, and any future one within the closed union
+ * above). `useInView`/`useReducedMotion` stay on "motion/react": each is a
+ * standalone hook module (verified — under 600 bytes gzip in isolation) that
+ * does not pull in the motion component/render pipeline.
  */
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { useInView, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 
 import { hankoPressVariants, IN_VIEW, motionAllowed } from "@/lib/motion";
 import { themePresentation } from "@/lib/theme";
@@ -137,7 +146,7 @@ export function StampPressIn({
   if (missing) return null;
 
   return (
-    <motion.img
+    <m.img
       ref={ref}
       src={hankoSrc(onDark)}
       alt=""

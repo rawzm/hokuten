@@ -7,6 +7,10 @@ the skill reference wins — go read it.
 
 Repo root `/Users/razim/Documents/Hakuten` · app in `site/`.
 
+**Design revisit 2026-08-08 (D1–D8)** supersedes conflicting rules below — see
+[DESIGN-REVISIT.md](DESIGN-REVISIT.md) for the full decision text. Each change here carries an
+inline dated note; nothing below is silently overwritten.
+
 ## Stack (verified against `site/node_modules` — do not assume from memory)
 
 Next.js 16.3 App Router · React 19.2 · Tailwind v4.3 (no `tailwind.config`; all
@@ -31,22 +35,40 @@ site/lib/          types · status (STATUS_PRESENTATION) · motion (DUR/EASE/rev
                    utils (cn/displayPrice/displayCapRate/metaLine/PRICE_ON_REQUEST) ·
                    valuation (FROZEN calculator engine) · seo · web3forms · ascii-types
 site/content/      closings · listings · team · stats · methodology · mandates · faq · doors ·
-                   brands · nav · site · compliance
+                   brands · nav · site · compliance · artwork (D5 — placement manifest, maps
+                   placement → asset path + alt + status; a delivered file is a data edit here,
+                   never a refactor)
 site/components/ui/     button · input · textarea · label · field · dialog · accordion ·
                         popover · select · checkbox
 site/components/atoms/  MicroLabel · SectionHeader · StatNumeral · AccentRule · Badge ·
                         DataLine · PhotoFrame · Stamp
 site/components/cards/  CardShell (the fixed-height card chassis)
 site/components/motion/ Reveal · Marquee · CountUp · SmoothScroll · CopyButton
+site/components/art/    KanjiAccent (D5 — reusable 北天 SVG background motif: absolute,
+                        aria-hidden, pointer-events-none, ≤8% opacity dark / ≤6% light, one per
+                        section max; never `<text>`)
+site/components/nav/    AnchorLink (shared anchor-focus handler client island — hero CTAs and
+                        the menu overlay both route anchor navigation through it)
 site/public/art/        ascii-gold.json · ascii-blue.json · ascii-gold.svg · ascii-blue.svg ·
-                        listing-placeholder.svg
+                        listing-placeholder.svg — kept for the generator scripts only, **not
+                        wired to any page** (see retirement note below)
 site/public/brand/      hokuten-wordmark-{gold,blue}.svg · kw-commercial.png · lockup-stacked-gold.png
+site/public/logos/      brand-chip marquee logos, prepped from `Ref/hotel-brands/` (D2)
+site/public/awards/     CoStar badge assets, prepped from `Ref/site/` (D3)
 site/public/og/         og-gold.png · og-blue.png
 site/public/hotels/     carte-san-diego · renaissance-reno · last-hotel-st-louis ·
                         hie-brooklyn · radisson-mcallen · rohnert-park (.jpg)
 site/public/team/       dino-monteverde.jpg
 site/public/data/       us-cities.min.json (552KB — fetch at runtime, NEVER import)
 ```
+
+**Retired from the page (D5, Razim 2026-08-08):** `AsciiCanvas` / `AsciiStatic` and the
+build-time ascii-gen pipeline no longer render anywhere on the site. Supplied 「北天」
+glyph-mosaic images (via `next/image`, `priority` on the hero instance) replace them — Razim
+delivers finished files, this repo does intake/prep/placement only, through
+`site/content/artwork.ts`. The generator script, `ascii-types`, and the JSON/SVG assets above
+stay in the repo but are uninvested — do not wire a new page to them, and do not extend the
+generator.
 
 **Always read a file's real exports before importing it.** Never guess a name.
 
@@ -64,15 +86,24 @@ it is drifting to brochure; zero warmth means it is drifting to terminal.**
 
 - Fraunces **Light 300 is the default display weight** — luxury reads light, not bold.
   Stat numerals: Light 300, negative tracking at large sizes.
+- `text-display0` is the **hero-only** display step, one size above `text-display1` — reserved
+  for the `h1`, never a section heading **(D8, Razim 2026-08-08)**.
 - **Exactly ONE italic accent word per headline** (Fraunces Italic, same size and weight as
-  its line). Never italicise UI or data. `SectionHeader` implements the device — use it.
-- Bold = Inter 600 for CTAs / nav-active / form labels; Fraunces 400 (never 600+) when a
-  display line needs a firmer step; mono 500 for emphasised data values.
+  its line). Never italicise UI or data. `SectionHeader` implements the device — use it. D8
+  widens *where* the discipline gets applied (more headlines across the page carry an italic
+  accent) — it does not touch the one-per-headline count, which stays exactly one **(D8, Razim
+  2026-08-08 — clarifies, does not relax, the italic rule)**.
+- Bold = Inter 600 for CTAs / nav-active / form labels — use it more deliberately where it earns
+  contrast, per D8. Fraunces may step **300→500** (never 600+) when a display line needs a
+  firmer step; mono 500 for emphasised data values, leaned on more heavily across labels and
+  data moments generally **(D8, Razim 2026-08-08 — supersedes the prior 300→400 ceiling)**.
 - Tracked caps come in exactly two flavours: `brand-line` (Inter caps 0.35em) and
-  `micro-label` (mono caps 0.14em, bracketed index).
+  `micro-label` (mono caps 0.14em, bracketed index) — the heavier D8 micro-voice leans on these,
+  not on a third flavour.
 - Two-tone emphasis on dark: key phrases `text-fg`, the rest `text-fg-muted` — weight constant,
   colour carries emphasis.
-- 2–4 sizes per section (a fifth is P1). Body never below 16px (P0).
+- 2–4 sizes per section (a fifth is P1) — D8 asks for bigger steps and firmer contrast inside
+  that budget, not more sizes. Body never below 16px (P0).
 
 ## Token law (P0 gate)
 
@@ -85,9 +116,16 @@ accent and hairline: `.surface-paper` `.surface-deep` `.surface-card` `.surface-
 | | |
 |---|---|
 | Colour | `text-fg` `text-fg-muted` `text-fg-meta` `text-accent-text` `border-hairline` `bg-surface` `bg-field` `bg-accent` `text-on-accent` `bg-accent-chip` `bg-accent-wash` `text-brick` |
-| Type | `text-display1/display2/heading/body-lg/body/data/micro` · `font-display/sans/mono` · `tracking-brand/micro` |
-| Utilities | `micro-label` `brand-line` `data-line` `tabular` `hairline{,-t,-b,-l}` `rail-mask` `star-grain` (DARK ONLY) `plate-frame` (LIGHT ONLY) `container-hk` `container-wide` `section-pad` `photo-reveal` `visually-hidden` `skip-link` |
+| Type | `text-display0` (D8, hero `h1` only) · `text-display1/display2/heading/body-lg/body/data/micro` · `font-display/sans/mono` · `tracking-brand/micro` |
+| Utilities | `micro-label` `brand-line` `data-line` `tabular` `hairline{,-t,-b,-l}` `rail-mask` `star-grain` (DARK ONLY) `plate-frame` (LIGHT ONLY) `container-hk` `container-wide` `section-pad` `section-pad-tight` `section-join` `section-fit` `scroll-well` `ticket` `ticket-dark` `ticket-perf` `ticket-notch` `overprint` `photo-reveal` `visually-hidden` `skip-link` |
 | Shape/motion | `rounded-none/-card/-pill` · `duration-fast/base/reveal/slow` · `ease-out/ease-in-out` |
+
+**New this round, already in `globals.css` — do not redefine (D4/D6/D8, Razim 2026-08-08):**
+`section-pad-tight` `section-join` `section-fit` `scroll-well` implement D6's fit-to-viewport
+density pass; `ticket` `ticket-dark` `ticket-perf` `ticket-notch` `overprint` implement the D4
+deal-ticket card system (shadows via `--shadow-ticket` / `--shadow-ticket-dark` / `--shadow-chip`
+— soft, ink-tinted, never a gray blur halo); `text-display0` implements D8's hero-only display
+step.
 
 Two themes (`[data-theme="gold"|"blue"]`) ship from ONE codebase — **never assume the accent is
 gold.** Accent is scarce: CTAs, one accent word per headline, badges, thin rules. Past ~5% of a
@@ -102,7 +140,10 @@ gates on `useReducedMotion()` **and** `motionAllowed()` with a **designed static
 a missing one.
 
 Card hover: photo grayscale→colour + scale ≤1.02 at `duration-base`/`ease-out`, ring shifts to a
-hairline accent ~40%. **Never translate a card. No spring, no shadow lift.**
+hairline accent ~40%. Cards carry a **resting**, soft, ink-tinted dimensional shadow (`ticket` /
+`--shadow-ticket*` — never a gray blur halo) **(D4, Razim 2026-08-08 — supersedes "no shadow
+lift": the shadow does not change on hover, it is present at rest)**. **Never translate a card.
+No spring.**
 
 ## Accessibility law — WCAG 2.1 AA treated as binding (CA Unruh exposure)
 
@@ -125,6 +166,11 @@ it; do not invent it.
 - **Evidence gate**: no claim ships without a `verified-current` row in ref 06. Nothing
   `pending-verification` renders — the Sarhan-era "~$1B" narrative and the Sarhan testimonials
   in particular. KW corporate awards are `prohibited`.
+- **Brands marquee (D2, Razim 2026-08-08 — supersedes the grayscale-only law in refs 01/04):**
+  the marquee renders real franchise flag chips, in colour, uniform optical height (~44–52px
+  desktop / ~36px mobile — dimensional glass chips carry more presence than the old flat 28px
+  marks). The trademark/disclaimer microcopy stays byte-exact but renders as one tiny asterisked
+  `text-micro` line beside the marquee — never a paragraph block.
 - Voice: numbers-first, discreet, unhurried. Say the metric, then stop. "Confidential" replaces
   a missing number proudly, never "N/A". Price fallback is exactly `"Price on Request"`.
 - **BANNED**: unlock · elevate · seamless · world-class · "experience you can count on" ·
@@ -149,8 +195,13 @@ gesture knowledge.
 ## Engineering
 
 - **Server Components by default.** `"use client"` only where interactivity genuinely requires
-  it — the landing route budget is **180KB gzip** and you are one of many contributors. Push the
-  client boundary down into a small island rather than marking a whole section client.
+  it. **JS budget (D7, Razim 2026-08-08 — supersedes the 180KB gzip figure, measured
+  unreachable against a 129KB framework floor):** critical path (hero + nav + stats interactive)
+  **≤200KB gzip**; full landing route **≤340KB gzip**. Mandatory to hit it: `LazyMotion` /
+  `domAnimation` + `motion/react-m` (never the full `motion/react` import), and dynamic imports
+  for `Calculator`, the BOV form, `MenuOverlay`, and `ConsentModal` — none of them belong in the
+  hero's critical path. LCP <2.5s / CLS <0.02 / INP <200ms are unchanged. Push the client
+  boundary down into a small island rather than marking a whole section client.
 - TS strict, no `any`. Use `cn()` from `@/lib/utils`.
 - Images through `next/image` with explicit dimensions (CLS budget 0.02). Alt describes the
   subject, not the treatment.

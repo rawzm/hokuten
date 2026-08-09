@@ -2,13 +2,66 @@
  * components/sections/BovSection.tsx — `#bov`, the Broker Opinion of Value request.
  *
  * Spec: design-skill reference 04 → `#bov` (surface-deep). Copy: docs/port/04-copy.md
- * §7a (chrome) and §7b (the disclaimer paragraph, verbatim).
+ * §7a (chrome) and §7b (the disclaimer paragraph, verbatim). Layout: DESIGN-REVISIT.md
+ * §4.9 — "same treatment as the calculator: a LANDSCAPE split that fits the viewport."
  *
- * SERVER COMPONENT. Only <BovForm> crosses the client boundary, so the section
- * chrome, the promise line and the disclaimer cost nothing against the 180 KB
- * landing-route budget.
+ * SERVER COMPONENT. `<BovForm>` is dynamically imported (D7) rather than statically
+ * imported, so its JS chunk never sits on the hero's critical path — only this
+ * section's chrome (heading, micro-label, disclaimer, the designed loading
+ * skeleton) is part of the initial bundle. See "THE DYNAMIC IMPORT" below.
  *
- * TWO DECISIONS TAKEN HERE, both flagged in the build report:
+ * ── LANDSCAPE SPLIT (§4.9) ───────────────────────────────────────────────────
+ * Pitch/context LEFT (micro-label, headline, the 48h-promise sub, the "reach out
+ * early" disclaimer paragraph) with `<KanjiAccent>` behind it; the form's own
+ * 2-column field grid RIGHT (unchanged — `BovForm` already lays its fields out
+ * `grid gap-6 sm:grid-cols-2`, so nothing about its internals needed to change,
+ * only where it sits). `lg:grid-cols-[2fr_3fr]` — the pitch column doesn't need
+ * as much width as a real 2-up field grid does; the disclaimer paragraph lived at
+ * this same ~2fr measure before this pass (previously the right column), so the
+ * line length is already proven to read well.
+ *
+ * `section-fit` (D6, min-height only — never a `height` or `max-height`, and no
+ * `overflow-hidden` on the section root) targets a fit-to-viewport desktop
+ * screen WITHOUT ever clipping content that needs more room. This matters
+ * specifically because of the next paragraph.
+ *
+ * ── THE TCPA BLOCK STAYS FULLY VISIBLE, ALWAYS (non-negotiable) ─────────────
+ * `section-fit` sets a MINIMUM height, never a maximum, and nothing in this file
+ * sets `overflow-hidden`, `overflow-y-auto`/`scroll-well`, or a fixed `height` on
+ * the section, the grid, or the form column. If the SMS-consent block (rendered
+ * inside `<BovForm>`, imported byte-exact from `content/compliance.ts`) makes the
+ * right column taller than one screen, the `<section>` simply grows past
+ * `--screen-fit` to contain it — per the brief: "the SECTION gets taller, the
+ * legal text does not get smaller." Nothing here can truncate, scroll-well, or
+ * shrink that text; only `BovForm` itself renders it, and this file does not
+ * touch that part of `BovForm`.
+ *
+ * ── THE DYNAMIC IMPORT (D7) ──────────────────────────────────────────────────
+ * `next/dynamic` is called here WITHOUT `ssr: false` — that option throws in a
+ * Server Component ("`ssr: false` is not allowed with `next/dynamic` in Server
+ * Components", per Next's own docs). Omitting it keeps the default `ssr: true`
+ * behaviour: Next still renders `<BovForm>`'s real markup into the HTML (so
+ * `<noscript>` users and crawlers see the genuine form, not a stub), while the
+ * client JS still code-splits into its own chunk, off the critical bundle. The
+ * `loading` fallback is what a client-side hydration pass shows in the brief
+ * window before that chunk has streamed in — verified against
+ * `node_modules/next/dist/build/create-compiler-aliases.js`, which aliases
+ * `next/dynamic` to the Suspense/RSC-safe implementation for anything compiled
+ * inside `app/` (a different file from the one plain Node module resolution
+ * would find outside Next's own bundler — do not "fix" the import path).
+ *
+ * `<BovFormSkeleton>` below is that fallback. It is not a generic spinner: every
+ * bar reuses the REAL field/label/button classes from `ui/field.tsx`,
+ * `ui/input.tsx`, `ui/checkbox.tsx` and `ui/button.tsx` so its row heights match
+ * the hydrated form to the pixel, and it branches on `isWeb3FormsConfigured()` —
+ * read here at the SERVER, same env value the client component itself reads —
+ * because the unconfigured state (current: `NEXT_PUBLIC_WEB3FORMS_KEY` is not
+ * yet provisioned) renders one extra message line and a second button that the
+ * configured state does not. Guessing wrong here is exactly the kind of
+ * reflow the "designed loading state, height reserved" instruction exists to
+ * prevent.
+ *
+ * TWO CONTENT DECISIONS CARRIED FORWARD FROM THE PRIOR VERSION OF THIS FILE:
  *
  * 1. The headline is NOT the source's `What's your hotel worth?`. That exact
  *    string is used twice on the source page — once in the calculator section
@@ -32,11 +85,14 @@
  * docs/port/04-copy.md §7 asks to untangle.
  */
 
+import dynamic from "next/dynamic";
+
 import { SectionHeader } from "@/components/atoms/SectionHeader";
+import { KanjiAccent } from "@/components/art/KanjiAccent";
 import { Reveal } from "@/components/motion/Reveal";
-import { BovForm } from "@/components/forms/BovForm";
 import { bovPromise } from "@/content/methodology";
 import { CONTACT } from "@/content/site";
+import { isWeb3FormsConfigured } from "@/lib/web3forms";
 import { cn } from "@/lib/utils";
 
 const HEADING_ID = "bov-heading";
@@ -64,6 +120,26 @@ const COPY = {
   noscript: `Sending this form needs JavaScript. Email ${CONTACT.email} with the property name, the location, and the available T-12 / STR information.`,
 } as const;
 
+/**
+ * Read once at module scope, on the server: `isWeb3FormsConfigured()` is a pure
+ * `process.env.NEXT_PUBLIC_WEB3FORMS_KEY` read (see lib/web3forms.ts — "Inlined
+ * at build time by Next; identical on the server and in the browser"), so this
+ * is the same value `<BovForm>` itself will compute once its chunk hydrates.
+ * Reading it here — rather than inside the component function — keeps the
+ * `dynamic()` call below at true module scope, which Next requires.
+ */
+const bovConfigured = isWeb3FormsConfigured();
+
+/**
+ * D7: off the hero's critical path. No `ssr: false` (disallowed in a Server
+ * Component — see the file header). `.then((mod) => mod.BovForm)` extracts the
+ * named export; `BovForm.tsx` keeps its own "use client" pragma and is
+ * otherwise untouched by this file.
+ */
+const BovForm = dynamic(() => import("@/components/forms/BovForm").then((mod) => mod.BovForm), {
+  loading: () => <BovFormSkeleton configured={bovConfigured} />,
+});
+
 export interface BovSectionProps {
   /**
    * Bracketed micro-label index. Default `09` — the last entry in the
@@ -83,52 +159,173 @@ export function BovSection({ index = "09", className }: BovSectionProps) {
     <section
       id="bov"
       aria-labelledby={HEADING_ID}
-      className={cn("surface-deep section-pad", className)}
+      className={cn(
+        "surface-deep section-pad-tight",
+        // D6: fit-to-viewport on desktop only. `section-fit` is min-height ONLY
+        // (globals.css §6) — it cannot clip the TCPA block; it can only ever
+        // make the section AT LEAST one screen tall, never cap it shorter.
+        "lg:section-fit lg:flex lg:flex-col lg:justify-center",
+        className,
+      )}
     >
       <div className="container-hk">
-        <div className="grid items-start gap-12 lg:grid-cols-[3fr_2fr] lg:gap-16">
-          <Reveal>
-            <SectionHeader
-              id={HEADING_ID}
-              index={index}
-              label={COPY.microLabel}
-              headline={COPY.headline}
-              sub={bovPromise}
-            />
+        <div className="grid items-start gap-12 lg:grid-cols-[2fr_3fr] lg:gap-16">
+          {/* LEFT — pitch + context. Its own positioning context for KanjiAccent,
+              which needs nothing more than that (see components/art/KanjiAccent.tsx). */}
+          <div className="relative isolate">
+            <KanjiAccent />
 
-            <div className="mt-12">
-              <BovForm />
-            </div>
-          </Reveal>
+            <Reveal>
+              <SectionHeader
+                id={HEADING_ID}
+                index={index}
+                label={COPY.microLabel}
+                headline={COPY.headline}
+                sub={bovPromise}
+              />
+            </Reveal>
 
-          {/* Plain string child on purpose: React treats <noscript> children as
-              text content, so an element child would hydrate inconsistently
-              (the browser parses the tag as text when scripting is on). */}
-          <noscript>{COPY.noscript}</noscript>
+            {/* Pull-quote treatment: Fraunces Light against an accent rule — the
+                source's own device (`.bov-disclaimer`, index.html:625) translated
+                to tokens. NOT italic (changed 2026-08-08, coherence audit): the
+                typography program spends italic as a scarce one-word accent per
+                headline, and a ~60-word italic serif run is the single loudest
+                way to spend it wrong — it reads as a wedding invitation rather
+                than a brokerage, and long italic at `--fg-muted` is the harder
+                read. The serif face plus the accent rule already separate this
+                from the form beside it. */}
+            <Reveal delay={0.08}>
+              <p className="mt-8 border-l-2 border-accent pl-6 font-display text-body-lg font-light text-fg-muted lg:mt-10">
+                {COPY.disclaimer.lead}
+                <a
+                  href={CONTACT.emailHref}
+                  className="text-accent-text underline underline-offset-4"
+                >
+                  {CONTACT.email}
+                </a>
+                {COPY.disclaimer.tail}
+              </p>
+            </Reveal>
 
-          {/* Pull-quote treatment: Fraunces Light against an accent rule — the
-              source's own device (`.bov-disclaimer`, index.html:625) translated
-              to tokens. NOT italic (changed 2026-08-08, coherence audit): the
-              typography program spends italic as a scarce one-word accent per
-              headline, and a ~60-word italic serif run is the single loudest
-              way to spend it wrong — it reads as a wedding invitation rather
-              than a brokerage, and long italic at `--fg-muted` is the harder
-              read. The serif face plus the accent rule already separate this
-              from the form beside it. */}
-          <Reveal delay={0.08}>
-            <p className="border-l-2 border-accent pl-6 font-display text-body-lg font-light text-fg-muted">
-              {COPY.disclaimer.lead}
-              <a
-                href={CONTACT.emailHref}
-                className="text-accent-text underline underline-offset-4"
-              >
-                {CONTACT.email}
-              </a>
-              {COPY.disclaimer.tail}
-            </p>
+            {/* Plain string child on purpose: React treats <noscript> children as
+                text content, so an element child would hydrate inconsistently
+                (the browser parses the tag as text when scripting is on). */}
+            <noscript>{COPY.noscript}</noscript>
+          </div>
+
+          {/* RIGHT — the form's own 2-column field grid. `<BovForm>` renders its
+              own `grid gap-6 sm:grid-cols-2` chassis; nothing here duplicates it. */}
+          <Reveal delay={0.12}>
+            <BovForm />
           </Reveal>
         </div>
       </div>
     </section>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   BovFormSkeleton — the designed, height-matched loading state (D7).
+
+   Every bar below reuses the REAL primitive classes it stands in for:
+     - field label  → ui/label.tsx `"block font-sans text-body font-semibold
+                       leading-snug"` (colour swapped for `text-transparent` —
+                       same box, invisible ink — so the reserved line height is
+                       exact, not a guess).
+     - field control → ui/input.tsx `FIELD_SHELL` geometry: `rounded-card
+                       border border-hairline bg-field`, `min-h-11`.
+     - checkbox      → ui/checkbox.tsx's 44px (`size-11`) hit box.
+     - submit button → ui/button.tsx `size="lg"`: `min-h-13`, `rounded-pill`.
+     - status row    → BovForm.tsx's own `min-h-5` reserved status line.
+
+   `configured` mirrors BovForm's own `isWeb3FormsConfigured()` branch: the
+   unconfigured state renders one extra explanatory line AND a second
+   (mailto) button beside Send, which the configured state does not. Guessing
+   the wrong branch here is precisely the reflow "height reserved, no layout
+   shift" exists to prevent — see the file header's "THE DYNAMIC IMPORT" note.
+
+   `aria-hidden` on every decorative bar; one visually-hidden status line
+   speaks for the whole thing so a screen-reader user isn't left in silence
+   during the (typically sub-second) chunk fetch.
+   --------------------------------------------------------------------------- */
+
+const SKELETON_LABEL_CLASS =
+  "block font-sans text-body font-semibold leading-snug text-transparent select-none";
+const SKELETON_CONTROL_CLASS = "block min-h-11 w-full rounded-card border border-hairline bg-field";
+
+function SkeletonField({ className }: { className?: string }) {
+  return (
+    <div className={cn("flex flex-col gap-2", className)} aria-hidden="true">
+      <span className={SKELETON_LABEL_CLASS}>Field label</span>
+      <span className={SKELETON_CONTROL_CLASS} />
+    </div>
+  );
+}
+
+/** Mirrors PhoneField's own row shape: a dial-code control beside the national
+ *  number field (`flex flex-wrap items-start gap-2`, `basis-32` + `flex-1`). */
+function SkeletonPhoneField() {
+  return (
+    <div className="flex flex-col gap-2" aria-hidden="true">
+      <span className={SKELETON_LABEL_CLASS}>Field label</span>
+      <span className="flex flex-wrap items-start gap-2">
+        <span className="block h-11 w-32 shrink-0 rounded-card border border-hairline bg-field" />
+        <span className="block min-h-11 min-w-40 flex-1 rounded-card border border-hairline bg-field" />
+      </span>
+    </div>
+  );
+}
+
+/** Mirrors the SMS-consent block: a 44px checkbox beside multi-line label
+ *  copy, then the privacy/SMS-terms footnote line indented `pl-13` to clear
+ *  the checkbox — same offset BovForm's real footnote paragraph uses. */
+function SkeletonConsent() {
+  return (
+    <div className="sm:col-span-2" aria-hidden="true">
+      <div className="flex items-start gap-2">
+        <span className="block size-11 shrink-0 rounded-card border border-hairline bg-field" />
+        <span className="min-h-11 flex-1 space-y-2 py-2">
+          <span className="block h-4 w-full rounded-card bg-field" />
+          <span className="block h-4 w-11/12 rounded-card bg-field" />
+          <span className="block h-4 w-3/5 rounded-card bg-field" />
+        </span>
+      </div>
+      <span className="mt-2 block pl-13">
+        <span className="block h-4 w-2/3 rounded-card bg-field" />
+      </span>
+    </div>
+  );
+}
+
+function BovFormSkeleton({ configured }: { configured: boolean }) {
+  return (
+    <div role="status" aria-live="polite" className="grid gap-6 sm:grid-cols-2">
+      <span className="visually-hidden">Loading the valuation request form…</span>
+
+      <SkeletonField />
+      <SkeletonField />
+      <SkeletonField className="sm:col-span-2" />
+      <SkeletonPhoneField />
+      <SkeletonField />
+
+      <SkeletonConsent />
+
+      {!configured ? (
+        <span aria-hidden="true" className="sm:col-span-2 flex items-start gap-2">
+          <span className="mt-0.5 block size-4 shrink-0 rounded-card bg-field" />
+          <span className="flex-1 space-y-1.5">
+            <span className="block h-4 w-full rounded-card bg-field" />
+            <span className="block h-4 w-2/3 rounded-card bg-field" />
+          </span>
+        </span>
+      ) : null}
+
+      <span aria-hidden="true" className="sm:col-span-2 flex flex-wrap items-center gap-4">
+        <span className="inline-block h-13 w-48 rounded-pill bg-field" />
+        {!configured ? <span className="inline-block h-13 w-40 rounded-pill bg-field" /> : null}
+      </span>
+
+      <span aria-hidden="true" className="sm:col-span-2 block min-h-5" />
+    </div>
   );
 }

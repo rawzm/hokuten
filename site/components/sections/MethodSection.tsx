@@ -28,17 +28,27 @@
  * stale — 03 belongs to `#calculator`. Do not renumber a section without
  * renumbering the whole run.
  *
- * ── Art: OrbitalArcs + HotelEngraving (shipped 2026-08-08) ────────────────
- * The chapter's art object is the commissioned single-stroke `HotelEngraving`
- * (traced from an owned track-record photo), over `star-grain` plus the
- * `OrbitalArcs` hairline arcs. Both are decorative, aria-hidden, and capped at
- * the 8% texture opacity dark sections allow.
+ * ── Art: HotelEngraving RETIRED (design revisit, 2026-08-08, D5) ──────────
+ * Razim's verdict: the engraving is ugly. It no longer renders here — do not
+ * re-add `<HotelEngraving>`. Its component file and `public/art/hotel-
+ * engraving.svg` are untouched (this file does not own them; another
+ * placement may still want them).
+ *
+ * Its slot was reserved for the supplied 「北天」 glyph-mosaic Method-chapter
+ * piece (`/art/hie-dusk-chapter-*`, per the design-revisit art manifest §3).
+ * As of this pass neither `site/content/artwork.ts` (the placement resolver)
+ * nor the image files themselves exist yet, so the chapter ships on the
+ * documented interim: `star-grain` (on the section root) + `OrbitalArcs` +
+ * `KanjiAccent` alone — no photographic art object. Swap in the resolved
+ * artwork here once both land; do not hand-roll a `next/image` call against
+ * the raw paths in the meantime (that was the fallback ONLY if the manifest
+ * was missing but the files were present — neither condition holds).
  */
 
 import type { ReactNode } from "react";
 import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
-import { HotelEngraving } from "@/components/art/HotelEngraving";
+import { KanjiAccent } from "@/components/art/KanjiAccent";
 import { OrbitalArcs } from "@/components/art/OrbitalArcs";
 import Stamp from "@/components/atoms/Stamp";
 import { Reveal, RevealItem } from "@/components/motion/Reveal";
@@ -125,12 +135,13 @@ export function MethodSection() {
     <section
       id="method"
       aria-labelledby="method-heading"
-      className="surface-dark star-grain section-pad relative isolate overflow-hidden"
+      className="surface-dark star-grain section-pad section-fit relative isolate overflow-hidden lg:flex lg:flex-col lg:justify-center"
     >
       <OrbitalArcs />
+      <KanjiAccent />
       <span className="visually-hidden">
-        Decorative hairline orbital-ring texture and star-grain behind this chapter — no
-        informational content.
+        Decorative hairline orbital-ring texture and background 北天 kanji motif behind this
+        chapter — no informational content.
       </span>
 
       <div className="container-hk relative">
@@ -142,21 +153,12 @@ export function MethodSection() {
           <SectionHeader id="method-heading" headline="How we run a *sale*." />
         </Reveal>
 
-        <div className="mt-12 grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <Reveal as="p" className="text-body-lg leading-relaxed">
-              {renderFramingParagraph(methodFraming)}
-            </Reveal>
+        <div className="mt-8 grid gap-10 lg:grid-cols-12">
+          <Reveal as="p" className="text-body-lg leading-relaxed lg:col-span-5">
+            {renderFramingParagraph(methodFraming)}
+          </Reveal>
 
-            {/* The chapter's one art object: a commissioned single-stroke
-                engraving of an owned track-record hotel. Inlined so it inherits
-                `currentColor` and is correct in both themes. */}
-            <Reveal className="mt-12">
-              <HotelEngraving className="opacity-70" />
-            </Reveal>
-          </div>
-
-          <Reveal as="ol" stagger className="hairline-l flex flex-col gap-12 pl-8 lg:col-span-7">
+          <Reveal as="ol" stagger className="hairline-l flex flex-col gap-8 pl-8 lg:col-span-7">
             {methodSteps.map((step) => (
               <RevealItem as="li" key={step.index} className="group relative">
                 <span
@@ -165,7 +167,7 @@ export function MethodSection() {
                 >
                   {step.index}
                 </span>
-                <h3 className="mt-2 font-display text-body-lg font-normal">
+                <h3 className="mt-2 font-display text-body-lg font-medium">
                   <span className="border-b border-transparent pb-0.5 transition-colors duration-fast group-hover:border-accent-text group-focus-within:border-accent-text">
                     {step.title}
                   </span>
@@ -179,7 +181,7 @@ export function MethodSection() {
         <Reveal
           as="ul"
           stagger
-          className="hairline-t mt-12 grid grid-cols-2 gap-x-8 gap-y-8 pt-12 md:grid-cols-4"
+          className="hairline-t mt-8 grid grid-cols-2 gap-x-8 gap-y-8 pt-8 md:grid-cols-4"
         >
           {reachStats.map((stat, i) => (
             <RevealItem as="li" key={stat.value} className={reachDividerClass(i)}>

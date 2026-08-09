@@ -23,11 +23,24 @@
  * Open/close is animated with motion/react (AnimatePresence + forceMount)
  * rather than CSS: Radix's Presence waits on CSS *animations*, and new keyframes
  * may not be added outside app/globals.css. Only opacity + translateY move.
+ *
+ * D7 LazyMotion (2026-08-08): the two `motion.div`s below are `m.div` — the
+ * tree-shakeable "motion/react-m" export, fed by the `<LazyMotion
+ * features={domAnimation}>` provider in app/layout.tsx. That provider was
+ * placed there, wrapping ConsentProvider (and therefore ConsentModal, which
+ * renders THIS component), specifically because it must — verified against
+ * framer-motion 13.0.0 — a `m.*` element with no <LazyMotion> ancestor never
+ * resolves a renderer and never mounts a visualElement. `AnimatePresence`
+ * stays imported from "motion/react": it is not exported from
+ * "motion/react-m" at all (framer-motion/m only exports flat tag
+ * components — confirmed by reading its .d.ts) and per framer-motion's own
+ * docs it works underneath LazyMotion regardless of import source.
  */
 
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { AnimatePresence, motion, useReducedMotion, type MotionProps } from "motion/react";
+import { AnimatePresence, useReducedMotion, type MotionProps } from "motion/react";
+import * as m from "motion/react-m";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -193,7 +206,7 @@ function DialogContent({
           <DialogPrimitive.Overlay asChild forceMount>
             {/* Scrim is ink-tinted, never a gray: bg-ink/60 compiles to
                 color-mix(… var(--ink) 60%, transparent) in both themes. */}
-            <motion.div className="fixed inset-0 z-50 bg-ink/60" {...overlayMotion} />
+            <m.div className="fixed inset-0 z-50 bg-ink/60" {...overlayMotion} />
           </DialogPrimitive.Overlay>
 
           {/* Positioning layer. Kept separate from the panel so motion owns the
@@ -227,7 +240,7 @@ function DialogContent({
               }}
               {...props}
             >
-              <motion.div
+              <m.div
                 data-animated=""
                 data-shake={feedback === "shake" ? "true" : undefined}
                 data-attention={feedback === "attention" ? "true" : undefined}
@@ -258,7 +271,7 @@ function DialogContent({
                     <X className="size-4" strokeWidth={1.5} aria-hidden="true" />
                   </DialogPrimitive.Close>
                 ) : null}
-              </motion.div>
+              </m.div>
             </DialogPrimitive.Content>
           </div>
         </DialogPrimitive.Portal>

@@ -25,11 +25,22 @@
  * writes `transform: none`, so there is no effect outside the 300ms window.
  * The fixed `#ticker` and the sticky nav must therefore live in app/layout.tsx,
  * OUTSIDE this template, not inside a route's page.
+ *
+ * D7 LazyMotion (2026-08-08): `motion.div` below is `m.div` from
+ * "motion/react-m" — the flat, individually tree-shakeable tag export, not
+ * the `motion` proxy that eagerly bundles drag/layout/pan. Its renderer and
+ * feature set come from the `<LazyMotion features={domAnimation}>` provider
+ * in app/layout.tsx, which wraps this template (and, just as importantly,
+ * the sibling consent modal — see that file's comment). Do not import
+ * `motion` here again; `useReducedMotion` still comes from "motion/react"
+ * (a ~270-byte-gzip standalone hook, verified by isolated esbuild bundle —
+ * it does not pull the component/render pipeline in with it).
  */
 
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 import { useEffect, useState, type ReactNode } from "react";
 import { motionAllowed, pageVariants } from "@/lib/motion";
 
@@ -48,12 +59,12 @@ export default function Template({ children }: { children: ReactNode }) {
   const shouldAnimate = !isFirstPaint && motionAllowed(prefersReduced);
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? "hidden" : false}
       animate="visible"
       variants={pageVariants}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

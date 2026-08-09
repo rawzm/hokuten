@@ -1,3 +1,40 @@
+> ## ⚠️ LAYOUT FULLY SUPERSEDED — D6, Design Revisit round (2026-08-08/09)
+>
+> Verified against `site/components/calculator/Calculator.tsx`'s own header
+> comment on 2026-08-09, not skimmed (the file was too large to re-read line
+> by line this round; the header comment — which documents the redesign in
+> detail — was read in full). **The IA block below (a two-column "intro left
+> / wizard panel right" portrait split) describes a chassis that no longer
+> exists.** `docs/DESIGN-REVISIT.md` §4.6 (D6): the calculator is now a
+> single full-width **landscape** console — a horizontal stepper across the
+> top, then a two-column body: the live step on the left, a persistent
+> market-data `ContextRail` (`components/calculator/ContextRail.tsx`, new
+> this round) pinned on the right **on all three steps**. New files backing
+> this: `ContextRail.tsx` and `OptionTiles.tsx` (dropdowns → selectable
+> option-tile radio groups per `docs/DESIGN-REVISIT.md` §3.8's shape
+> contract — 1:1 image squares for property type, 5:2 wide panels for market
+> tier, text segment chips for binary/ternary choices). Step 3's density is
+> solved structurally (a `scroll-well` — native `overflow-y:auto` with a
+> masked fade affordance, keyboard-reachable, never a hijacked wheel — is the
+> *only* step that can exceed the fit-viewport box) rather than by a long
+> page scroll.
+>
+> **What did NOT change — still frozen, still the source of truth:** the math
+> in `site/lib/valuation.ts` (this file's own "Sources of truth" table is
+> still correct on that point), every field/option/popover inventory in
+> "Deviations from the source," the "Ported defects — kept deliberately"
+> table, and the three "Decisions needing ratification" (C1/C2/C3) — none of
+> those are layout, so D6 (a UI-only redesign) does not touch them. Re-verify
+> the **acceptance criteria** against the new landscape DOM before treating
+> any of them as passing — several assume the old two-column IA (e.g. "Left
+> column — intro," step-panel `tabIndex`/`aria-labelledby` wiring) that may
+> have shifted shape even where the underlying behaviour is preserved.
+>
+> This note documents that a redesign happened and points at its source; it
+> does not re-derive the new IA in full. Read `Calculator.tsx`'s header
+> comment and `docs/DESIGN-REVISIT.md` §4.6/§3.8 directly before building or
+> auditing against this section.
+
 # Spec — `#calculator` (Hotel Worth Calculator)
 
 **Section/Route:** `#calculator` (landing page, section 6 of 13 per ref 04)
