@@ -1,14 +1,33 @@
-# RESUME — Phase 1 build handoff
+# RESUME — build handoff
 
-> **2026-08-08 (evening): the Phase 1 build is COMPLETE and live on both theme
-> URLs; the ship gate ran and its fixes are pushed. The next work order is the
-> design revisit — kickoff: *"Read docs/DESIGN-REVISIT.md in the hokuten repo
-> and execute it."* This file remains the build-state record and the
-> session-budget protocol (§1), which still applies.**
+> **2026-08-09: Design revisit 1 is EXECUTED and pushed to both branches at
+> commit `5e8d9a7`.** The full record is the dated entry at the top of
+> [PROJECT-MEMORY.md](../PROJECT-MEMORY.md) §4 — read that first, it supersedes
+> most of the build-state detail below. This file keeps the session-budget
+> protocol (§1), which still applies, and the RSC lesson in §5.
+>
+> **Next session's work is the review pass, not a new build.** Razim reviews the
+> two Vercel URLs by eye and the internal `/art` preview route (an art-direction
+> tool listing every prepared asset plus a "STILL NEEDED FROM RAZIM" block).
+> Open items are in [docs/PLACEHOLDERS.md](PLACEHOLDERS.md); the remaining
+> non-P0 audit findings are in [docs/design/AUDIT_LOG.md](design/AUDIT_LOG.md).
 
-**Kickoff prompt for the next session:** *"Read docs/DESIGN-REVISIT.md in the hokuten repo and execute it."*
+**State at handoff:** build green · `tsc` clean · vitest 128/128 · landing route
+316.8 KB gzip against the D7 340 KB budget · no console errors, no failed asset
+requests and no horizontal overflow at 375/768/1440 in **both** themes ·
+`main` and `theme-blue` at the same commit, zero code drift.
 
-**Last updated:** 2026-08-08, at the session-budget pause (~80% used).
+**What is genuinely not done**, and is not hiding anywhere else:
+- LCP / CLS / INP have NOT been measured on the deployed URLs. Bundle size was
+  measured; Core Web Vitals were not. Do that against the real deploy.
+- Screenshot QA covered the landing route. `/privacy`, `/sms-terms`,
+  `/accessibility` and `/art` were not screenshotted in either theme.
+- The five active-listing tickets still render a designed placeholder, not real
+  property photography. That is the largest remaining professionalism gap.
+
+**Kickoff for the next session:** *"Read the top entry of PROJECT-MEMORY.md, then docs/PLACEHOLDERS.md, and take the review pass on the design revisit."*
+
+**Last updated:** 2026-08-09, after the design revisit shipped.
 All work below is committed and pushed to `main`. Nothing is uncommitted.
 
 > **Do not try to resume the old workflows.** Workflow resume-from-cache is
