@@ -58,20 +58,19 @@
  * small `surface-card` chip (white ground, hairline border). Presentation-
  * layer mitigation only; the source PNG is untouched.
  *
- * ── The new theme-matched lockup — swap outstanding ─────────────────────────
- * The work order names `/brand/lockup-gold.png` (+`.avif`) and
- * `/brand/lockup-blue.png` (+`.avif`) as landing for the header, "and the
- * footer may also want it," selected via `THEME` from `@/lib/theme` (the same
- * constant `themePresentation` is built from — no second theme check invented
- * here). Checked at execution time (2026-08-09): none of the four files exist
- * in `site/public/brand/` yet, so per the work order this file "keeps the
- * current footer mark" — `lockup-stacked-gold.png`, unchanged path, still
- * gold-only regardless of `THEME` (a pre-existing condition, not introduced by
- * this pass). When the assets land: swap the `src` below to
- * `` `/brand/lockup-${THEME}.png` `` (mirrors `themePresentation.wordmark`'s
- * own naming pattern) and re-check the dark-on-chip mitigation above — a
- * theme-matched export may already be dark-safe, in which case the chip can
- * come off.
+ * ── The theme-matched lockup — SWAP DONE 2026-08-09 ────────────────────────
+ * When this file was written the four prepared crops did not exist yet, so it
+ * kept `lockup-stacked-gold.png` and rendered a GOLD KW mark in the blue
+ * build's footer. The dual-theme audit caught that the same day. It now reads
+ * `themePresentation.lockup` — the same record the header uses, so there is
+ * exactly one place per-theme assets are chosen. The two crops are different
+ * aspects (gold 669x501, blue 971x811), so `LOCKUP_INTRINSIC` passes the real
+ * intrinsic size per theme and CLS stays at 0.
+ *
+ * The chip backing above is KEPT deliberately: both prepared crops still carry
+ * their own light ground (the marks are framed boxes on white in the masters),
+ * so a bare placement on `--dark` would show a raw white rectangle. The chip
+ * makes that ground look intentional instead.
  *
  * ── Ticker clearance (P0) — mechanism unchanged ─────────────────────────────
  * The root's `pb-[var(--ticker-h-mobile)] sm:pb-[var(--ticker-h)]` is additive
@@ -109,6 +108,7 @@ import { StampPressIn } from "@/components/atoms/Stamp";
 import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { BROKERAGE_DISCLOSURE, OUT_OF_STATE_QUALIFIER } from "@/content/compliance";
 import { cn } from "@/lib/utils";
+import { THEME, themePresentation } from "@/lib/theme";
 import {
   BRAND_LINE,
   copyrightLine,
@@ -158,6 +158,14 @@ function FooterNavLink({ label, href, external }: FooterLink) {
 }
 
 /** Disclosure prose — 16px body floor (P0, see file header), never `text-data`/`text-micro`. */
+/** Intrinsic pixel size of each prepared lockup crop (scripts/identity-prep.ts).
+ *  Passed to next/image so the footer mark reserves the right box in both
+ *  themes — the two crops are not the same aspect (gold 1.335, blue 1.197). */
+const LOCKUP_INTRINSIC = {
+  gold: { w: 669, h: 501 },
+  blue: { w: 971, h: 811 },
+} as const;
+
 function DisclosureLine({ children, className }: { children: ReactNode; className?: string }) {
   return <p className={cn("max-w-[60ch] text-body text-fg-meta", className)}>{children}</p>;
 }
@@ -170,12 +178,20 @@ export function SiteFooter() {
           {/* Brand cluster — lockup (chipped) + hanko, small. The one KW-mark
               instance in this file (see file header, "KW-mark duplication"). */}
           <div className="flex shrink-0 items-center gap-3">
+            {/* Theme-matched, not hardcoded. This rendered the GOLD lockup on
+                Theme B too — a gold KW mark in the footer of the blue build,
+                found in the 2026-08-09 dual-theme audit. `themePresentation`
+                is the single place per-theme assets are chosen (lib/theme.ts);
+                the prepared crops are gold 669x501 and blue 971x811, so the
+                intrinsic size differs per theme and both are passed explicitly
+                to keep CLS at 0. alt="" is correct: the mark is decorative and
+                the real-text brand line below carries the name. */}
             <span className={`${MARK_CHIP} px-2.5 py-1.5`}>
               <Image
-                src="/brand/lockup-stacked-gold.png"
+                src={themePresentation.lockup}
                 alt=""
-                width={240}
-                height={184}
+                width={LOCKUP_INTRINSIC[THEME].w}
+                height={LOCKUP_INTRINSIC[THEME].h}
                 className="h-7 w-auto sm:h-8"
               />
             </span>

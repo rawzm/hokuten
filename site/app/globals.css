@@ -674,11 +674,19 @@
    hanko-adjacent — never a red rubber-stamp cliché. Colour comes from the
    surface scope, so it is correct on both themes and on dark. */
 @utility overprint {
-  color: var(--accent-text);
+  /* `color-mix` toward the surface, NOT `opacity`.
+     This carried `opacity: 0.72`, which composites the WHOLE element — text,
+     border and the opaque backing chip a caller puts behind it — against
+     whatever photograph happens to be underneath. ClosingCard deliberately
+     gives the stamp a `bg-paper` seat so it stays legible over six
+     uncontrolled photos, and the element-level opacity defeated exactly that,
+     failing AA. Found in the 2026-08-09 contrast audit. Mixing the colour
+     instead keeps the stamp restrained while the seat stays opaque and the
+     contrast stays predictable. Do not reintroduce `opacity` here. */
+  color: color-mix(in srgb, var(--accent-text) 78%, var(--surface));
   border: 1px solid currentColor;
   border-radius: var(--radius-card);
   transform: rotate(-8deg);
-  opacity: 0.72;
   pointer-events: none;
   font-family: var(--font-mono);
   font-size: var(--text-micro);
