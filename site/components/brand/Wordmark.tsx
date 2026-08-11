@@ -39,31 +39,59 @@
  * of the brand name in its placement, so the image needs a real accessible
  * name.
  *
- * `variant="brand"` (D1) — the header unit: the theme-matched KW COMMERCIAL /
- * THE HOKUTEN GROUP raster (`themePresentation.lockup`, a PNG — a DIFFERENT
- * asset from `variant="lockup"`'s SVG wordmark, hence the different variant
- * name rather than overloading "lockup") rendered through `next/image` at an
- * explicit width/height (CLS 0), plus a REAL-TEXT `BRAND_LINE` beside it.
- * The image is `alt=""` (decorative) — at the mandated 44px render height
- * the words baked into the raster are below legibility anyway (Razim,
- * 2026-08-08), so the adjacent text span, not the image, is what makes the
- * brand name indexable and screen-reader-native here (the Sarhan anti-
- * pattern this file's header already warns about). No `priority`: the hero
- * art band is the page's real LCP candidate (D5/D7) and this 44px mark
- * competing for the browser's fetch-priority hint would only slow that down.
- * `min-w-0`/`truncate` on the text span mean a caller can let this whole
- * unit sit in a shrinkable flex slot (the nav row on narrow viewports) —
- * the wordmark PNG never shrinks (`shrink-0`), only the text visually
- * truncates if space runs out; the full string stays in the accessibility
- * tree regardless (CSS `text-overflow: ellipsis` does not hide text from
- * assistive tech, only from the visual box).
+ * `variant="brand"` (D1, resized D18 2026-08-10) — the header unit: the
+ * theme-matched KW COMMERCIAL / THE HOKUTEN GROUP raster
+ * (`themePresentation.lockup`, a PNG — a DIFFERENT asset from
+ * `variant="lockup"`'s SVG wordmark, hence the different variant name rather
+ * than overloading "lockup") rendered through `next/image` at an explicit
+ * width/height (CLS 0), plus a REAL-TEXT `BRAND_LINE` beside it. The image is
+ * `alt=""` (decorative) — at these render heights the words baked into the
+ * raster are still below comfortable legibility (Razim, 2026-08-08), so the
+ * adjacent text span, not the image, is what makes the brand name indexable
+ * and screen-reader-native here (the Sarhan anti-pattern this file's header
+ * already warns about). No `priority`: the hero art band is the page's real
+ * LCP candidate (D5/D7) and this mark competing for the browser's
+ * fetch-priority hint would only slow that down. `min-w-0`/`truncate` on the
+ * text span mean a caller can let this whole unit sit in a shrinkable flex
+ * slot (the nav row on narrow viewports) — the wordmark PNG never shrinks
+ * (`shrink-0`), only the text visually truncates if space runs out; the full
+ * string stays in the accessibility tree regardless (CSS
+ * `text-overflow: ellipsis` does not hide text from assistive tech, only
+ * from the visual box).
+ *
+ * D18 (2026-08-10): the nav grew to `--nav-h` 72px desktop / `--nav-h-mobile`
+ * 64px mobile, and the lockup grows with it — ~52px tall desktop, ~46–48px
+ * mobile, an 8–10px safety inset either side (the nav row's own
+ * `items-center` centers the mark inside the bar, so the inset falls out of
+ * that centering rather than needing its own margin). One `<Image>` still
+ * renders per instance (no duplicate fetch for a second breakpoint crop):
+ * `height` supplies the INTRINSIC width/height passed to `next/image` (the
+ * larger, desktop figure, for CLS and source-quality headroom), and the new
+ * `mobileHeight` prop drives the actual rendered box below the `sm` (640px)
+ * breakpoint — the SAME breakpoint `SiteNav.tsx`'s own `<nav>` element
+ * switches `--nav-h-mobile`/`--nav-h` at (see that file's `readNavHeightPx`
+ * docstring), so the bar and the mark inside it change size together rather
+ * than drifting through an 640–1023px zone where one had already grown and
+ * the other had not. Tailwind's JIT scanner only picks up literal class
+ * strings, so a runtime pixel number from a prop cannot become a `h-[Npx]`
+ * class — the two numbers are threaded through as CSS custom properties on
+ * `style` instead, read back by two literal (therefore JIT-visible)
+ * arbitrary-value classes, `h-[var(--wordmark-h)]` and
+ * `sm:h-[var(--wordmark-h-lg)]`, with `w-auto` so the browser derives width
+ * from the `<img>` element's own width/height attributes at whichever height
+ * is active — that attribute pair is what CSS Sizing's `auto` algorithm uses
+ * to preserve aspect ratio, so both breakpoints stay distortion-free without
+ * a second network request. `mobileHeight` defaults to `height` (no
+ * responsive step) so a future non-nav caller of "brand" is not forced to
+ * opt in.
  *
  * `WORDMARK_ASPECT` mirrors `scripts/og-gen.ts`'s `LOCKUP_ASPECT` exactly —
  * that script's own build-time assertion names this constant if the
  * typesetting ever drifts, so keep the two numbers in sync by hand.
  * `BRAND_LOCKUP_ASPECT` is the equivalent measurement for the D1 raster,
  * taken by Razim against the prepared crops (gold 669×501, blue 971×811 —
- * DESIGN-REVISIT.md §4.1). Keyed by theme even though only one theme ever
+ * DESIGN-REVISIT.md §4.1). It is a ratio, not a size, so D18's larger render
+ * heights read it unchanged. Keyed by theme even though only one theme ever
  * ships per build (`THEME` is resolved at build time from
  * `NEXT_PUBLIC_HOKUTEN_THEME`, `lib/theme.ts`) — this file has no other
  * reason to special-case a theme, and the alternative (hardcoding one
@@ -72,6 +100,7 @@
  */
 
 import Image from "next/image";
+import type { CSSProperties } from "react";
 
 import { BRAND_LINE, SITE_NAME } from "@/content/site";
 import { THEME, themePresentation, type HokutenTheme } from "@/lib/theme";
@@ -98,8 +127,15 @@ export type WordmarkProps = {
   /** Element for the "text" variant. Ignored for "lockup"/"brand" (always an image). */
   as?: "span" | "p" | "div";
   /** "lockup"/"brand" variants only: rendered height, px. Width follows
-   *  WORDMARK_ASPECT ("lockup") or BRAND_LOCKUP_ASPECT[THEME] ("brand"). */
+   *  WORDMARK_ASPECT ("lockup") or BRAND_LOCKUP_ASPECT[THEME] ("brand"). For
+   *  "brand", this is also the intrinsic size passed to `next/image` — the
+   *  reference/desktop figure, per the file header's D18 note. */
   height?: number;
+  /** "brand" variant only (D18): rendered height, px, below the `sm`
+   *  (640px) breakpoint — matching `SiteNav.tsx`'s own `--nav-h`/
+   *  `--nav-h-mobile` switch point. Defaults to `height` (no responsive
+   *  step) when omitted. Ignored by "text"/"lockup". */
+  mobileHeight?: number;
   className?: string;
 };
 
@@ -107,6 +143,7 @@ export function Wordmark({
   variant = "text",
   as: Tag = "span",
   height = DEFAULT_LOCKUP_HEIGHT,
+  mobileHeight,
   className,
 }: WordmarkProps) {
   if (variant === "lockup") {
@@ -127,6 +164,15 @@ export function Wordmark({
 
   if (variant === "brand") {
     const width = Math.round(height * BRAND_LOCKUP_ASPECT[THEME]);
+    // D18: `height`/`width` above stay the true intrinsic <img> attributes
+    // (desktop figure) for CLS + source quality; the two custom properties
+    // below drive the RENDERED box per breakpoint — see file header for why
+    // this can't just be a runtime `h-[${mobileHeight}px]` class string, and
+    // why `sm` (not `lg`) is the switch point.
+    const responsiveHeight = {
+      "--wordmark-h": `${mobileHeight ?? height}px`,
+      "--wordmark-h-lg": `${height}px`,
+    } as CSSProperties;
     return (
       <span className={cn("inline-flex min-w-0 items-center gap-2", className)}>
         <Image
@@ -134,7 +180,8 @@ export function Wordmark({
           alt=""
           width={width}
           height={height}
-          className="block shrink-0"
+          className="block h-[var(--wordmark-h)] w-auto shrink-0 sm:h-[var(--wordmark-h-lg)]"
+          style={responsiveHeight}
         />
         <span className="min-w-0 truncate brand-line text-micro">{BRAND_LINE}</span>
       </span>

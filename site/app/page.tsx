@@ -1,16 +1,27 @@
 /**
  * app/page.tsx — the Phase 1 landing route.
  *
- * Section order is fixed by design-skill reference 04 (page anatomy):
- *   hero → stats → brands → closings → listings → calculator → method →
- *   doors → mandates → team → faq → bov → footer + persistent ticker
+ * TWELVE SCREENS (DESIGN-REVISIT-2 §0). Each carries `page-panel`, and on a
+ * qualifying desktop each boundary settles like a page:
+ *
+ *   1 hero (owns the brand rail)   2 trust metrics   3 01-track record
+ *   4 02-hotels for sale           5 03-valuation    6 04-method
+ *   7 05-doors                     8 06-mandates     9 07-team
+ *  10 08-faq                      11 09-bov         12 footer
+ *
+ * `#brands` is NOT a separate screen — D2 moved the franchise rail inside the
+ * hero panel, so `Hero` renders `<BrandsMarquee />` itself. Rendering the
+ * standalone `<BrandsSection />` here too would put two `<section id="brands">`
+ * elements in one document.
  *
  * This file stays a Server Component. Every client island lives inside its own
- * component so the landing route's JS budget (180KB gzip, ref 05) is spent
- * deliberately rather than by pulling a boundary up to the page.
+ * component so the landing route's JS budget is spent deliberately rather than
+ * by pulling a boundary up to the page. The budget is D7's, re-based
+ * 2026-08-08: critical path ≤200KB gzip, full landing route ≤340KB gzip.
+ * (It previously said 180KB — ref 05's original figure, which was measured to
+ * be unreachable against a 129KB framework floor.)
  *
- * `Hero` selects the theme chassis internally (dark cover panel for Theme G,
- * the Coronal plate for Theme B) — the page never branches on theme.
+ * Both themes now share ONE hero chassis; the theme governs chrome only.
  */
 
 import type { Metadata } from "next";
@@ -45,7 +56,11 @@ export default function Home() {
 
       <SiteNav />
 
-      <main id="main" tabIndex={-1}>
+      {/* `data-page="home"` was D10's route marker for scroll snap. D22 removed
+          snap entirely (Razim rejected it on a live render), so nothing keys off
+          this today — it is kept because it costs nothing and leaves a clean
+          route hook for any future landing-only rule. */}
+      <main id="main" data-page="home" tabIndex={-1}>
         {/* D2 (Razim, 2026-08-08) moved the franchise-flag band INTO the hero's
             first viewport, so `Hero` now renders `<BrandsMarquee />` itself as a
             sibling landmark after `<section id="hero">`. The standalone

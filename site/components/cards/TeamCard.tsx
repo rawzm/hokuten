@@ -69,6 +69,47 @@
  * carry `""`. This file treats a falsy `email` as "no channel" and renders
  * nothing for that row — never `mailto:` with an empty address. Reported,
  * not fixed here (`lib/types.ts` is not an owned file).
+ *
+ * ── Design Revisit 2 (2026-08-10, D9/D13/D20) — landscape at `lg:`, spatial
+ *    only, nothing invented ──────────────────────────────────────────────
+ * `TeamSection` moved off `container-hk` (1200px cap) onto `stage-shell`
+ * (D9: full-width, fluid gutter, no max-width). Left unchanged, the OLD
+ * portrait-on-top card would have taken that width literally: a 3-up grid
+ * on a 2560px stage gives each column ~700–800px, and a full-bleed
+ * `aspect-[3/4]` image at that width renders a >1000px-tall headshot —
+ * grotesque, and it single-handedly blows the section past one usable
+ * screen at 1440×900 (ref: docs/DESIGN-REVISIT-2.md §5.6 acceptance, "each
+ * default/collapsed state fits one screen").
+ *
+ * The fix is the same one `Ticket.tsx` already proved for the deal grids
+ * (D13): flip to a landscape row at `lg:` — a FIXED-width portrait/glyph
+ * column (`lg:w-44`, 176px; not proportional, so it never grows with the
+ * stage) beside a fluid content column that absorbs 100% of the extra
+ * width. That fluid column is what actually answers the brief's "use the
+ * width for a credible role/contact hierarchy": more room for the bio to
+ * breathe at a locally-constrained prose measure (D9: "constrain prose
+ * locally," `max-w-[46ch]`, matching `DoorsSection`'s own body-copy
+ * convention) and for the contact row to lay email + phone side by side
+ * instead of wrapping. The portrait/glyph column's SIZE and CONTENT are
+ * untouched — same `PhotoFrame`/`GlyphPlate`, same aspect, same "never an
+ * avatar/initial-circle/illustrated face" contract — only its CSS box
+ * changes shape. Below `lg:` (mobile/tablet) the card is byte-identical to
+ * before: full-width image on top, content below.
+ *
+ * Mechanism, copied verbatim from `Ticket.tsx`'s own "Landscape image zone"
+ * note (same problem, same fix, this file has no reason to reinvent it):
+ * `aspect-ratio` only constrains a box when at least one of width/height is
+ * `auto`. So rather than fight the child's own `aspect-[3/4]` (baked into
+ * `PhotoFrame`'s frame div and into `GlyphPlate`'s own div — two different
+ * components this file does not want to teach a new prop), a wrapper here
+ * carries `lg:w-44 lg:shrink-0` (the fixed column) and reaches into
+ * `lg:[&>:first-child]:aspect-auto lg:[&>:first-child]:h-full
+ * lg:[&>:first-child]:w-full` — a descendant selector, so it works
+ * identically whichever of the two components is the wrapper's one child.
+ * `lg:h-full` on the wrapper itself gives that override a real height to
+ * fill: `article` is `lg:flex-row` with default `align-items: stretch`, so
+ * the wrapper's cross-axis size already stretches to the row's height (set
+ * by the taller content column) before the child fills it.
  */
 
 import { Mail } from "lucide-react";
@@ -141,26 +182,41 @@ export function TeamCard({ member, className }: TeamCardProps) {
         // this file doesn't compose `CardShell` (see file header). `ticket`
         // (D4, light borrow — see file header) supplies both the card
         // radius and the resting ink-tinted shadow, so `rounded-card` is not
-        // repeated separately.
+        // repeated separately. `lg:flex-row` is the Design Revisit 2
+        // landscape flip (see file header) — mobile/tablet stay the
+        // original column.
         "card-hit ticket flex h-full flex-col border border-hairline surface-card",
         "transition-colors duration-base ease-out hover:border-accent-text/40",
+        "lg:flex-row",
         className,
       )}
     >
-      {member.photo ? (
-        <div className="overflow-hidden rounded-none">
+      {/* Portrait/glyph column. Fixed `lg:w-44` — deliberately NOT
+          proportional to the card, so it never grows with the stage (see
+          file header). `lg:[&>:first-child]:…` overrides whichever single
+          child (`PhotoFrame`'s frame div or `GlyphPlate`'s own div) is
+          inside, exactly the mechanism `Ticket.tsx` already uses for its
+          own landscape image zone. */}
+      <div
+        className={cn(
+          "overflow-hidden rounded-none",
+          "lg:h-full lg:w-44 lg:shrink-0",
+          "lg:[&>:first-child]:aspect-auto lg:[&>:first-child]:h-full lg:[&>:first-child]:w-full",
+        )}
+      >
+        {member.photo ? (
           <PhotoFrame
             src={member.photo}
             alt={member.photoAlt ?? member.name}
             aspect="3/4"
-            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            sizes="(min-width: 1024px) 176px, (min-width: 768px) 50vw, 100vw"
           />
-        </div>
-      ) : (
-        <GlyphPlate />
-      )}
+        ) : (
+          <GlyphPlate />
+        )}
+      </div>
 
-      <div className="flex flex-1 flex-col p-6">
+      <div className="flex flex-1 flex-col p-6 lg:p-7">
         {/* D8: Fraunces steps 300 → 500 here — the name is this card's one
             firm moment, never 600+ (ref 03 type ramp). */}
         <h3 className="font-display font-medium text-heading text-fg">{member.name}</h3>
@@ -173,7 +229,12 @@ export function TeamCard({ member, className }: TeamCardProps) {
 
         {member.dre ? <p className="data-line text-fg-meta mt-1">{member.dre}</p> : null}
 
-        <p className="mt-4 text-body text-fg-muted">{member.bio}</p>
+        {/* D9: prose is constrained LOCALLY, not by the card's own width —
+            the fluid content column earned by the landscape flip should
+            widen the CARD's breathing room, not stretch the bio into a
+            180-character line. `max-w-[46ch]` matches `DoorsSection`'s own
+            body-copy measure. */}
+        <p className="mt-4 max-w-[46ch] text-body text-fg-muted">{member.bio}</p>
 
         {hasContact ? (
           <div className="mt-auto flex flex-wrap items-center gap-x-6 gap-y-3 pt-6">

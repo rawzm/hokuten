@@ -15,6 +15,31 @@
  * (Four Seasons, Auberge) the original wording didn't anticipate. Nothing
  * here asserts a relationship with any franchisor.
  *
+ * ═══ 2026-08-10 — D9/D11 (DESIGN REVISIT 2) — CHIP SIZE RAISED AGAIN,
+ * INDEPENDENTS_MARK RETIRED OUTRIGHT ═════════════════════════════════════════
+ * Razim's second-round screenshots (docs/DESIGN-REVISIT-2.md §1 request 1,
+ * §5.1 "Brand rail changes") showed the D2 chip row still reading small
+ * against the new full-viewport `stage-shell` composition, and asked
+ * explicitly for the "& independents" tail gone — not resized, removed. Two
+ * changes, layered on top of the D2 block immediately below (which is
+ * otherwise still current and is not re-litigated here):
+ *   1. Optical chip-height target raised again: ~64px wide desktop / 52–56px
+ *      tablet / 42–44px mobile as ONE fluid `clamp()`, up from D2's ~44–52px
+ *      desktop / 36px mobile two-breakpoint figure. The exact clamp lives in
+ *      `BrandsSection.tsx` (`CHIP_HEIGHT_CLASS`), not as a literal here; see
+ *      the "Rendering contract" bullet below for the summary figure. Skill
+ *      ref 01 carries the dated supersession note ("Chip size raised again,
+ *      and the '& INDEPENDENTS' tail removed").
+ *   2. `INDEPENDENTS_MARK` is DELETED, not deprecated — there is no export by
+ *      that name below anymore. The row ships ONLY the 15 supplied franchise
+ *      chips; there is no text-mark stand-in for an unlicensed catch-all
+ *      "everyone else" category. Do not reintroduce a closing tail item here
+ *      or in `BrandsSection.tsx`.
+ * The loop-rendering mechanism (how `Marquee` covers ultrawide screens
+ * without a visible seam) also changed this round — that is entirely
+ * `components/motion/Marquee.tsx`'s concern, not this content file's; nothing
+ * about it is recorded here.
+ *
  * ═══ 2026-08-08 — D2 SUPERSEDES THE TEXT-MARK DECISION BELOW ═══════════════
  * Razim supplied 16 real chips (3D glass-squircle renderings, `Ref/hotel-
  * brands/`, prep spec in docs/DESIGN-REVISIT.md §3.7) on 2026-08-08. Fifteen
@@ -82,13 +107,19 @@
  *     at reduced emphasis, with a leading asterisk — UI chrome the rendering
  *     component prepends, not a change to the frozen string itself. No longer
  *     a paragraph block.
- *   • Chips render at uniform optical height, IN COLOUR: ~44–52px desktop,
- *     ~36px mobile (dimensional 3D renderings carry more presence than flat
- *     marks, hence larger than the old 28px/22px text-mark rule). Build the
- *     `src` as `` `/logos/${flag.slug}.png` `` (an AVIF sibling may also
- *     exist per DESIGN-REVISIT §3.7 — prefer it via `<picture>` if present).
+ *   • Chips render at uniform optical height, IN COLOUR, on a fluid
+ *     `clamp()` — ~64px wide desktop, ~52–56px tablet, ~42–44px mobile
+ *     (raised again 2026-08-10, D9/D11 — see the dated block at the top of
+ *     this file; supersedes the D2 figure of ~44–52px desktop / ~36px
+ *     mobile). Build the `src` as `` `/logos/${flag.slug}.png` `` (an AVIF
+ *     sibling may also exist per DESIGN-REVISIT §3.7 — prefer it via
+ *     `<picture>` if present).
  *   • NO colorize-on-hover — the old grayscale→colour hover treatment is
  *     retired for this row because the chips are ALREADY in colour at rest.
+ *   • The row ends where the chips end — no closing "& independents" or any
+ *     other catch-all tail item. `INDEPENDENTS_MARK` is retired (D9/D11,
+ *     2026-08-10); there is nothing left in this file to render a fallback
+ *     for.
  *   • Never place this band adjacent to the Hokuten lockup.
  *   • Marquee a11y: duplicated content for the translateX loop, pause on hover
  *     AND focus, static row under reduced-motion, `aria-label`ed container.
@@ -158,17 +189,6 @@ export const FLAGS_AWAITING_CHIP = [
   { name: "Radisson" },
   { name: "Choice Hotels" },
 ] satisfies FranchiseFlag[];
-
-/**
- * The closing item in the marquee row (ref 04: "+ independents note";
- * PHASE-1-EXECUTION §4.3: 'an "& independents" text mark').
- *
- * Deliberately NOT a FranchiseFlag/BrandFlag: it is our own copy, not a
- * third-party mark, and must never pick up trademark or chip-image treatment.
- * Render it as the last item in the row, in text, at the same optical height
- * as the chips, so the band reads as coverage rather than a closed roster.
- */
-export const INDEPENDENTS_MARK = "& independents";
 
 /**
  * Byte-identical to content/compliance.ts. Re-exported so #brands has a single

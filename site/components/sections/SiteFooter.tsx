@@ -6,12 +6,51 @@
  * plan" section; the IA, states, motion and a11y sections still hold),
  * hokuten-design-director ref 04 ("Footer"), ref 01 ("Lockups & usage" /
  * "Compliance"), ref 05 (hanko press-in), ref 07 (P0: compliance disclosure,
- * KW mark placement), and docs/DESIGN-REVISIT.md §4.10 (D6 density pass —
- * "collapse the footer to a compact band").
+ * KW mark placement), docs/DESIGN-REVISIT.md §4.10 (D6 density pass —
+ * "collapse the footer to a compact band"), and docs/DESIGN-REVISIT-2.md
+ * D9/D10/§5.8 (screen 12 of 12 — see "DESIGN REVISIT 2" note below).
  *
  * Server Component. The only client boundary is `StampPressIn` (a leaf import,
  * not this file) — everything else here is static markup, so this file costs
  * nothing against the JS budget.
+ *
+ * ── DESIGN REVISIT 2 (2026-08-10) — screen 12 of 12, D9/D10/§5.8 ────────────
+ * The D6 density pass below (2026-08-09) compacted this footer's own internal
+ * rhythm; this pass changes the CHASSIS it sits in, not that internal rhythm —
+ * the two-block stack, the gap sizing, the tap targets and every string are
+ * untouched. Two changes:
+ *   1. `container-hk` (max-width 1200px) → `stage-shell` (D9): full-width,
+ *      fluid gutter, no cap — the brief's own diagnosis is that this footer
+ *      read as "a thin band after the last snap" specifically because its
+ *      three nav columns and brand cluster were fighting for space inside a
+ *      1200px column instead of the actual viewport. `stage-shell` gives the
+ *      SAME grid (`sm:grid-cols-3` for the link columns, unchanged) more room
+ *      to breathe — nothing about the grid shape changed, only its ceiling.
+ *   2. `<footer>` gains `page-panel` (D10) plus `lg:flex lg:flex-col
+ *      lg:justify-center`, so on a qualifying desktop this composes as the
+ *      twelfth screen and VERTICALLY CENTRES rather than sitting flush at
+ *      the top of a min-height box with dead space below (§5.8: "rather than
+ *      leaving a tiny band after the last snap"). `page-panel` is min-height
+ *      ONLY (same rule as every other panel — see BovSection.tsx's identical
+ *      note) and its own `@media (width >= 64rem)` gate means mobile is
+ *      completely unaffected: below `lg` this footer has no forced height at
+ *      all and returns to plain natural content flow (§5.8: "On mobile the
+ *      footer returns to natural content height"), exactly as it always has.
+ *
+ * The ticker-clearance mechanism below (`pb-[var(--ticker-h-mobile)]
+ * sm:pb-[var(--ticker-h)]`) is UNCHANGED by this pass — read, verified again
+ * against `TickerBar.tsx` for this round, and deliberately left alone rather
+ * than "optimized" against `page-panel`'s own `--screen-fit` math (which
+ * already subtracts `--ticker-h` once, so on the qualifying ≥1024px tier this
+ * padding is technically redundant with the panel's own reserved floor — it
+ * shaves a `--ticker-h` sliver off the centred content's usable height rather
+ * than off empty margin, which is a strictly safe direction to be wrong in).
+ * It stays load-bearing below `lg`, where `page-panel` sets no height at all
+ * and this footer's box is exactly its natural content height — the tier this
+ * P0 finding was written for, and the one an "optimize it away" edit would
+ * reopen. Preserved rather than re-derived, per this round's own instruction
+ * to read TickerBar.tsx before touching this spacing at all. See that file's
+ * header for the flow-spacer mechanics this reserve is keeping in step with.
  *
  * ── D6 compaction (2026-08-09) ──────────────────────────────────────────────
  * Rebuilt from a two-block stack (brand cluster → nav grid → KW mark → hairline
@@ -172,9 +211,18 @@ function DisclosureLine({ children, className }: { children: ReactNode; classNam
 
 export function SiteFooter() {
   return (
-    <footer className="surface-dark pb-[var(--ticker-h-mobile)] sm:pb-[var(--ticker-h)]">
-      <div className="container-hk section-pad-tight">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
+    <footer
+      className={cn(
+        "surface-dark page-panel pb-[var(--ticker-h-mobile)] sm:pb-[var(--ticker-h)]",
+        // D10: screen 12 of 12. Centres the composed footer inside its usable
+        // height on a qualifying desktop (§5.8) instead of sitting flush at
+        // the top with dead space below it. `page-panel`'s own media gate
+        // means this is a no-op below `lg` — mobile keeps natural flow.
+        "lg:flex lg:flex-col lg:justify-center",
+      )}
+    >
+      <div className="stage-shell section-pad-tight">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
           {/* Brand cluster — lockup (chipped) + hanko, small. The one KW-mark
               instance in this file (see file header, "KW-mark duplication"). */}
           <div className="flex shrink-0 items-center gap-3">

@@ -19,8 +19,8 @@
  * PART 2  CoStar badges. Trims only genuine flat-color letterbox padding
  *         (verified per-file below — most of these five have NONE, and this
  *         script does not invent a crop that would violate "never alter the
- *         aspect"), then emits 2x PNG+AVIF sized for a 40px CSS render
- *         height.
+ *         aspect"), then emits PNG+AVIF sized for each tier's render-height
+ *         ceiling (D12 below).
  * PART 3  A contact sheet, `_identity-sheet.jpg`, showing every prepared
  *         asset at its real (1x) CSS render height against the grounds it
  *         will actually sit on.
@@ -29,6 +29,28 @@
  * Ref/site masters, so re-running reproduces the same files (PNG bytes are
  * deterministic; AVIF encoding may vary by a handful of bytes across libvips
  * builds, which is fine — nothing here hashes the output).
+ *
+ * ── D12 (Razim, 2026-08-10, DESIGN REVISIT 2 §5.2) — badges grew, lockups did
+ * not ─────────────────────────────────────────────────────────────────────
+ * The five CoStar badges now render ONLY inside the Trust Metrics evidence
+ * wall (`StatsSection.tsx` + `QuarterlyBanners.tsx`), at roughly 90–112px
+ * (annual) / 64–84px (quarterly) CSS render height on wide desktop — up from
+ * a single flat 40px target everywhere. PART 2 below is the part of this
+ * script that changed. PART 1 (header lockups, D1) is untouched: this
+ * round's brief is explicit that the lockup derivatives "are correct and in
+ * use." The one shared helper both parts call, `renderAtHeight`, gained an
+ * optional `allowEnlargement` parameter — every existing PART 1 call site
+ * omits it, so it defaults to `true` and PART 1's resize call is
+ * `withoutEnlargement: false`, byte-for-byte the same argument this script
+ * always passed there. Only the new PART 2 call sites pass
+ * `allowEnlargement: false`, for a reason specific to badges: at the new,
+ * much taller render ceiling, a couple of the five source masters do not
+ * carry enough native resolution to supply a genuine 2x retina raster (see
+ * the per-badge sizing note below `BADGES`) — `withoutEnlargement: true`
+ * makes sharp cap the output at the master's own real resolution instead of
+ * upscaling (blurring) past it, which would otherwise silently violate the
+ * "never alter the artwork" badge-usage rule this file's header already
+ * commits to.
  */
 
 import fs from "node:fs";
@@ -57,6 +79,19 @@ const LOCKUP_RENDER_HEIGHT = 44;
  *  image optimizer downsamples from either at request time, so shipping 3x
  *  as the source of truth means a DPR-3 phone never upscales a soft 2x. */
 const LOCKUP_DENSITIES = [3, 2] as const;
+
+/**
+ * D26 (DESIGN-REVISIT-3.md, Razim, 2026-08-10) — the menu overlay's brand panel
+ * and Trust's identity anchor render the theme lockup centred at roughly
+ * 260–320px CSS height, "big enough the content inside the logo is visible."
+ * The header derivatives above are baked for a 44px render (132px raster at
+ * 3x) and visibly soften well before 320px. This is a SEPARATE, larger baked
+ * render from the same trimmed source — not another density step in
+ * `LOCKUP_DENSITIES` above, which stays scoped to the 44px nav render only.
+ * 320 CSS px x 2 = a 640px-tall raster: a genuine 2x retina asset at the top
+ * of the render band, never upscaled past what's baked. */
+const LOCKUP_XL_CSS_HEIGHT = 320;
+const LOCKUP_XL_DENSITY = 2;
 
 type LockupSpec = {
   /** Theme key — drives both the output filename and the contact sheet. */
@@ -109,15 +144,43 @@ const LOCKUPS: LockupSpec[] = [
   },
 ];
 
-/** CSS render height for a badge in its various placements (D3 §4.4). */
-const BADGE_RENDER_HEIGHT = 40;
+/**
+ * CSS render-height CEILING per badge tier (D12 §5.2: "annual badges may
+ * grow to roughly 90–112px rendered height on wide desktop; Quarterly
+ * badges roughly 64–84px"). The components render at a responsive
+ * `clamp()` that never exceeds these numbers, so baking the raster at the
+ * ceiling — not the floor — means no viewport ever asks the browser to
+ * upscale a served file past what it actually contains.
+ */
+const ANNUAL_RENDER_HEIGHT = 112;
+const QUARTERLY_RENDER_HEIGHT = 84;
+/** Retina target. `allowEnlargement: false` below caps this back to a
+ *  badge's real source ceiling on the two files that can't supply a true 2x
+ *  raster at the new heights — see the per-file sizing note under BADGES. */
 const BADGE_DENSITY = 2;
-const BADGE_MAX_BYTES = 60 * 1024;
+/**
+ * Two separate budgets, not one: the PNG is the negotiation SOURCE next/image
+ * resizes/re-encodes from at request time (per this file's existing "Sizing"
+ * comment on the two components) — a browser only ever downloads it directly
+ * as the last-resort fallback for the vanishingly few clients with no AVIF/
+ * WebP support. AVIF is what a normal modern browser actually fetches, so it
+ * carries the real perf budget; verified at these new D12 dimensions, the
+ * three quarterly PNGs land 98–150KB (natural for a 747×168 flat-color
+ * banner re-encoded at compressionLevel 9) while every AVIF sibling stays
+ * 7–16KB — confirm both numbers in this script's own console report before
+ * assuming either.
+ */
+const BADGE_PNG_MAX_BYTES = 160 * 1024;
+const BADGE_AVIF_MAX_BYTES = 24 * 1024;
 
 type BadgeSpec = {
   key: string;
   src: string;
   outBase: string;
+  /** D12: which evidence-tier clamp this badge renders at (StatsSection.tsx /
+   *  QuarterlyBanners.tsx) — annual (black/gold family) or quarterly (blue
+   *  family). Drives which of the two render-height ceilings above applies. */
+  tier: "annual" | "quarterly";
   /**
    * Explicit crop rect [left, top, width, height] in SOURCE pixels, for the
    * rare case where the file carries genuine flat-color letterbox padding
@@ -151,36 +214,55 @@ type BadgeSpec = {
  *                            bleeds to the true right edge (x=599). This is
  *                            export padding, not artwork. crop: [19,0,581,135].
  *   US_2025Annual_TopFirm.png    600x135  identical finding. crop: [19,0,581,135].
+ *
+ * D12 render-ceiling headroom, per file (this is what decides whether
+ * `allowEnlargement: false` actually caps anything below):
+ *   quarterly masters are the full 1200x270 source (crop: null) — at
+ *     QUARTERLY_RENDER_HEIGHT×BADGE_DENSITY = 84×2 = 168px target, 270px of
+ *     real source height clears it with room to spare. True 2x retina ships.
+ *   annual masters crop to 581x135 — HEIGHT IS UNCHANGED BY THE CROP (only
+ *     columns are trimmed), so 135px is the real ceiling. Target would be
+ *     ANNUAL_RENDER_HEIGHT×BADGE_DENSITY = 112×2 = 224px, which exceeds it —
+ *     `allowEnlargement: false` caps the shipped raster at the source's own
+ *     135px instead (≈1.2x of the 112px CSS ceiling, not a full 2x, but a
+ *     real ~1.7x resolution gain over this file's PREVIOUS 80px derivative,
+ *     with zero upscaling). Confirm the actual shipped height in this
+ *     script's own console report before assuming a number.
  */
 const BADGES: BadgeSpec[] = [
   {
     key: "powerbroker-q3-2025",
     src: path.join(refSiteDir, "powerbroker-q3-2025.png"),
     outBase: path.join(awardsDir, "powerbroker-q3-2025"),
+    tier: "quarterly",
     crop: null,
   },
   {
     key: "powerbroker-q1-2026",
     src: path.join(refSiteDir, "powerbroker-q1-2026.png"),
     outBase: path.join(awardsDir, "powerbroker-q1-2026"),
+    tier: "quarterly",
     crop: null,
   },
   {
     key: "powerbroker-q2-2026",
     src: path.join(refSiteDir, "powerbroker-q2-2026.png"),
     outBase: path.join(awardsDir, "powerbroker-q2-2026"),
+    tier: "quarterly",
     crop: null,
   },
   {
     key: "costar-top-broker-2025",
     src: path.join(refSiteDir, "US_2025Annual_TopBroker.png"),
     outBase: path.join(awardsDir, "costar-top-broker-2025"),
+    tier: "annual",
     crop: [19, 0, 581, 135],
   },
   {
     key: "costar-top-firm-2025",
     src: path.join(refSiteDir, "US_2025Annual_TopFirm.png"),
     outBase: path.join(awardsDir, "costar-top-firm-2025"),
+    tier: "annual",
     crop: [19, 0, 581, 135],
   },
 ];
@@ -227,14 +309,27 @@ async function trimToBoundingBox(
 
 /** Resize a source buffer to an exact CSS-height x density raster,
  *  preserving aspect (width is derived, never forced), then encode PNG +
- *  AVIF. Returns both encoded buffers and the final intrinsic dimensions. */
+ *  AVIF. Returns both encoded buffers and the final intrinsic dimensions.
+ *
+ *  `allowEnlargement` (D12): every PART 1 (lockup) call site omits this, so
+ *  it defaults to `true` and produces the exact `withoutEnlargement: false`
+ *  argument this function always passed — PART 1's output is unaffected byte-
+ *  for-byte. PART 2 (badges) passes `false` explicitly so a badge whose
+ *  source can't supply the requested density is capped at its own real
+ *  resolution rather than upscaled/blurred past it. */
 async function renderAtHeight(
   source: Buffer,
   cssHeight: number,
   density: number,
+  options: { allowEnlargement?: boolean } = {},
 ): Promise<{ png: Buffer; avif: Buffer; width: number; height: number }> {
+  const { allowEnlargement = true } = options;
   const targetHeight = Math.round(cssHeight * density);
-  const resized = sharp(source).resize({ height: targetHeight, fit: "inside", withoutEnlargement: false });
+  const resized = sharp(source).resize({
+    height: targetHeight,
+    fit: "inside",
+    withoutEnlargement: !allowEnlargement,
+  });
   const png = await resized.clone().png({ compressionLevel: 9 }).toBuffer();
   const meta = await sharp(png).metadata();
   const avif = await resized.clone().avif({ quality: 68, effort: 6 }).toBuffer();
@@ -247,10 +342,13 @@ type LockupResult = {
   trimmedHeight: number;
   aspect: number;
   renders: { density: number; width: number; height: number; pngBytes: number; avifBytes: number }[];
+  /** D26 — the large menu/Trust identity-anchor derivative (`lockup-<key>-xl.*`). */
+  xl: { width: number; height: number; pngBytes: number; avifBytes: number };
 };
 
 type BadgeResult = {
   key: string;
+  tier: "annual" | "quarterly";
   sourceWidth: number;
   sourceHeight: number;
   croppedWidth: number;
@@ -294,7 +392,33 @@ async function prepLockups(): Promise<LockupResult[]> {
       renders.push({ density, width, height, pngBytes: bytes(pngPath), avifBytes: bytes(avifPath) });
     }
 
-    results.push({ key: spec.key, trimmedWidth: trimmed.width, trimmedHeight: trimmed.height, aspect, renders });
+    // D26 — the XL menu/Trust identity-anchor derivative. Same trimmed
+    // source, same treatment, just a taller bake — see LOCKUP_XL_CSS_HEIGHT.
+    const xlRender = await renderAtHeight(trimmed.buffer, LOCKUP_XL_CSS_HEIGHT, LOCKUP_XL_DENSITY);
+    const xlPngPath = `${spec.outBase}-xl.png`;
+    const xlAvifPath = `${spec.outBase}-xl.avif`;
+    fs.writeFileSync(xlPngPath, xlRender.png);
+    fs.writeFileSync(xlAvifPath, xlRender.avif);
+    console.log(
+      `  ${path.relative(siteRoot, xlPngPath).padEnd(34)} ${xlRender.width}x${xlRender.height}  (${fmtKB(bytes(xlPngPath))})`,
+    );
+    console.log(
+      `  ${path.relative(siteRoot, xlAvifPath).padEnd(34)} ${xlRender.width}x${xlRender.height}  (${fmtKB(bytes(xlAvifPath))})`,
+    );
+
+    results.push({
+      key: spec.key,
+      trimmedWidth: trimmed.width,
+      trimmedHeight: trimmed.height,
+      aspect,
+      renders,
+      xl: {
+        width: xlRender.width,
+        height: xlRender.height,
+        pngBytes: bytes(xlPngPath),
+        avifBytes: bytes(xlAvifPath),
+      },
+    });
   }
 
   return results;
@@ -327,7 +451,10 @@ async function prepBadges(): Promise<BadgeResult[]> {
     }
     const workingBuffer = await working.png().toBuffer();
 
-    const { png, avif, width, height } = await renderAtHeight(workingBuffer, BADGE_RENDER_HEIGHT, BADGE_DENSITY);
+    const targetHeight = spec.tier === "annual" ? ANNUAL_RENDER_HEIGHT : QUARTERLY_RENDER_HEIGHT;
+    const { png, avif, width, height } = await renderAtHeight(workingBuffer, targetHeight, BADGE_DENSITY, {
+      allowEnlargement: false,
+    });
     const pngPath = `${spec.outBase}.png`;
     const avifPath = `${spec.outBase}.avif`;
     fs.writeFileSync(pngPath, png);
@@ -335,17 +462,20 @@ async function prepBadges(): Promise<BadgeResult[]> {
 
     const pngBytes = bytes(pngPath);
     const avifBytes = bytes(avifPath);
-    const overBudget = pngBytes > BADGE_MAX_BYTES || avifBytes > BADGE_MAX_BYTES;
+    const pngOver = pngBytes > BADGE_PNG_MAX_BYTES;
+    const avifOver = avifBytes > BADGE_AVIF_MAX_BYTES;
+    const overBudget = pngOver || avifOver;
 
     console.log(
-      `  ${path.relative(siteRoot, pngPath).padEnd(38)} ${width}x${height}  (${fmtKB(pngBytes)})${overBudget && pngBytes > BADGE_MAX_BYTES ? "  OVER 60KB BUDGET" : ""}`,
+      `  ${path.relative(siteRoot, pngPath).padEnd(38)} ${width}x${height}  (${fmtKB(pngBytes)})${pngOver ? `  OVER ${Math.round(BADGE_PNG_MAX_BYTES / 1024)}KB PNG BUDGET` : ""}`,
     );
     console.log(
-      `  ${path.relative(siteRoot, avifPath).padEnd(38)} ${width}x${height}  (${fmtKB(avifBytes)})${overBudget && avifBytes > BADGE_MAX_BYTES ? "  OVER 60KB BUDGET" : ""}`,
+      `  ${path.relative(siteRoot, avifPath).padEnd(38)} ${width}x${height}  (${fmtKB(avifBytes)})${avifOver ? `  OVER ${Math.round(BADGE_AVIF_MAX_BYTES / 1024)}KB AVIF BUDGET` : ""}`,
     );
 
     results.push({
       key: spec.key,
+      tier: spec.tier,
       sourceWidth,
       sourceHeight,
       croppedWidth,
@@ -398,8 +528,19 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
       working = working.extract({ left, top, width, height });
     }
     const buf = await working.png().toBuffer();
-    const { png, width, height } = await renderAtHeight(buf, BADGE_RENDER_HEIGHT, 1);
+    const targetHeight = spec.tier === "annual" ? ANNUAL_RENDER_HEIGHT : QUARTERLY_RENDER_HEIGHT;
+    const { png, width, height } = await renderAtHeight(buf, targetHeight, 1, { allowEnlargement: false });
     badgeOnes.push({ key: spec.key, png, width, height });
+  }
+
+  // D26 — the XL lockup derivatives, re-rendered here at their literal 1x /
+  // 320px CSS height for the sheet, same "no DPR scaling" convention as the
+  // two 44px lockup panels above.
+  const lockupXlOnes: { key: string; png: Buffer; width: number; height: number }[] = [];
+  for (const spec of LOCKUPS) {
+    const trimmed = await trimToBoundingBox(spec.src, spec.trimBackground, spec.trimThreshold);
+    const { png, width, height } = await renderAtHeight(trimmed.buffer, LOCKUP_XL_CSS_HEIGHT, 1);
+    lockupXlOnes.push({ key: spec.key, png, width, height });
   }
 
   const panelLabelH = 44;
@@ -426,6 +567,7 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
 
   const lockupCaptions = lockupOnes.map((l) => `lockup-${l.key}  ${l.width}x${l.height}px`);
   const badgeCaptions = badgeOnes.map((b) => `${b.key}  ${b.width}x${b.height}px`);
+  const lockupXlCaptions = lockupXlOnes.map((l) => `lockup-${l.key}-xl  ${l.width}x${l.height}px`);
   const lockupLayout = layoutRow(
     lockupOnes.map((l, i) => ({ width: l.width, caption: lockupCaptions[i] })),
     16,
@@ -434,17 +576,23 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
     badgeOnes.map((b, i) => ({ width: b.width, caption: badgeCaptions[i] })),
     14,
   );
+  const lockupXlLayout = layoutRow(
+    lockupXlOnes.map((l, i) => ({ width: l.width, caption: lockupXlCaptions[i] })),
+    16,
+  );
 
-  const sheetWidth = Math.max(SHEET_MIN_WIDTH, lockupLayout.rowWidth, badgeLayout.rowWidth);
+  const sheetWidth = Math.max(SHEET_MIN_WIDTH, lockupLayout.rowWidth, badgeLayout.rowWidth, lockupXlLayout.rowWidth);
 
   const lockupRowH = Math.max(...lockupOnes.map((l) => l.height)) + captionH;
   const badgeRowH = Math.max(...badgeOnes.map((b) => b.height)) + captionH;
+  const lockupXlRowH = Math.max(...lockupXlOnes.map((l) => l.height)) + captionH;
 
   const panel1H = SHEET_PAD * 2 + panelLabelH + lockupRowH;
   const panel2H = panel1H;
   const panel3H = SHEET_PAD * 2 + panelLabelH + badgeRowH;
+  const panel4H = SHEET_PAD * 2 + panelLabelH + lockupXlRowH;
 
-  const totalH = panel1H + panel2H + panel3H;
+  const totalH = panel1H + panel2H + panel3H + panel4H;
 
   const composites: { input: Buffer; left: number; top: number }[] = [];
   let y = 0;
@@ -491,7 +639,13 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
   y += panel2H;
 
   // Panel 3 — badges row.
-  await panel(SHEET_SWATCH_GROUND, "AWARD BADGES  ·  real 40px CSS render height (1x)", "#1A1C1F", panel3H, y);
+  await panel(
+    SHEET_SWATCH_GROUND,
+    `AWARD BADGES  ·  D12 tier ceilings, 1x — annual ${ANNUAL_RENDER_HEIGHT}px / quarterly ${QUARTERLY_RENDER_HEIGHT}px`,
+    "#1A1C1F",
+    panel3H,
+    y,
+  );
   {
     const rowY = y + SHEET_PAD + panelLabelH;
     badgeOnes.forEach((b, i) => {
@@ -500,6 +654,30 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
         input: labelSvg(badgeCaptions[i], 400, "#4A4A46", 14),
         left: badgeLayout.x[i],
         top: rowY + b.height + 4,
+      });
+    });
+  }
+  y += panel3H;
+
+  // Panel 4 — D26 XL lockup derivatives, light ground (the menu brand panel
+  // and Trust's identity anchor both sit on a paper/theme-surface ground —
+  // see MenuOverlay's own header for the surface choice), real 320px CSS
+  // height (1x), no DPR scaling.
+  await panel(
+    SHEET_LIGHT_GROUND,
+    `XL LOCKUP (D26 menu/Trust identity anchor) — real ${LOCKUP_XL_CSS_HEIGHT}px CSS height (1x)`,
+    "#1A1C1F",
+    panel4H,
+    y,
+  );
+  {
+    const rowY = y + SHEET_PAD + panelLabelH;
+    lockupXlOnes.forEach((l, i) => {
+      composites.push({ input: l.png, left: lockupXlLayout.x[i], top: rowY });
+      composites.push({
+        input: labelSvg(lockupXlCaptions[i], 400, "#4A4A46", 16),
+        left: lockupXlLayout.x[i],
+        top: rowY + l.height + 4,
       });
     });
   }
@@ -556,14 +734,18 @@ async function main(): Promise<void> {
 
   console.log("\n── summary ──────────────────────────────────────────────────────────────");
   for (const l of lockups) {
-    const render44 = l.renders.find((r) => r.density === 1) ?? l.renders[l.renders.length - 1];
     console.log(
       `  lockup-${l.key}: trimmed ${l.trimmedWidth}x${l.trimmedHeight}  aspect ${l.aspect.toFixed(4)}  → at 44px CSS height, width ≈ ${Math.round(44 * l.aspect)}px`,
     );
+    console.log(
+      `  lockup-${l.key}-xl: ${l.xl.width}x${l.xl.height} (D26, ~${LOCKUP_XL_CSS_HEIGHT}px CSS height x${LOCKUP_XL_DENSITY})  png=${fmtKB(l.xl.pngBytes)} avif=${fmtKB(l.xl.avifBytes)}`,
+    );
   }
   for (const b of badges) {
+    const ceiling = b.tier === "annual" ? ANNUAL_RENDER_HEIGHT : QUARTERLY_RENDER_HEIGHT;
+    const achievedDensity = (b.height / ceiling).toFixed(2);
     console.log(
-      `  ${b.key}: source ${b.sourceWidth}x${b.sourceHeight} → cropped ${b.croppedWidth}x${b.croppedHeight} → shipped ${b.width}x${b.height} (2x/${BADGE_RENDER_HEIGHT}px)  png=${fmtKB(b.pngBytes)} avif=${fmtKB(b.avifBytes)}${b.overBudget ? "  ** OVER BUDGET **" : ""}`,
+      `  ${b.key} [${b.tier}]: source ${b.sourceWidth}x${b.sourceHeight} → cropped ${b.croppedWidth}x${b.croppedHeight} → shipped ${b.width}x${b.height} (target ceiling ${ceiling}px CSS × ${BADGE_DENSITY} → achieved ${achievedDensity}x density)  png=${fmtKB(b.pngBytes)} avif=${fmtKB(b.avifBytes)}${b.overBudget ? "  ** OVER BUDGET **" : ""}`,
     );
   }
 }

@@ -1,0 +1,1168 @@
+{
+  "generatedAt": "2026-08-11T00:16:09.114Z",
+  "budgets": {
+    "slide1LargestAvifKB": 350,
+    "defaultKB": 250
+  },
+  "refHeroExists": true,
+  "tripletsDiscovered": [
+    "01-marriott",
+    "02-luxury",
+    "03-resort"
+  ],
+  "slides": [
+    {
+      "id": "marriott",
+      "order": 1,
+      "theme": "both",
+      "isInterim": false,
+      "status": "approved",
+      "breakpoints": [
+        {
+          "breakpoint": "desktop",
+          "source": "triplet",
+          "sourceDescription": "Ref/hero/01-marriott.desktop.jpg",
+          "cropMode": "centre",
+          "requestedWidths": [
+            640,
+            1024,
+            1440,
+            1920,
+            2400,
+            3200
+          ],
+          "generatedWidths": [
+            640,
+            1024,
+            1440
+          ],
+          "skippedWidths": [
+            {
+              "width": 1920,
+              "shortfallPx": 384
+            },
+            {
+              "width": 2400,
+              "shortfallPx": 864
+            },
+            {
+              "width": 3200,
+              "shortfallPx": 1664
+            }
+          ],
+          "maxWidthForCrop": 1536,
+          "belowSpecMinimum": true,
+          "belowSpecIdeal": true
+        },
+        {
+          "breakpoint": "tablet",
+          "source": "triplet",
+          "sourceDescription": "Ref/hero/01-marriott.tablet.jpg",
+          "cropMode": "centre",
+          "requestedWidths": [
+            768,
+            1024,
+            1600,
+            2048
+          ],
+          "generatedWidths": [
+            768,
+            1024
+          ],
+          "skippedWidths": [
+            {
+              "width": 1600,
+              "shortfallPx": 64
+            },
+            {
+              "width": 2048,
+              "shortfallPx": 512
+            }
+          ],
+          "maxWidthForCrop": 1536,
+          "belowSpecMinimum": true,
+          "belowSpecIdeal": true
+        },
+        {
+          "breakpoint": "mobile",
+          "source": "triplet",
+          "sourceDescription": "Ref/hero/01-marriott.mobile.jpg",
+          "cropMode": "centre",
+          "requestedWidths": [
+            480,
+            750,
+            1050,
+            1200,
+            1600
+          ],
+          "generatedWidths": [
+            480,
+            750,
+            1050,
+            1200
+          ],
+          "skippedWidths": [
+            {
+              "width": 1600,
+              "shortfallPx": 235
+            }
+          ],
+          "maxWidthForCrop": 1365,
+          "belowSpecMinimum": false,
+          "belowSpecIdeal": true
+        }
+      ]
+    },
+    {
+      "id": "luxury",
+      "order": 2,
+      "theme": "both",
+      "isInterim": false,
+      "status": "approved",
+      "breakpoints": [
+        {
+          "breakpoint": "desktop",
+          "source": "triplet",
+          "sourceDescription": "Ref/hero/02-luxury.desktop.jpg",
+          "cropMode": "centre",
+          "requestedWidths": [
+            640,
+            1024,
+            1440,
+            1920,
+            2400,
+            3200
+          ],
+          "generatedWidths": [
+            640,
+            1024,
+            1440
+          ],
+          "skippedWidths": [
+            {
+              "width": 1920,
+              "shortfallPx": 248
+            },
+            {
+              "width": 2400,
+              "shortfallPx": 728
+            },
+            {
+              "width": 3200,
+              "shortfallPx": 1528
+            }
+          ],
+          "maxWidthForCrop": 1672,
+          "belowSpecMinimum": true,
+          "belowSpecIdeal": true
+        },
+        {
+          "breakpoint": "tablet",
+          "source": "triplet",
+          "sourceDescription": "Ref/hero/02-luxury.tablet.jpg",
+          "cropMode": "centre",
+          "requestedWidths": [
+            768,
+            1024,
+            1600,
+            2048
+          ],
+          "generatedWidths": [
+            768,
+            1024,
+            1600
+          ],
+          "skippedWidths": [
+            {
+              "width": 2048,
+              "shortfallPx": 376
+            }
+          ],
+          "maxWidthForCrop": 1672,
+          "belowSpecMinimum": false,
+          "belowSpecIdeal": true
+        },
+        {
+          "breakpoint": "mobile",
+          "source": "triplet",
+          "sourceDescription": "Ref/hero/02-luxury.mobile.jpg",
+          "cropMode": "centre",
+          "requestedWidths": [
+            480,
+            750,
+            1050,
+            1200,
+            1600
+          ],
+          "generatedWidths": [
+            480,
+            750,
+            1050,
+            1200
+          ],
+          "skippedWidths": [
+            {
+              "width": 1600,
+              "shortfallPx": 346
+            }
+          ],
+          "maxWidthForCrop": 1254,
+          "belowSpecMinimum": false,
+          "belowSpecIdeal": true
+        }
+      ]
+    },
+    {
+      "id": "resort",
+      "order": 3,
+      "theme": "both",
+      "isInterim": false,
+      "status": "approved",
+      "breakpoints": [
+        {
+          "breakpoint": "desktop",
+          "source": "triplet",
+          "sourceDescription": "Ref/hero/03-resort.desktop.jpg",
+          "cropMode": "centre",
+          "requestedWidths": [
+            640,
+            1024,
+            1440,
+            1920,
+            2400,
+            3200
+          ],
+          "generatedWidths": [
+            640,
+            1024,
+            1440
+          ],
+          "skippedWidths": [
+            {
+              "width": 1920,
+              "shortfallPx": 248
+            },
+            {
+              "width": 2400,
+              "shortfallPx": 728
+            },
+            {
+              "width": 3200,
+              "shortfallPx": 1528
+            }
+          ],
+          "maxWidthForCrop": 1672,
+          "belowSpecMinimum": true,
+          "belowSpecIdeal": true
+        },
+        {
+          "breakpoint": "tablet",
+          "source": "triplet",
+          "sourceDescription": "Ref/hero/03-resort.tablet.jpg",
+          "cropMode": "centre",
+          "requestedWidths": [
+            768,
+            1024,
+            1600,
+            2048
+          ],
+          "generatedWidths": [
+            768,
+            1024,
+            1600
+          ],
+          "skippedWidths": [
+            {
+              "width": 2048,
+              "shortfallPx": 376
+            }
+          ],
+          "maxWidthForCrop": 1672,
+          "belowSpecMinimum": false,
+          "belowSpecIdeal": true
+        },
+        {
+          "breakpoint": "mobile",
+          "source": "triplet",
+          "sourceDescription": "Ref/hero/03-resort.mobile.jpg",
+          "cropMode": "centre",
+          "requestedWidths": [
+            480,
+            750,
+            1050,
+            1200,
+            1600
+          ],
+          "generatedWidths": [
+            480,
+            750,
+            1050,
+            1200
+          ],
+          "skippedWidths": [
+            {
+              "width": 1600,
+              "shortfallPx": 346
+            }
+          ],
+          "maxWidthForCrop": 1254,
+          "belowSpecMinimum": false,
+          "belowSpecIdeal": true
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "slideId": "marriott",
+      "breakpoint": "desktop",
+      "width": 640,
+      "height": 160,
+      "format": "avif",
+      "path": "public/hero/marriott-desktop-640.avif",
+      "bytes": 34493,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "desktop",
+      "width": 640,
+      "height": 160,
+      "format": "webp",
+      "path": "public/hero/marriott-desktop-640.webp",
+      "bytes": 48362,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "desktop",
+      "width": 1024,
+      "height": 256,
+      "format": "avif",
+      "path": "public/hero/marriott-desktop-1024.avif",
+      "bytes": 93300,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "desktop",
+      "width": 1024,
+      "height": 256,
+      "format": "webp",
+      "path": "public/hero/marriott-desktop-1024.webp",
+      "bytes": 140564,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "desktop",
+      "width": 1440,
+      "height": 360,
+      "format": "avif",
+      "path": "public/hero/marriott-desktop-1440.avif",
+      "bytes": 163139,
+      "quality": 62,
+      "budgetKB": 350,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "desktop",
+      "width": 1440,
+      "height": 360,
+      "format": "webp",
+      "path": "public/hero/marriott-desktop-1440.webp",
+      "bytes": 241218,
+      "quality": 70,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "desktop",
+      "width": 1440,
+      "height": 360,
+      "format": "jpg",
+      "path": "public/hero/marriott-desktop-1440.jpg",
+      "bytes": 227394,
+      "quality": 66,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "tablet",
+      "width": 768,
+      "height": 336,
+      "format": "avif",
+      "path": "public/hero/marriott-tablet-768.avif",
+      "bytes": 92206,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "tablet",
+      "width": 768,
+      "height": 336,
+      "format": "webp",
+      "path": "public/hero/marriott-tablet-768.webp",
+      "bytes": 130180,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "tablet",
+      "width": 1024,
+      "height": 448,
+      "format": "avif",
+      "path": "public/hero/marriott-tablet-1024.avif",
+      "bytes": 166285,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "tablet",
+      "width": 1024,
+      "height": 448,
+      "format": "webp",
+      "path": "public/hero/marriott-tablet-1024.webp",
+      "bytes": 243760,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "tablet",
+      "width": 1024,
+      "height": 448,
+      "format": "jpg",
+      "path": "public/hero/marriott-tablet-1024.jpg",
+      "bytes": 240704,
+      "quality": 74,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "mobile",
+      "width": 480,
+      "height": 360,
+      "format": "avif",
+      "path": "public/hero/marriott-mobile-480.avif",
+      "bytes": 53623,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "mobile",
+      "width": 480,
+      "height": 360,
+      "format": "webp",
+      "path": "public/hero/marriott-mobile-480.webp",
+      "bytes": 78424,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "mobile",
+      "width": 750,
+      "height": 563,
+      "format": "avif",
+      "path": "public/hero/marriott-mobile-750.avif",
+      "bytes": 151759,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "mobile",
+      "width": 750,
+      "height": 563,
+      "format": "webp",
+      "path": "public/hero/marriott-mobile-750.webp",
+      "bytes": 221530,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "mobile",
+      "width": 1050,
+      "height": 788,
+      "format": "avif",
+      "path": "public/hero/marriott-mobile-1050.avif",
+      "bytes": 248465,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "mobile",
+      "width": 1050,
+      "height": 788,
+      "format": "webp",
+      "path": "public/hero/marriott-mobile-1050.webp",
+      "bytes": 294134,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 900,
+      "format": "avif",
+      "path": "public/hero/marriott-mobile-1200.avif",
+      "bytes": 253913,
+      "quality": 50,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 900,
+      "format": "webp",
+      "path": "public/hero/marriott-mobile-1200.webp",
+      "bytes": 371664,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "slideId": "marriott",
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 900,
+      "format": "jpg",
+      "path": "public/hero/marriott-mobile-1200.jpg",
+      "bytes": 293730,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "desktop",
+      "width": 640,
+      "height": 160,
+      "format": "avif",
+      "path": "public/hero/luxury-desktop-640.avif",
+      "bytes": 33300,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "desktop",
+      "width": 640,
+      "height": 160,
+      "format": "webp",
+      "path": "public/hero/luxury-desktop-640.webp",
+      "bytes": 43456,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "desktop",
+      "width": 1024,
+      "height": 256,
+      "format": "avif",
+      "path": "public/hero/luxury-desktop-1024.avif",
+      "bytes": 90886,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "desktop",
+      "width": 1024,
+      "height": 256,
+      "format": "webp",
+      "path": "public/hero/luxury-desktop-1024.webp",
+      "bytes": 124954,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "desktop",
+      "width": 1440,
+      "height": 360,
+      "format": "avif",
+      "path": "public/hero/luxury-desktop-1440.avif",
+      "bytes": 152275,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "desktop",
+      "width": 1440,
+      "height": 360,
+      "format": "webp",
+      "path": "public/hero/luxury-desktop-1440.webp",
+      "bytes": 239238,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "desktop",
+      "width": 1440,
+      "height": 360,
+      "format": "jpg",
+      "path": "public/hero/luxury-desktop-1440.jpg",
+      "bytes": 228260,
+      "quality": 74,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "tablet",
+      "width": 768,
+      "height": 336,
+      "format": "avif",
+      "path": "public/hero/luxury-tablet-768.avif",
+      "bytes": 85098,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "tablet",
+      "width": 768,
+      "height": 336,
+      "format": "webp",
+      "path": "public/hero/luxury-tablet-768.webp",
+      "bytes": 116732,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "tablet",
+      "width": 1024,
+      "height": 448,
+      "format": "avif",
+      "path": "public/hero/luxury-tablet-1024.avif",
+      "bytes": 155465,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "tablet",
+      "width": 1024,
+      "height": 448,
+      "format": "webp",
+      "path": "public/hero/luxury-tablet-1024.webp",
+      "bytes": 217906,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "tablet",
+      "width": 1600,
+      "height": 700,
+      "format": "avif",
+      "path": "public/hero/luxury-tablet-1600.avif",
+      "bytes": 250938,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "tablet",
+      "width": 1600,
+      "height": 700,
+      "format": "webp",
+      "path": "public/hero/luxury-tablet-1600.webp",
+      "bytes": 307818,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "tablet",
+      "width": 1600,
+      "height": 700,
+      "format": "jpg",
+      "path": "public/hero/luxury-tablet-1600.jpg",
+      "bytes": 248135,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "mobile",
+      "width": 480,
+      "height": 360,
+      "format": "avif",
+      "path": "public/hero/luxury-mobile-480.avif",
+      "bytes": 54992,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "mobile",
+      "width": 480,
+      "height": 360,
+      "format": "webp",
+      "path": "public/hero/luxury-mobile-480.webp",
+      "bytes": 73334,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "mobile",
+      "width": 750,
+      "height": 563,
+      "format": "avif",
+      "path": "public/hero/luxury-mobile-750.avif",
+      "bytes": 139889,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "mobile",
+      "width": 750,
+      "height": 563,
+      "format": "webp",
+      "path": "public/hero/luxury-mobile-750.webp",
+      "bytes": 200196,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "mobile",
+      "width": 1050,
+      "height": 788,
+      "format": "avif",
+      "path": "public/hero/luxury-mobile-1050.avif",
+      "bytes": 240825,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "mobile",
+      "width": 1050,
+      "height": 788,
+      "format": "webp",
+      "path": "public/hero/luxury-mobile-1050.webp",
+      "bytes": 252332,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 900,
+      "format": "avif",
+      "path": "public/hero/luxury-mobile-1200.avif",
+      "bytes": 238925,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 900,
+      "format": "webp",
+      "path": "public/hero/luxury-mobile-1200.webp",
+      "bytes": 293632,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "slideId": "luxury",
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 900,
+      "format": "jpg",
+      "path": "public/hero/luxury-mobile-1200.jpg",
+      "bytes": 255664,
+      "quality": 42,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "desktop",
+      "width": 640,
+      "height": 160,
+      "format": "avif",
+      "path": "public/hero/resort-desktop-640.avif",
+      "bytes": 35866,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "desktop",
+      "width": 640,
+      "height": 160,
+      "format": "webp",
+      "path": "public/hero/resort-desktop-640.webp",
+      "bytes": 45276,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "desktop",
+      "width": 1024,
+      "height": 256,
+      "format": "avif",
+      "path": "public/hero/resort-desktop-1024.avif",
+      "bytes": 101026,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "desktop",
+      "width": 1024,
+      "height": 256,
+      "format": "webp",
+      "path": "public/hero/resort-desktop-1024.webp",
+      "bytes": 135390,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "desktop",
+      "width": 1440,
+      "height": 360,
+      "format": "avif",
+      "path": "public/hero/resort-desktop-1440.avif",
+      "bytes": 174068,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "desktop",
+      "width": 1440,
+      "height": 360,
+      "format": "webp",
+      "path": "public/hero/resort-desktop-1440.webp",
+      "bytes": 244536,
+      "quality": 70,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "desktop",
+      "width": 1440,
+      "height": 360,
+      "format": "jpg",
+      "path": "public/hero/resort-desktop-1440.jpg",
+      "bytes": 221875,
+      "quality": 66,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "tablet",
+      "width": 768,
+      "height": 336,
+      "format": "avif",
+      "path": "public/hero/resort-tablet-768.avif",
+      "bytes": 92094,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "tablet",
+      "width": 768,
+      "height": 336,
+      "format": "webp",
+      "path": "public/hero/resort-tablet-768.webp",
+      "bytes": 122106,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "tablet",
+      "width": 1024,
+      "height": 448,
+      "format": "avif",
+      "path": "public/hero/resort-tablet-1024.avif",
+      "bytes": 171186,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "tablet",
+      "width": 1024,
+      "height": 448,
+      "format": "webp",
+      "path": "public/hero/resort-tablet-1024.webp",
+      "bytes": 235150,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "tablet",
+      "width": 1600,
+      "height": 700,
+      "format": "avif",
+      "path": "public/hero/resort-tablet-1600.avif",
+      "bytes": 238506,
+      "quality": 50,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "tablet",
+      "width": 1600,
+      "height": 700,
+      "format": "webp",
+      "path": "public/hero/resort-tablet-1600.webp",
+      "bytes": 372170,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "tablet",
+      "width": 1600,
+      "height": 700,
+      "format": "jpg",
+      "path": "public/hero/resort-tablet-1600.jpg",
+      "bytes": 292726,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "mobile",
+      "width": 480,
+      "height": 360,
+      "format": "avif",
+      "path": "public/hero/resort-mobile-480.avif",
+      "bytes": 57451,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "mobile",
+      "width": 480,
+      "height": 360,
+      "format": "webp",
+      "path": "public/hero/resort-mobile-480.webp",
+      "bytes": 74706,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "mobile",
+      "width": 750,
+      "height": 563,
+      "format": "avif",
+      "path": "public/hero/resort-mobile-750.avif",
+      "bytes": 152986,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "mobile",
+      "width": 750,
+      "height": 563,
+      "format": "webp",
+      "path": "public/hero/resort-mobile-750.webp",
+      "bytes": 216860,
+      "quality": 78,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "mobile",
+      "width": 1050,
+      "height": 788,
+      "format": "avif",
+      "path": "public/hero/resort-mobile-1050.avif",
+      "bytes": 226347,
+      "quality": 56,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "mobile",
+      "width": 1050,
+      "height": 788,
+      "format": "webp",
+      "path": "public/hero/resort-mobile-1050.webp",
+      "bytes": 286222,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 900,
+      "format": "avif",
+      "path": "public/hero/resort-mobile-1200.avif",
+      "bytes": 225589,
+      "quality": 50,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 900,
+      "format": "webp",
+      "path": "public/hero/resort-mobile-1200.webp",
+      "bytes": 359934,
+      "quality": 34,
+      "budgetKB": 250,
+      "overBudget": true
+    },
+    {
+      "slideId": "resort",
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 900,
+      "format": "jpg",
+      "path": "public/hero/resort-mobile-1200.jpg",
+      "bytes": 289054,
+      "quality": 38,
+      "budgetKB": 250,
+      "overBudget": true
+    }
+  ],
+  "largest": {
+    "marriott:desktop": {
+      "width": 1440,
+      "height": 360,
+      "path": "public/hero/marriott-desktop-1440.avif"
+    },
+    "marriott:tablet": {
+      "width": 1024,
+      "height": 448,
+      "path": "public/hero/marriott-tablet-1024.avif"
+    },
+    "marriott:mobile": {
+      "width": 1200,
+      "height": 900,
+      "path": "public/hero/marriott-mobile-1200.avif"
+    },
+    "luxury:desktop": {
+      "width": 1440,
+      "height": 360,
+      "path": "public/hero/luxury-desktop-1440.avif"
+    },
+    "luxury:tablet": {
+      "width": 1600,
+      "height": 700,
+      "path": "public/hero/luxury-tablet-1600.avif"
+    },
+    "luxury:mobile": {
+      "width": 1200,
+      "height": 900,
+      "path": "public/hero/luxury-mobile-1200.avif"
+    },
+    "resort:desktop": {
+      "width": 1440,
+      "height": 360,
+      "path": "public/hero/resort-desktop-1440.avif"
+    },
+    "resort:tablet": {
+      "width": 1600,
+      "height": 700,
+      "path": "public/hero/resort-tablet-1600.avif"
+    },
+    "resort:mobile": {
+      "width": 1200,
+      "height": 900,
+      "path": "public/hero/resort-mobile-1200.avif"
+    }
+  }
+}

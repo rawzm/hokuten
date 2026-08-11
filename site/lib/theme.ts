@@ -64,6 +64,16 @@ export const THEME_PRESENTATION = {
      */
     lockup: "/brand/lockup-gold.png",
 
+    /**
+     * D26 (Razim, 2026-08-10): the menu overlay shows the lockup CENTRED and
+     * LARGE — "big enough the content inside the logo is visible" — and Trust
+     * uses it as an editorial identity anchor. `lockup` above is prepared for a
+     * 44px nav render (132px tall) and visibly softens past ~150px, so those
+     * two placements read this ~640px derivative instead. Same master, same
+     * trim; only the output size differs.
+     */
+    lockupXl: "/brand/lockup-gold-xl.png",
+
     /** D5: which artwork.ts placement the hero band resolves. */
     heroArtPlacement: "hero.gold",
 
@@ -85,6 +95,8 @@ export const THEME_PRESENTATION = {
     artPalette: "blue",
     heroSurface: "surface-paper",
     lockup: "/brand/lockup-blue.png",
+    /** @see the gold entry — the large derivative for the menu panel and Trust. */
+    lockupXl: "/brand/lockup-blue-xl.png",
     heroArtPlacement: "hero.blue",
     wordmark: "/brand/hokuten-wordmark-blue.svg",
     hanko: "/brand/hanko-blue.svg",

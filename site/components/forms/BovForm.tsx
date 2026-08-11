@@ -34,6 +34,28 @@
  * nothing typed is wasted. It never silently no-ops and never fakes a success.
  *
  * SUCCESS IS INLINE. The form never navigates away (ref 04 → `#bov`).
+ *
+ * ── DESIGN REVISIT 2 (2026-08-10) — D9's "a form to its own field measure" ──
+ * `BovSection.tsx` (this form's only call site) moved from `container-hk`
+ * (max-width 1200px) to the full-stage `stage-shell`, so this form's
+ * `lg:grid-cols-[2fr_3fr]` right-hand column can be 900–1400px+ wide on a
+ * real desktop, not the ~620px it used to get. D9 is explicit that "full
+ * width" does not mean the FORM stretches to fill that — the composition may
+ * use the stage, but a text input measured at 450–700px wide is not a
+ * legible field, it's a UI defect. `lg:max-w-[42rem]` (672px) caps the field
+ * grid at essentially the same per-field width the old 1200px layout produced
+ * (~300px per field in the `sm:grid-cols-2` rows), so nothing here reads
+ * differently sized than before; `lg:ml-auto` anchors that capped block to
+ * the RIGHT edge of its (now much wider) grid column so it reads as "the
+ * form, deliberately placed at the stage's right edge" rather than stranded
+ * in the middle of unused space — the pitch column to its left already hugs
+ * the stage's own left gutter, so the two anchor to opposite edges with one
+ * breathing gap between them, not a centred island in the middle of a void.
+ * Below `lg` the section drops to one column and this form is simply full
+ * width, exactly as before — the cap/anchor only fire once the two-column
+ * split exists to anchor against.
+ * `BovSection.tsx`'s `<BovFormSkeleton>` mirrors this exact class pair so the
+ * loading state reserves the identical box and hydration cannot shift it.
  */
 
 import * as React from "react";
@@ -333,7 +355,7 @@ export function BovForm({ className }: BovFormProps) {
 
   return (
     <form
-      className={cn("grid gap-6 sm:grid-cols-2", className)}
+      className={cn("grid gap-6 sm:grid-cols-2 lg:ml-auto lg:max-w-[42rem]", className)}
       /* Our own messages, our own icons, our own summary — the native bubbles
          are unstyleable and would fire before any of it. */
       noValidate

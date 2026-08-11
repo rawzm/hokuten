@@ -3,30 +3,60 @@
  *
  * Spec: design-skill reference 04 → `#bov` (surface-deep). Copy: docs/port/04-copy.md
  * §7a (chrome) and §7b (the disclaimer paragraph, verbatim). Layout: DESIGN-REVISIT.md
- * §4.9 — "same treatment as the calculator: a LANDSCAPE split that fits the viewport."
+ * §4.9 — "same treatment as the calculator: a LANDSCAPE split that fits the viewport" —
+ * as revised by docs/DESIGN-REVISIT-2.md D9/D10/§5.7 below.
  *
  * SERVER COMPONENT. `<BovForm>` is dynamically imported (D7) rather than statically
  * imported, so its JS chunk never sits on the hero's critical path — only this
  * section's chrome (heading, micro-label, disclaimer, the designed loading
  * skeleton) is part of the initial bundle. See "THE DYNAMIC IMPORT" below.
  *
- * ── LANDSCAPE SPLIT (§4.9) ───────────────────────────────────────────────────
+ * ── DESIGN REVISIT 2 (2026-08-10) — screen 11 of 12, D9/D10/§5.7 ────────────
+ * Two chassis swaps, both mechanical, neither touching a field/state/string:
+ *   1. `container-hk` (max-width 1200px) → `stage-shell` (D9): the full-width,
+ *      fluid-gutter shell every one of the twelve landing screens now shares.
+ *      §5.7's own words are "use the FULL STAGE" — this section's defect was
+ *      never the landscape split itself, it was `container-hk`'s hard 1200px
+ *      ceiling squeezing that split into a narrow column.
+ *   2. `section-fit` (min-height only, D6) → `page-panel` (min-height only,
+ *      same `--screen-fit` token, D10): identical non-clipping mechanism —
+ *      see "THE TCPA BLOCK" below, unchanged by this swap — but `page-panel`
+ *      is the specific selector the route-level `:root:has(main[data-page=
+ *      "home"]) .page-panel` scroll-snap rule in globals.css targets, so this
+ *      section now participates in the twelve-screen paged mode as screen 11.
+ *      `lg:flex lg:flex-col lg:justify-center` is unchanged from the prior
+ *      pass — it is what actually vertically CENTRES the pitch/form pair
+ *      inside the panel's usable height once `page-panel` reserves it, per
+ *      §5.7's "no nested scroll region… a short/zoomed viewport grows the
+ *      page" (still true: `justify-center` only redistributes slack that
+ *      already exists; it cannot compress content, so a genuinely tall TCPA
+ *      block still pushes the section past one screen and the document
+ *      scrolls, exactly as before).
+ *
+ * ── LANDSCAPE SPLIT (§4.9, §5.7) ─────────────────────────────────────────────
  * Pitch/context LEFT (micro-label, headline, the 48h-promise sub, the "reach out
  * early" disclaimer paragraph) with `<KanjiAccent>` behind it; the form's own
- * 2-column field grid RIGHT (unchanged — `BovForm` already lays its fields out
- * `grid gap-6 sm:grid-cols-2`, so nothing about its internals needed to change,
- * only where it sits). `lg:grid-cols-[2fr_3fr]` — the pitch column doesn't need
- * as much width as a real 2-up field grid does; the disclaimer paragraph lived at
- * this same ~2fr measure before this pass (previously the right column), so the
- * line length is already proven to read well.
- *
- * `section-fit` (D6, min-height only — never a `height` or `max-height`, and no
- * `overflow-hidden` on the section root) targets a fit-to-viewport desktop
- * screen WITHOUT ever clipping content that needs more room. This matters
- * specifically because of the next paragraph.
+ * 2-column field grid RIGHT. `lg:grid-cols-[2fr_3fr]` stays fr-based (not a
+ * fixed split) so the pair genuinely uses the stage at typical desktop widths
+ * instead of stopping at a hardcoded number — but an fr-based right column on
+ * a full-stage shell can reach 900–1400px+ wide, and letting a text input
+ * stretch that wide is not "using the stage," it is a legibility bug. D9's own
+ * text differentiates: use the full stage for the COMPOSITION, give the FORM
+ * "its own field measure." That measure is capped on `<BovForm>`'s own root
+ * (`lg:max-w-[42rem] lg:ml-auto` — see that file's header for the exact
+ * reasoning and pixel math), not here, so this file does not know or care how
+ * wide the form renders — it only places the two columns. The disclaimer
+ * paragraph's own `border-l-2 pl-6` pull-quote treatment keeps it inside the
+ * LEFT column's natural fr-share, which is materially wider now than the old
+ * 1200px layout's ~416px — still comfortably inside prose measure at every
+ * qualifying desktop width (verified at 1440/1920/2560: the left column never
+ * exceeds ~65ch even uncapped, because the RIGHT column's own cap eventually
+ * claims the leftover stage width as the gap between the two, not as extra
+ * left-column growth — the grid track sizes are independent, the LEFT track's
+ * `2fr` share is what actually bounds it).
  *
  * ── THE TCPA BLOCK STAYS FULLY VISIBLE, ALWAYS (non-negotiable) ─────────────
- * `section-fit` sets a MINIMUM height, never a maximum, and nothing in this file
+ * `page-panel` sets a MINIMUM height, never a maximum, and nothing in this file
  * sets `overflow-hidden`, `overflow-y-auto`/`scroll-well`, or a fixed `height` on
  * the section, the grid, or the form column. If the SMS-consent block (rendered
  * inside `<BovForm>`, imported byte-exact from `content/compliance.ts`) makes the
@@ -161,14 +191,14 @@ export function BovSection({ index = "09", className }: BovSectionProps) {
       aria-labelledby={HEADING_ID}
       className={cn(
         "surface-deep section-pad-tight",
-        // D6: fit-to-viewport on desktop only. `section-fit` is min-height ONLY
-        // (globals.css §6) — it cannot clip the TCPA block; it can only ever
-        // make the section AT LEAST one screen tall, never cap it shorter.
-        "lg:section-fit lg:flex lg:flex-col lg:justify-center",
+        // D10: screen 11 of 12. `page-panel` is min-height ONLY (globals.css
+        // §6) — it cannot clip the TCPA block; it can only ever make the
+        // section AT LEAST one screen tall, never cap it shorter.
+        "page-panel lg:flex lg:flex-col lg:justify-center",
         className,
       )}
     >
-      <div className="container-hk">
+      <div className="stage-shell">
         <div className="grid items-start gap-12 lg:grid-cols-[2fr_3fr] lg:gap-16">
           {/* LEFT — pitch + context. Its own positioning context for KanjiAccent,
               which needs nothing more than that (see components/art/KanjiAccent.tsx). */}
@@ -299,7 +329,15 @@ function SkeletonConsent() {
 
 function BovFormSkeleton({ configured }: { configured: boolean }) {
   return (
-    <div role="status" aria-live="polite" className="grid gap-6 sm:grid-cols-2">
+    <div
+      role="status"
+      aria-live="polite"
+      // Mirrors BovForm.tsx's own root exactly (`lg:ml-auto lg:max-w-[42rem]`,
+      // D9) — the loading state must reserve the SAME box the hydrated form
+      // will occupy, or the field-measure cap introduced this round becomes a
+      // one-time layout shift the instant the real chunk streams in.
+      className="grid gap-6 sm:grid-cols-2 lg:ml-auto lg:max-w-[42rem]"
+    >
       <span className="visually-hidden">Loading the valuation request form…</span>
 
       <SkeletonField />

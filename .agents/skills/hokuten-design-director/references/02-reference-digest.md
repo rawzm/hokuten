@@ -1,7 +1,7 @@
 # 02 — Reference Digest
 
 ## Table Of Contents
-How to digest · Inspiration sites · Ref-folder images · Design Revisit 1 references (2026-08-08) · Own properties (kwc, Sarhan) · GitHub stars
+How to digest · Inspiration sites · Ref-folder images · Design Revisit 1 references (2026-08-08) · Design Revisit 2 references (2026-08-10) · Own properties (kwc, Sarhan) · GitHub stars
 
 ## How to digest
 
@@ -103,6 +103,24 @@ Digested from Razim's verbal/chat description recorded in `docs/DESIGN-REVISIT.m
 - **Avoid:** Do not recolor, re-crop into, or otherwise alter any of these rasters beyond trim/knockout/format-optimize (D1: trim, knock out the surrounding white/near-white ground or mount on a deliberate light chip, export 2× raster + AVIF/WebP). Do not place `logo-blue.PNG`'s illustrated Fuji/north-star scene near the 「北天」 glyph-mosaic art band in the same viewport — two illustrated-device motifs stacked in one screen double up and cheapen both. Do not merge the Quarterly (blue) and Annual (black/gold) families into one uniform row expecting them to read as one system — they are two different vendor templates; §4.4 places them as two distinct moments, not one strip.
 - **Hokuten translation:** D1 — `logo-blue.PNG`-derived asset renders on `[data-theme="blue"]`, `logo-yellow.jpg`-derived asset on `[data-theme="gold"]`, ~40-48px render height, real-text "THE HOKUTEN GROUP" (or "KW Commercial · The Hokuten Group") stays adjacent in the DOM (visually-hidden acceptable) — a name baked into a raster never substitutes for real text (the Sarhan anti-pattern this skill already bans). D3 — the 3 Quarterly banners render as one clean evidence row (stats section, §4.4); the 2 Annual banners render as a separate slim recognition strip elsewhere (recommended: `#closings` header area or beside the team section header) so the two families never compete in one glance.
 - **Acceptance check:** [ ] Header renders the blue-derived lockup under `[data-theme="blue"]` and the gold-derived lockup under `[data-theme="gold"]` at a stable ~40-48px height with zero CLS; a real-text brand string exists in the DOM adjacent to the lockup, not only inside the raster; the 3 Quarterly and 2 Annual CoStar badges never render in the same row/strip.
+
+## Design Revisit 2 references (2026-08-10)
+
+Razim supplied a startup-loader screenshot and annotated screenshots of the current Hokuten build in chat on 2026-08-10. The files do not exist in `Ref/`; the observations below are from the images actually shown in that review. The resulting implementation authority is [docs/DESIGN-REVISIT-2.md](../../../../docs/DESIGN-REVISIT-2.md).
+
+### Apple startup screen — loader restraint, source: chat screenshot
+
+- **Borrow:** One centered identity mark on an otherwise quiet field; an extremely thin progress track below it; strong central alignment; no support copy, decoration, or competing status messages. The screenshot’s power comes from restraint and predictable visual order, not the operating-system brand itself.
+- **Avoid:** Do not copy the Apple mark, black/white OS palette, device-startup timing, exact track geometry, or the implication that a web page is booting an operating system. Do not use a fake numeric percentage, a long theatrical wait, or a loader on every anchor/client navigation. The older Horizonte-derived “no percentage preloader” accessibility warning still applies to duration and motion even though Razim has now approved a loader.
+- **Hokuten translation:** A theme-matched KW/Hokuten lockup (gold in Theme G, blue in Theme B) centered on a deliberate theme surface, with a small tokenized progress track. It appears only on the first browser-session visit or a true reload/hard refresh, releases as soon as fonts + first hero image are ready, and has a two-second failure cap. This **supersedes the 2026-08-06 “no preloader ever” acceptance line above only for this short conditional brand loader**.
+- **Acceptance check:** [ ] No flash of uncovered page before the loader; correct lockup for the active theme; no percent readout; normal completion under 1.4 seconds and hard release by 2 seconds; no loader on soft navigation or bfcache restoration; reduced motion shows no chasing/sliding progress; route LCP remains under 2.5 seconds.
+
+### Annotated current-build screenshots — defect evidence, not visual inspiration
+
+- **Borrow:** Razim explicitly approved the existing font family choices and overall typographic/brand character. Keep Fraunces + Inter + IBM Plex Mono, dual themes, verified metrics, real deal content, supplied brand chips, and the recognizable section sequence.
+- **Avoid:** The screenshots identify the defects to retire: 1200px content stranded in the middle of a ~2000px viewport; large empty fields between/inside sections; a hero image cropped by a changing flexible box; small brand chips plus “& INDEPENDENTS”; CoStar awards minimized in bordered seats and split into Track Record; ordinary vertical deal cards; calculator results behind an internal scrollbar; an inset menu with its own scrollbar and grayscale art; and a moving LIVE label whose rail appears to stop.
+- **Hokuten translation:** A max-width-free stage with locally constrained prose; native desktop page snapping with safe fallbacks; art-directed hero slideshow; one Trust proof wall; landscape premium deal tickets; five-step valuation; full-bleed menu; conditional loader; fixed LIVE status plus a measured endless rail; and a more explicit four-level hierarchy.
+- **Acceptance check:** [ ] At 1440×900 and above, the hero, Trust, Track Record, Listings, Valuation, and default states of 04–09 each compose as an intentional screen with no internal section scrollbar; mobile/short/zoomed layouts remain natural flow; no screenshot-identified defect above survives.
 
 ## Own properties
 

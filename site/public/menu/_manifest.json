@@ -1,0 +1,270 @@
+{
+  "generatedAt": "2026-08-10T21:33:38.972Z",
+  "budgetKB": 250,
+  "refMenuExists": false,
+  "interim": {
+    "publicPath": "hotels/hie-brooklyn.jpg",
+    "hotelName": "Holiday Inn Express Brooklyn",
+    "sourceWidth": 3840,
+    "sourceHeight": 2560
+  },
+  "breakpoints": [
+    {
+      "breakpoint": "desktop",
+      "source": "interim-hotel-photo",
+      "sourceDescription": "public/hotels/hie-brooklyn.jpg (Holiday Inn Express Brooklyn)",
+      "cropMode": "centre",
+      "requestedWidths": [
+        600,
+        900,
+        1200,
+        1800
+      ],
+      "generatedWidths": [
+        600,
+        900,
+        1200,
+        1800
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 1920,
+      "belowSpecMinimum": false,
+      "belowSpecIdeal": false
+    },
+    {
+      "breakpoint": "mobile",
+      "source": "interim-hotel-photo",
+      "sourceDescription": "public/hotels/hie-brooklyn.jpg (Holiday Inn Express Brooklyn)",
+      "cropMode": "centre",
+      "requestedWidths": [
+        800,
+        1200,
+        1600,
+        2400
+      ],
+      "generatedWidths": [
+        800,
+        1200,
+        1600,
+        2400
+      ],
+      "skippedWidths": [],
+      "maxWidthForCrop": 3840,
+      "belowSpecMinimum": false,
+      "belowSpecIdeal": false
+    }
+  ],
+  "files": [
+    {
+      "breakpoint": "desktop",
+      "width": 600,
+      "height": 800,
+      "format": "avif",
+      "path": "public/menu/menu-desktop-600.avif",
+      "bytes": 43687,
+      "quality": 68,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "desktop",
+      "width": 600,
+      "height": 800,
+      "format": "webp",
+      "path": "public/menu/menu-desktop-600.webp",
+      "bytes": 40600,
+      "quality": 80,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "desktop",
+      "width": 900,
+      "height": 1200,
+      "format": "avif",
+      "path": "public/menu/menu-desktop-900.avif",
+      "bytes": 87925,
+      "quality": 68,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "desktop",
+      "width": 900,
+      "height": 1200,
+      "format": "webp",
+      "path": "public/menu/menu-desktop-900.webp",
+      "bytes": 73918,
+      "quality": 80,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "desktop",
+      "width": 1200,
+      "height": 1600,
+      "format": "avif",
+      "path": "public/menu/menu-desktop-1200.avif",
+      "bytes": 151242,
+      "quality": 68,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "desktop",
+      "width": 1200,
+      "height": 1600,
+      "format": "webp",
+      "path": "public/menu/menu-desktop-1200.webp",
+      "bytes": 115916,
+      "quality": 80,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "desktop",
+      "width": 1800,
+      "height": 2400,
+      "format": "avif",
+      "path": "public/menu/menu-desktop-1800.avif",
+      "bytes": 235408,
+      "quality": 62,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "desktop",
+      "width": 1800,
+      "height": 2400,
+      "format": "webp",
+      "path": "public/menu/menu-desktop-1800.webp",
+      "bytes": 227838,
+      "quality": 80,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "desktop",
+      "width": 1800,
+      "height": 2400,
+      "format": "jpg",
+      "path": "public/menu/menu-desktop-1800.jpg",
+      "bytes": 217976,
+      "quality": 60,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "mobile",
+      "width": 800,
+      "height": 333,
+      "format": "avif",
+      "path": "public/menu/menu-mobile-800.avif",
+      "bytes": 28010,
+      "quality": 68,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "mobile",
+      "width": 800,
+      "height": 333,
+      "format": "webp",
+      "path": "public/menu/menu-mobile-800.webp",
+      "bytes": 25498,
+      "quality": 80,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 500,
+      "format": "avif",
+      "path": "public/menu/menu-mobile-1200.avif",
+      "bytes": 49676,
+      "quality": 68,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "mobile",
+      "width": 1200,
+      "height": 500,
+      "format": "webp",
+      "path": "public/menu/menu-mobile-1200.webp",
+      "bytes": 44050,
+      "quality": 80,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "mobile",
+      "width": 1600,
+      "height": 667,
+      "format": "avif",
+      "path": "public/menu/menu-mobile-1600.avif",
+      "bytes": 79560,
+      "quality": 68,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "mobile",
+      "width": 1600,
+      "height": 667,
+      "format": "webp",
+      "path": "public/menu/menu-mobile-1600.webp",
+      "bytes": 66798,
+      "quality": 80,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "mobile",
+      "width": 2400,
+      "height": 1000,
+      "format": "avif",
+      "path": "public/menu/menu-mobile-2400.avif",
+      "bytes": 172701,
+      "quality": 68,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "mobile",
+      "width": 2400,
+      "height": 1000,
+      "format": "webp",
+      "path": "public/menu/menu-mobile-2400.webp",
+      "bytes": 130966,
+      "quality": 80,
+      "budgetKB": 250,
+      "overBudget": false
+    },
+    {
+      "breakpoint": "mobile",
+      "width": 2400,
+      "height": 1000,
+      "format": "jpg",
+      "path": "public/menu/menu-mobile-2400.jpg",
+      "bytes": 254623,
+      "quality": 84,
+      "budgetKB": 250,
+      "overBudget": false
+    }
+  ],
+  "largest": {
+    "desktop": {
+      "width": 1800,
+      "height": 2400,
+      "path": "public/menu/menu-desktop-1800.avif"
+    },
+    "mobile": {
+      "width": 2400,
+      "height": 1000,
+      "path": "public/menu/menu-mobile-2400.avif"
+    }
+  },
+  "alt": "The Holiday Inn Express Brooklyn entrance canopy and lobby in Sunset Park, its lit green sign and glass doors facing the street."
+}

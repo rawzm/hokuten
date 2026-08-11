@@ -143,16 +143,36 @@ const TAP_TARGET = "inline-flex min-h-11 items-center";
 
 type Surface = "dark" | "light";
 
-/** Reads the live --nav-h custom property rather than hard-coding the bar
- *  height — if the token ever changes, this observer stays correct without a
- *  matching edit. Fallback 68 (was 88) — D6 (2026-08-08) compressed --nav-h
- *  from 88px to 68px; kept in sync by hand since a CSS custom property can't
- *  be read at module scope. */
+/**
+ * Reads the live --nav-h / --nav-h-mobile custom property rather than
+ * hard-coding the bar height — if either token changes, this stays correct
+ * without a matching edit. Fallback 72/64 (was one shared 68, was 88 before
+ * that) — D18 (2026-08-10) grew the bar to 72px desktop / 64px mobile for
+ * the larger identity lockup.
+ *
+ * D18 ALSO fixes a real, previously-flagged gap (found by the StatsSection
+ * author, out of scope for them, in scope now that this round owns
+ * SiteNav.tsx): the `<nav>` element itself used to render `h-[var(--nav-h)]`
+ * on every breakpoint and never actually switched to the shorter mobile
+ * token, so this function reading only `--nav-h` was accidentally
+ * self-consistent with the (buggy) unconditional CSS. Now that the bar below
+ * genuinely switches height, this must switch with it or every
+ * IntersectionObserver rootMargin computed from it would overshoot the real
+ * mobile bar by 8px. The `40rem` (640px) match is not a new invented
+ * threshold — it is Tailwind's own default `sm` breakpoint (verified against
+ * `tailwindcss/theme.css`'s `--breakpoint-sm: 40rem`), the exact same cutover
+ * `TickerBar.tsx`/`SiteFooter.tsx`/`ConsentModal.tsx` already use for their
+ * own `--ticker-h`/`--ticker-h-mobile` pair, so the bar's CSS breakpoint and
+ * this JS read agree by construction rather than by two hand-kept numbers.
+ */
 function readNavHeightPx(): number {
-  if (typeof window === "undefined") return 68;
-  const raw = getComputedStyle(document.documentElement).getPropertyValue("--nav-h");
+  if (typeof window === "undefined") return 72;
+  const isDesktop = window.matchMedia("(min-width: 40rem)").matches;
+  const propName = isDesktop ? "--nav-h" : "--nav-h-mobile";
+  const fallback = isDesktop ? 72 : 64;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(propName);
   const parsed = Number.parseFloat(raw);
-  return Number.isFinite(parsed) ? parsed : 68;
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 export function SiteNav() {
@@ -277,7 +297,10 @@ export function SiteNav() {
         aria-label="Primary"
         className={cn(
           surfaceClass,
-          "sticky top-0 z-40 h-[var(--nav-h)] transition-colors duration-base ease-out",
+          // D18 (2026-08-10): now genuinely switches height at `sm` (640px) —
+          // see readNavHeightPx()'s docstring above for why this used to be
+          // an unconditional h-[var(--nav-h)] and why that was a flagged gap.
+          "sticky top-0 z-40 h-[var(--nav-h-mobile)] transition-colors duration-base ease-out sm:h-[var(--nav-h)]",
           scrolled && "hairline-b shadow-bar backdrop-blur-md",
         )}
         style={{
@@ -287,17 +310,40 @@ export function SiteNav() {
             : "transparent",
         }}
       >
-        <div className="container-hk flex h-full items-center justify-between gap-6">
-          {/* D1 (2026-08-08): the theme lockup + a real-text brand line
-              replaces the old text-only Wordmark here — see
-              components/brand/Wordmark.tsx's "brand" variant for the full
-              reasoning. `min-w-0` (not `shrink-0`) lets this whole unit
-              shrink inside the row on narrow viewports — the CTA/menu group
-              on the right stays `shrink-0` (below), so any space pressure at
-              375px lands here first, where Wordmark's own `truncate` turns
-              it into a graceful ellipsis rather than an overflow. */}
+        {/* D9/§6.1 (2026-08-10): stage-shell, not container-hk — the header
+            now agrees with the full-width composition under it instead of
+            capping itself at 1200px while every panel below runs edge to
+            edge. Fluid `--gutter` replaces the old fixed 1.5rem/3rem steps;
+            everything downstream of this swap (the `justify-between` row,
+            the reserved-width active-link ghost span, the CTA/menu group)
+            is unaffected because none of it depended on container-hk's
+            specific padding numbers, only on the row having SOME inline
+            padding. */}
+        <div className="stage-shell flex h-full items-center justify-between gap-6">
+          {/* D1 (2026-08-08), resized D18 (2026-08-10): the theme lockup + a
+              real-text brand line replaces the old text-only Wordmark here —
+              see components/brand/Wordmark.tsx's "brand" variant for the
+              full reasoning, including why `height`/`mobileHeight` split
+              into two props instead of one. `min-w-0` (not `shrink-0`) lets
+              this whole unit shrink inside the row on narrow viewports — the
+              CTA/menu group on the right stays `shrink-0` (below), so any
+              space pressure at 375px lands here first, where Wordmark's own
+              `truncate` turns it into a graceful ellipsis rather than an
+              overflow. The lockup itself renders 52px tall at `sm` (640px,
+              matching --nav-h 72px there, a 10px inset) and 48px below it
+              (matching --nav-h-mobile 64px, an 8px inset) — SAME breakpoint
+              this file's own `<nav>` element switches height at (below),
+              so the bar and the mark change size together with no zone
+              where one has grown and the other hasn't. Both insets fall out
+              of this row's own `items-center`, not a margin. Checked by hand
+              at 320/360/390px (all below `sm`, so the 48px/64px pair
+              applies): the lockup's worst-case rendered width (gold, the
+              wider theme, ~64px at 48px tall) plus its 8px internal gap plus
+              a fully truncated text span leaves well over 100px of slack
+              against the menu trigger before this row's own shrink
+              behaviour would need to give any further. */}
           <AnchorLink href="#hero" className={cn(TAP_TARGET, "min-w-0")}>
-            <Wordmark variant="brand" height={44} />
+            <Wordmark variant="brand" height={52} mobileHeight={48} />
           </AnchorLink>
 
           <ul className="hidden items-center gap-8 lg:flex">

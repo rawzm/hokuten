@@ -43,6 +43,149 @@
 
 ## 4. Log
 
+### 2026-08-10 — Design revisit 2 approved (execution brief; implementation pending)
+
+Razim reviewed the current build with annotated desktop screenshots and approved a second comprehensive
+design pass. The pre-resolved build order is [docs/DESIGN-REVISIT-2.md](docs/DESIGN-REVISIT-2.md), status
+`approved`. This entry records the decisions now; a separate newest-first entry is required when the work
+ships.
+
+**Approved direction**
+- Replace the landing page’s 1200px-wide center-stage dependency with a fluid full-viewport stage and
+  locally constrained prose. The route remains hero → Trust Metrics → numbered sections 01–09 → footer.
+- Qualifying desktops use **native CSS mandatory scroll snap** so each section reads as a page. There is
+  no wheel/touch interception. Mobile, touch/coarse-pointer, short-height, 200%-zoom/reflow, and
+  reduced-motion layouts retain normal document flow; truthful tall content is never clipped.
+- Hero becomes a 3–5 image, server-first slideshow with one transient CSS mosaic transition. New masters
+  arrive as art-directed desktop/tablet/mobile triplets in `Ref/hero/`; a repeatable script exports
+  optimized public copies. `Ref/` remains source-only at runtime.
+- Trust Metrics becomes the single proof wall: the theme-matched group lockup, verified metrics, and all
+  five verified CoStar assets. Annual awards leave Track Record; award rasters render large/as supplied,
+  without UI borders, seats, shadows, recoloring, or links.
+- Closing and listing cards become landscape premium deal tickets on desktop. Price is a larger semantic
+  money-green data moment. SOLD photography is grayscale at rest and reveals color on hover, focus, and
+  the existing touch-reveal action; listing photography remains CRM-ready with an honest interim state.
+- Valuation expands from three to five steps and removes the section’s nested result scrollbar. Calculator
+  math, constants, defaults, validation, copy, and disclaimers remain frozen. Market Reference becomes the
+  compact ticket variant with selected-property imagery.
+- A short theme-matched loader is approved for first-session visits and real reloads only, with a progress
+  track and hard failure cap. This narrowly supersedes the earlier “no preloader ever” reference rule.
+- Menu becomes a true full-bleed screen: full-color art, theme lockup, two-column desktop index, no
+  normal-case scrollbar, with an accessible overflow fallback only for short/zoomed layouts. Exact menu
+  crops are recorded in the brief.
+- Header lockup grows within a slightly taller toolbar; Trust gains a lockup; footer uses the correct
+  theme lockup while retaining exactly one KW compliance-mark instance and byte-exact disclosure.
+- The FRED bar gets a fixed left-most LIVE label with a green steady/blinking status dot and a measured,
+  indefinitely repeating metric rail. Fetch behavior and labels stay unchanged.
+- Typography keeps Fraunces/Inter/IBM Plex Mono but gains a strict display → primary value → body/data →
+  micro hierarchy. Additional motion is limited to the loader, hero mosaic, sold-photo reveal, and the
+  repaired continuous rails.
+
+**Asset crops approved:** hero desktop 3200×800 (4:1), tablet 2048×896 (16:7), mobile 1600×1200
+(4:3); menu desktop 1800×2400 (3:4), mobile 2400×1000 (12:5). Missing new crops do not block chassis
+implementation; current approved artwork remains the interim source.
+
+### 2026-08-10 (late) — Revisits 2 AND 3 SHIPPED together (session ended at 98% budget)
+
+One push carries the whole of Design Revisit 2 (which had never been committed) plus most of
+Revisit 3. Build green · tsc clean · vitest 128/128.
+
+**Revisit 3 — what landed**
+- **D22 scroll snap REMOVED.** globals.css §6b retired, `components/motion/PagedMode.tsx` deleted,
+  SmoothScroll's paged-mode gate reverted (Lenis is back to its original three gates), the stale
+  `--brands-h` token removed. The twelve `page-panel` compositions and `stage-shell` survive — the
+  page still reads as twelve screens, it just scrolls naturally. Razim's verdict on snap was
+  "messy and not properly navigating… buggy overall."
+- **D23 real hero triplets.** Razim's nine files in `Ref/hero/` (01-marriott / 02-luxury /
+  03-resort, exact 4:1 / 16:7 / 4:3 ratios) are wired through `hero-prep.ts` → 67 generated
+  derivatives → `content/heroSlides.ts`. All three are `theme: "both"`; marriott is the LCP slide.
+  The interim artwork slides are gone. Sources are 1536–1672px wide against a 3200px ideal, so they
+  soften modestly above ~1672px — accepted, tracked in PLACEHOLDERS.
+- **D24 slideshow is fully automatic.** Chevrons, dots, counter and the visible pause button are
+  gone. One invisible-until-focused pause button survives for WCAG 2.2.2 (skip-link pattern).
+- **D25 hero + chips.** Headline row moved to `stage-shell` as a genuine two-column split (it was a
+  centred column with dead margins); chips raised to `clamp(3rem, 2.5rem + 2.6vw, 5rem)` ≈ 48→80px.
+- **D26 menu.** Photo panel replaced by the centred theme lockup at ~260–320px, close moved to the
+  top-right, top-right lockup removed. New XL derivatives generated (`lockup-{gold,blue}-xl`,
+  854×640 / 766×640) and wired through `themePresentation.lockupXl`. `menuArt.ts` and the generated
+  `public/menu/` assets stay in the repo, parked.
+- **D27 Trust.** Redistributed to fill its screen, and the CoStar verification link to
+  `costarpowerbrokers.com` renders beneath the evidence rows. Badges themselves stay non-linking.
+- **D29 horizontal overflow — GATE PASSES at 375/768/1440/1920/2560.** Root cause found and fixed
+  at source: `DataLine`'s `parts` variant forced `whitespace-nowrap` on EVERY part, and #mandates
+  passes a full prose clause through it — a 486px span inside a 245px column pushed the document to
+  1616px at a 1440px viewport. Parts longer than 32 chars now wrap; short data tokens keep the
+  no-mid-break guarantee. `html { overflow-x: clip }` added as insurance (clip, not hidden — hidden
+  would break sticky), reset to `visible` in print.
+
+**What is NOT done — pick this up next session**
+1. **D28 panel fit.** Measured at 1440x900 (one screen = 784px): method **1234px (1.57)**,
+   listings **1179px (1.50)**, calculator **1022px (1.30)**, closings 860 (1.10), team 858 (1.09),
+   hero 806 (1.03). Everything else is exactly 1.0. A targeted fit workflow with exact per-panel
+   budgets and measured internals was launched and STOPPED at the 98% mark — its brief is
+   reproducible from the internals recorded in DESIGN-REVISIT-3 §1 D28. NOTE: an earlier fit wave
+   touched these files but moved the numbers ZERO — verify any change actually re-measures.
+   With snap gone this is a density preference, not a functional bug: over-height panels simply
+   scroll. Razim specifically called out #method as "lengthy".
+2. **Docs not refreshed:** skill refs 03/04/05/07 still describe the snap system as live;
+   `docs/PLACEHOLDERS.md` rows 51/52 still describe `Ref/hero/` as empty and the hero as three
+   interim slides; ref 06's CoStar rows want a dated note naming the verification link;
+   `content/artwork.ts`'s `hero.gold`/`hero.blue` want a retirement comment; AUDIT_LOG not appended.
+3. **Not verified this session:** screenshots in either theme; Core Web Vitals; the Theme B build
+   (only gold was rendered); the 2560px ultrawide brand/ticker soak.
+4. Hero alt text names real Marriott signage — first time a franchisor brand appears in hero
+   imagery rather than a chip. Worth a business-side look alongside the existing counsel flag.
+
+### 2026-08-10 (evening) — Design revisit 3 ordered after Razim's localhost review
+
+Razim reviewed the (stale-build) localhost render of Revisit 2 and issued written corrections —
+full pre-resolved work order in [docs/DESIGN-REVISIT-3.md](docs/DESIGN-REVISIT-3.md). Headlines:
+**D22** scroll snap removed entirely (verdict: buggy) — natural scrolling, panel compositions stay;
+**D23** Razim delivered three real hero triplets in `Ref/hero/` (exact 4:1/16:7/4:3 ratios, below
+ideal canvas — accepted), used in both themes; **D24** slideshow goes fully automatic, no visible
+chrome; **D25** hero fits exactly one screen, headline row spans the stage, chips grow to ~80px;
+**D26** menu photo panel replaced by a large centred theme lockup, close moves top-right (needs new
+XL lockup derivatives); **D27** Trust fills its screen + gains a costarpowerbrokers.com
+verification link; **D28** nothing scrolls internally, Method must truly fit; **D29** horizontal
+overflow becomes a hard release gate with `overflow-x: clip` insurance. Implementation handed to
+the next agent; Revisit-2 tree is still uncommitted and ships together with these fixes.
+
+### 2026-08-10 — Design revisit 2 ordered; two executor questions answered
+
+Razim issued [docs/DESIGN-REVISIT-2.md](docs/DESIGN-REVISIT-2.md) — a second, screenshot-led revisit
+covering the viewport system, hero slideshow, proof wall, deal tickets, five-step calculator, loader,
+menu, identity sizing, ticker, hierarchy and mobile behaviour. Status `approved`, landing route only.
+It supersedes revisit 1's D3 (split CoStar placement), D5 (single static hero image; glyph-only menu
+panel), D6 (free-scrolling fit-to-viewport; calculator scroll-well) and D4 (muted sold imagery), plus
+the standing "no preloader ever" rule.
+
+**Two decisions Razim made when the executor asked, 2026-08-10:**
+
+1. **Production stays publicly reachable for now.** The brief's own Definition of Done says "no
+   public deploy before the paperwork gate", and `hokuten.vercel.app` is reachable by anyone with the
+   link. Razim was offered Vercel Deployment Protection and **chose to leave it open**. The site
+   remains `noindex, nofollow` with `robots.txt` disallow, so it is not crawled — but it is viewable,
+   including the colour franchise marks, the CoStar badges and artwork containing third-party
+   signage. The KW / Forward Wilshire paperwork gate still governs public LAUNCH (domain, promotion,
+   indexing); it no longer governs URL reachability. Revisit when counsel reviews the marks.
+
+2. **The hero ships three INTERIM slides cropped from already-approved artwork.** `Ref/hero/`,
+   `Ref/menu/` and `Ref/calculator/` were created but are empty — no new crops delivered. §4.1 wants
+   a 4:1 desktop crop at 2400x600 minimum; the widest approved master is 1942x809, so an interim 4:1
+   crop yields ~1942x486 and will look soft above roughly 1942px of viewport width. Razim accepted
+   that in exchange for being able to review the slideshow, the mosaic transition and the controls
+   now. Tracked as `blocked: awaiting-crop` in PLACEHOLDERS with the exact target canvases; swapping
+   in real triplets is a data edit, not a refactor.
+
+**Implementation note that resolves a genuine conflict in D10.** The brief asks for
+`scroll-snap-type: y mandatory` AND for a panel taller than the viewport to scroll through before the
+next boundary. Under `mandatory` those conflict: the browser must come to rest on a snap point, so
+the middle of a panel taller than the viewport becomes unreachable — an accessibility failure, not a
+cosmetic one. Resolved by keeping `mandatory` and taking tall panels OUT of the snap set: a
+measurement-only client island sets `data-tall` on any panel exceeding the usable screen and the CSS
+drops that panel's `scroll-snap-align`. Still pure native scroll — no wheel listener, no
+`preventDefault`, no synthetic jump. Scroll-jacking remains banned.
+
 ### 2026-08-09 — Design revisit 1 EXECUTED (D1–D8 shipped, both themes)
 
 Executed [docs/DESIGN-REVISIT.md](docs/DESIGN-REVISIT.md) end to end across five Workflow

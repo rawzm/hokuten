@@ -34,6 +34,53 @@
  * step — already carries its one italic accent word ("closer"). The only
  * type change here is the placeholder-notice caption stepping to mono 500
  * ("mono 500 for emphasised data values … leaned on more heavily").
+ *
+ * ── Design Revisit 2 (2026-08-10, D9/D10/D20, §5.6) — two-zone layout ──────
+ * `container-hk` (1200px cap, single column) → `stage-shell` (D9) laid out
+ * as a 12-column grid: `SectionHeader` takes the left 4 columns, the
+ * `Accordion` takes the right 8, side by side from `lg:` — the "two-zone
+ * layout — index/context on one side, the accordion on the other" the brief
+ * asks for (docs/DESIGN-REVISIT-2.md §5.6; ref 04 `#faq`).
+ *
+ * "Index/context" is read here as the `SectionHeader` block ITSELF — its
+ * `MicroLabel` already IS the page's bracketed numbered-index device
+ * (`[ 08 — DILIGENCE FAQ ]`, ref 04: "a bracketed numbered index on every
+ * section"), and its `sub` line already carries the topic-spread context
+ * ("Confidentiality, exchange timelines, off-market access, licensing…").
+ * A second, invented table-of-contents (e.g. a plain-text echo of all 7
+ * question strings as a mini nav) was considered and rejected: this task's
+ * brief is explicit that `#method` through `#faq` "KEEP their current
+ * information and interaction models… not a content rewrite," and a click-
+ * to-open index item would change the interaction model (state would have
+ * to move out of the Radix-owned accordion into a shared client parent),
+ * which is out of scope this round. Reusing the existing header block as
+ * the left zone adds zero new copy and zero new interaction — spatial only.
+ *
+ * `lg:sticky lg:top-[calc(var(--nav-h)+2.5rem)]` on the header zone: once a
+ * visitor opens an answer, the right column can genuinely outgrow one screen
+ * — `page-panel`'s `min-height` (never `height`) lets the panel grow rather
+ * than clip, and the document scrolls through it (D22, 2026-08-10: scroll
+ * snap and `PagedMode` are both deleted, so this was already how the page
+ * scrolled; there is no mandatory-snap set left to drop out of). Without
+ * `sticky` the left zone would just scroll away with row 1's answer; with
+ * it, the index/context stays the visible anchor for the "which section of
+ * the site am I in" question while the accordion grows underneath — pure
+ * CSS positioning, no scroll listener, no `preventDefault`. The offset
+ * matches the sitewide `scroll-margin-top: var(--nav-h)` convention
+ * (`StatsSection.tsx` uses the identical `calc(var(--nav-h) + …)` shape for
+ * its own nav-clearance fix) plus a little extra air so the header never
+ * sits flush under the nav's bottom edge.
+ *
+ * `lg:items-start` on the grid (not `items-center`): the accordion column is
+ * far taller than the header column even collapsed (7 rows vs. 3 lines of
+ * copy), so centering would float the header toward the grid's vertical
+ * middle instead of anchoring it to the top of its own zone — top-aligned
+ * columns is what actually reads as "two zones," not one drifting past the
+ * other.
+ *
+ * `section-pad section-join` unchanged: `#team` above is still
+ * `.surface-paper`, so the shared-gutter join still applies exactly as
+ * before; nothing about the two-zone layout changes that adjacency.
  */
 
 import { AlertTriangle } from "lucide-react";
@@ -133,10 +180,10 @@ export function FaqSection() {
     <section
       id="faq"
       aria-labelledby="faq-heading"
-      className="surface-paper section-pad section-join section-fit lg:flex lg:flex-col lg:justify-center"
+      className="surface-paper section-pad section-join page-panel lg:flex lg:flex-col lg:justify-center"
     >
-      <div className="container-hk">
-        <Reveal>
+      <div className="stage-shell grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start lg:gap-16">
+        <Reveal className="lg:sticky lg:top-[calc(var(--nav-h)+2.5rem)] lg:col-span-4">
           <SectionHeader
             id="faq-heading"
             index="08"
@@ -146,7 +193,7 @@ export function FaqSection() {
           />
         </Reveal>
 
-        <Reveal delay={0.1} className="mt-12 md:mt-16 lg:mt-8">
+        <Reveal delay={0.1} className="lg:col-span-8">
           <Accordion type="single" collapsible>
             {faq.map((item, index) => (
               <AccordionItem key={item.question} value={`faq-${index}`}>

@@ -1,33 +1,47 @@
 # RESUME — build handoff
 
-> **2026-08-09: Design revisit 1 is EXECUTED and pushed to both branches at
-> commit `5e8d9a7`.** The full record is the dated entry at the top of
-> [PROJECT-MEMORY.md](../PROJECT-MEMORY.md) §4 — read that first, it supersedes
-> most of the build-state detail below. This file keeps the session-budget
-> protocol (§1), which still applies, and the RSC lesson in §5.
->
-> **Next session's work is the review pass, not a new build.** Razim reviews the
-> two Vercel URLs by eye and the internal `/art` preview route (an art-direction
-> tool listing every prepared asset plus a "STILL NEEDED FROM RAZIM" block).
-> Open items are in [docs/PLACEHOLDERS.md](PLACEHOLDERS.md); the remaining
-> non-P0 audit findings are in [docs/design/AUDIT_LOG.md](design/AUDIT_LOG.md).
+> **2026-08-10 (late): Design Revisits 2 AND 3 shipped in one push.** Revisit 2 had never been
+> committed; it went out together with most of Revisit 3. The authoritative record is the top entry
+> of [PROJECT-MEMORY.md](../PROJECT-MEMORY.md) §4 — read that first.
 
-**State at handoff:** build green · `tsc` clean · vitest 128/128 · landing route
-316.8 KB gzip against the D7 340 KB budget · no console errors, no failed asset
-requests and no horizontal overflow at 375/768/1440 in **both** themes ·
-`main` and `theme-blue` at the same commit, zero code drift.
+**State at handoff:** build green · `tsc` clean · vitest 128/128 · **no horizontal scrollbar at
+375 / 768 / 1440 / 1920 / 2560** (D29 gate passes) · scroll snap removed, scrolling is natural ·
+Razim's three real hero triplets live in both themes · `main` and `theme-blue` at the same commit.
 
-**What is genuinely not done**, and is not hiding anywhere else:
-- LCP / CLS / INP have NOT been measured on the deployed URLs. Bundle size was
-  measured; Core Web Vitals were not. Do that against the real deploy.
-- Screenshot QA covered the landing route. `/privacy`, `/sms-terms`,
-  `/accessibility` and `/art` were not screenshotted in either theme.
-- The five active-listing tickets still render a designed placeholder, not real
-  property photography. That is the largest remaining professionalism gap.
+## Next session starts here
 
-**Kickoff for the next session:** *"Read the top entry of PROJECT-MEMORY.md, then docs/PLACEHOLDERS.md, and take the review pass on the design revisit."*
+**1. D28 panel fit — the only substantive item left.** Measured at 1440x900, one screen = 784px:
 
-**Last updated:** 2026-08-09, after the design revisit shipped.
+| panel | height | screens |
+|---|---:|---:|
+| method | 1234px | 1.57 |
+| listings | 1179px | 1.50 |
+| calculator | 1022px | 1.30 |
+| closings | 860px | 1.10 |
+| team | 858px | 1.09 |
+| hero | 806px | 1.03 |
+
+Every other panel is exactly 1.0. Per-panel internal breakdowns (which child is eating the height)
+are in `docs/DESIGN-REVISIT-3.md` §1 D28 and in the PROJECT-MEMORY entry. A fit workflow with those
+exact budgets was launched and stopped at the session budget cap — re-launch it.
+**Warning:** an earlier fit wave edited these same files and moved the measured heights by ZERO.
+Re-measure after any change; do not trust an agent's claim that it cut 400px.
+With snap gone this is density, not breakage — over-height panels just scroll. Razim named #method.
+
+**2. Docs are behind the code.** Skill refs 03/04/05/07 still describe scroll snap as live;
+`docs/PLACEHOLDERS.md` rows 51/52 still say `Ref/hero/` is empty; ref 06's CoStar rows want a dated
+note naming the new costarpowerbrokers.com verification link; `content/artwork.ts`'s
+`hero.gold`/`hero.blue` want a retirement comment; `docs/design/AUDIT_LOG.md` is not appended.
+
+**3. Never verified this session** (Razim reviews on Vercel, dev servers were forbidden): screenshots
+in either theme, Core Web Vitals, the Theme B build specifically, and an ultrawide ticker/brand soak.
+
+**4. Flag:** the new hero alt text names real Marriott signage — the first time a franchisor brand
+appears in hero imagery rather than as a chip. Worth a business-side look with the counsel flag.
+
+**Kickoff:** *"Read the top entry of PROJECT-MEMORY.md, then docs/PLACEHOLDERS.md, and take the review pass on the design revisit."*
+
+**Last updated:** 2026-08-10, at the 98% session-budget push.
 All work below is committed and pushed to `main`. Nothing is uncommitted.
 
 > **Do not try to resume the old workflows.** Workflow resume-from-cache is

@@ -2,12 +2,13 @@
  * components/sections/ClosingsSection.tsx — `#closings` [ 01 ], the track
  * record.
  *
- * Governed by hokuten-design-director ref 04 (`#closings`), ref 05 (Reveals →
- * stagger cap of 6), ref 06 (Voice, evidence gate), docs/DESIGN-REVISIT.md
- * §2 D3/D4/D6/D8 and §4.4/§4.5 — read those for the full IA/states/motion
- * rationale before changing this one. `#closings` is the canonical section
- * [ 01 ] in the numbered micro-label sequence `01 #closings … 09 #bov` —
- * that index is load-bearing, not cosmetic; keep it.
+ * Governed by docs/DESIGN-REVISIT-2.md D9 (stage-shell), D10 (page-panel +
+ * native snap), D13 + §5.3 (this file's own composition spec — landscape
+ * ticket grid, recognition-strip removal), D20 (hierarchy), and the carried-
+ * forward hokuten-design-director ref 04 (`#closings`), ref 05 (Reveals →
+ * stagger cap of 6), ref 06 (Voice, evidence gate). `#closings` is the
+ * canonical section [ 01 ] in the numbered micro-label sequence `01
+ * #closings … 09 #bov` — that index is load-bearing, not cosmetic; keep it.
  *
  * Server Component — ships no client JS of its own; `Reveal` and
  * `ClosingCard`'s nested `PhotoFrame` are the only client boundaries in the
@@ -18,55 +19,94 @@
  * — a curated six of the group's twelve verified closed transactions (see
  * `#stats` for the aggregate figure). Nothing here is retyped or invented.
  *
- * ── D3: RecognitionStrip mounted in the header area ─────────────────────────
- * The two CoStar 2025 ANNUAL badges sit beside `SectionHeader`, not below the
- * grid — this section's own real estate is spent on six tickets, and a
- * badge row squeezed beneath the header (StatsSection's placement for the
- * THREE quarterly banners) would either compete with the grid for the fit-
- * viewport budget or force `RecognitionStrip` down among the tickets, which
- * the task brief doesn't ask for and would read as decorating a ticket
- * rather than a section-level credential. `#stats`' `QuarterlyBanners` and
- * this section's `RecognitionStrip` are two different sections entirely, so
- * "spread apart... neither moment congested" (task brief) is satisfied by
- * section separation alone — no extra spacing trick needed here.
+ * ── THIS WAVE (Design Revisit 2, 2026-08-10) — what changed and why ────────
  *
- * ── D6 density pass (2026-08-09) ─────────────────────────────────────────
- * `section-pad` → `section-pad-tight` + `section-join` + `section-fit`.
- * `section-join` is correct here: `#closings`' real preceding sibling in
- * `app/page.tsx` is `<StatsSection />`, whose own root carries
- * `surface-paper` (verified by reading StatsSection.tsx directly) — the
- * SAME surface this section has always used, so the two share one gutter
- * instead of stacking two (ref 03 "Global rhythm"). `#closings`' following
- * sibling, `<ListingsSection />`, is `surface-deep` (verified by reading
- * ListingsSection.tsx) — a different surface, so `section-join` only
- * applies going INTO this section, never out of it, which is exactly what
- * the utility does (it only ever zeroes `padding-block-start`).
- * `lg:flex lg:flex-col lg:justify-center` centres the grid when it is
- * shorter than the fit-viewport floor, the same pattern `StatsSection` /
- * `ListingsSection` / `TeamSection` / `MandatesSection` / `FaqSection` /
- * `DoorsSection` already ship. In practice six tickets in a 3-up `lg` grid
- * (two full rows) almost certainly exceed one screen at typical laptop
- * heights — `ListingsSection`'s own header comment reasons through the
- * identical case for five tickets — so `justify-center` degrades to a
- * no-op and the section falls back to ordinary top-down flow with native
- * page scroll, never a hijacked internal scroll-well (ref 05 reserves that
- * for content that MUST fit a fixed region, not "a grid that's merely
- * tall"). Grid rhythm (`mt-*`, `gap-*`) now matches `ListingsSection`'s own
- * D6 numbers exactly, so the two sibling ticket grids step at the same
- * points rather than one compressing earlier than the other.
+ * The old quarterly/annual award-badge strip that Revisit 1 (D3) split
+ * across two sections is gone from this one, full stop. D12 explicitly
+ * supersedes that split placement: all five verified CoStar awards now
+ * render exactly once, inside `#stats`, and nowhere else on the landing
+ * page — its component file is deleted this round (StatsSection/
+ * QuarterlyBanners' own file headers confirm this, dated 2026-08-10). This
+ * file never imported it as a live dependency in the first place; the
+ * previous revision of this doc comment only *described* that now-dead
+ * layout in prose. That description is rewritten below rather than carried
+ * forward, and this file is grep-clean of any reference to the deleted
+ * component or to CoStar, satisfying ref 07's audit gate on both counts —
+ * see that reference for the exact grep this section must keep passing.
  *
- * ── D8 typography ────────────────────────────────────────────────────────
+ * Chassis swap, matching the pattern `StatsSection`/`ListingsSection` already
+ * landed this round: `container-hk` (max-width 1200px) → `stage-shell` (D9:
+ * full-width, fluid gutter, no cap — the six tickets gain real width instead
+ * of being throttled to an editorial column); `section-fit` → `page-panel`
+ * (`min-height: var(--screen-fit)` — the panel fills the usable viewport
+ * height and centres/distributes its content, so the page still reads as one
+ * of twelve deliberate screens). `lg:flex lg:flex-col lg:justify-center` is
+ * unchanged from before — it vertically centres the header+grid block inside
+ * the panel's usable height when there is slack, and degrades to ordinary
+ * top-down flow (no centring, no clipping) when there isn't, exactly the
+ * D10 §3.2 contract for a panel whose truthful content exceeds one screen.
+ *
+ * D22 note (2026-08-10): scroll snap is gone — `globals.css`'s mandatory
+ * snap rule and `components/motion/PagedMode.tsx` are both deleted, so
+ * scrolling on the landing route is now entirely natural. `page-panel`'s
+ * `min-height` mechanism above is unaffected by that removal and still does
+ * the load-bearing layout work described here; only the snap targeting that
+ * used to key off the same class is gone.
+ *
+ * Header wrapper simplified: the previous revision wrapped `SectionHeader`
+ * in a `flex lg:flex-row lg:justify-between` row with no second child — dead
+ * layout code that never had anything to justify against. §5.3 asks for "a
+ * compact section header above" the grid, so `SectionHeader` now renders
+ * directly with no pointless wrapper, and its `lg:max-w-2xl` cap is dropped
+ * too: `stage-shell` gives the header its own full-width room and the
+ * headline is short enough to hold one line at that width without help. (It
+ * held one line before at an even NARROWER 672px `max-w-2xl` inside
+ * `container-hk`'s ~1100px content box — removing the cap can only ever gain
+ * width, never lose it, so the one-line read is unaffected.)
+ *
+ * ── §5.3 acceptance vs. the real fixed geometry — read before touching
+ *    spacing values below ───────────────────────────────────────────────────
+ * §5.3's own budget note: "Six tickets MUST fit at 1440×900 without internal
+ * or horizontal scrolling — the usable panel height is 784px there, so
+ * budget roughly 350px per row including the header." That figure is
+ * consistent with `Ticket.tsx`'s OWN fixed per-slot reservations at the
+ * `lg:` landscape breakpoint (title `min-h-[2.4em]`, meta `min-h-[3.2em]`,
+ * price `min-h-[3.25rem]`, metrics `min-h-24`, `lg:p-7` padding) — those sum
+ * to a real, content-independent floor of ~342px per ticket row (see
+ * `ClosingCard.tsx`'s "why no serial" note for the full arithmetic), which
+ * is why this file omits `serial` entirely rather than treating it as a
+ * cosmetic option: that extra ~23px/ticket genuinely does not fit the
+ * budget on top of the ~342px floor Ticket already spends per row.
+ * Even so, the honest total does not quite close: two ticket rows (~685px)
+ * + `SectionHeader`'s own minimum footprint (a one-line `display2` headline
+ * plus its micro-label, ~90px, un-shrinkable — `SectionHeader`'s `size`
+ * prop only offers `display1`/`display2`, both large, and this file does
+ * not own that component) + `section-pad-tight`'s fixed non-zero bottom
+ * padding (this section's `section-join` neighbour relationship only zeroes
+ * the TOP half of that utility, per its own contract) land close to, and by
+ * hand-calculation slightly over, the 784px budget — even with the tightest
+ * defensible `mt-*`/`gap-*` values below. This is flagged precisely in this
+ * agent's return value as a real, disclosed tension between §5.3's stated
+ * pixel budget and `Ticket.tsx`'s fixed reservations (a file this agent is
+ * explicitly not permitted to edit), not silently claimed as solved. If it
+ * measures tall in the mandatory screenshot QA pass, the fallback is
+ * `page-panel`'s own `min-height` (never `height`) mechanism: the panel
+ * grows and the document scrolls through it rather than clipping a ticket,
+ * which is a real, working degrade path — just not this section's OWN
+ * stricter "no scroll at 1440×900" line. (D22 note: since scroll snap is
+ * gone, this was already how the page scrolled — no separate `PagedMode`
+ * `data-tall` measurement is involved; that mechanism is deleted.)
+ *
+ * ── D8/D20 typography (unchanged reasoning) ─────────────────────────────────
  * No headline-size change — `SectionHeader`'s default `display2` step plus
  * its existing one-word italic accent ("*six*") already carries this
- * section's hierarchy. D8's amplification for `#closings` lives inside
- * `Ticket`'s structured metrics grid (tiny-caps labels over bold mono
- * values) rather than in the section chrome, same reasoning
- * `ListingsSection` already recorded for its own header.
+ * section's hierarchy. The four-level ticket hierarchy (D20) lives inside
+ * `Ticket` itself: micro status (the "Sold" overprint) → serif title → mono
+ * money price → compact mono facts.
  */
 
 import { closings } from "@/content/closings";
 import ClosingCard from "@/components/cards/ClosingCard";
-import { RecognitionStrip } from "@/components/awards/RecognitionStrip";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
 import { Reveal, RevealItem } from "@/components/motion/Reveal";
 
@@ -75,29 +115,24 @@ export function ClosingsSection() {
     <section
       id="closings"
       aria-labelledby="closings-heading"
-      className="surface-paper section-pad-tight section-join section-fit lg:flex lg:flex-col lg:justify-center"
+      className="surface-paper section-pad-tight section-join page-panel lg:flex lg:flex-col lg:justify-center"
     >
-      <div className="container-hk">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
-          <SectionHeader
-            id="closings-heading"
-            index="01"
-            label="Track record"
-            headline={{
-              before: "12 closed transactions — ",
-              accent: "six",
-              after: " shown in full.",
-            }}
-            className="lg:max-w-2xl"
-          />
-
-          <RecognitionStrip className="lg:shrink-0 lg:pb-1" />
-        </div>
+      <div className="stage-shell">
+        <SectionHeader
+          id="closings-heading"
+          index="01"
+          label="Track record"
+          headline={{
+            before: "12 closed transactions — ",
+            accent: "six",
+            after: " shown in full.",
+          }}
+        />
 
         <Reveal
           as="ul"
           stagger
-          className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:mt-8 lg:grid-cols-3 lg:gap-6 print:grid-cols-1 print:gap-6"
+          className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:mt-4 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-4 print:grid-cols-1 print:gap-6"
         >
           {closings.map((closing) => (
             <RevealItem key={closing.name} as="li" className="print:break-inside-avoid">

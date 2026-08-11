@@ -1,270 +1,408 @@
 /**
- * components/hero/Hero.tsx — `#hero`, the ONE chassis both themes now share.
+ * components/hero/Hero.tsx — `#hero`, screen 1 of the twelve-panel chassis.
  *
- * DESIGN-REVISIT.md §4.2 (executed here) + docs/AGENT-BRIEF.md D1/D2/D5/D6/D7.
- * Reference read in full before writing a line, per the task brief:
- * `Ref/HOYskIPaMAEwBLK.jpeg` + `Ref/HOYsosgaYAAt2xu.jpeg` (runcycle.com hero,
- * both crops of the same page) — clean white nav, full-bleed truncated
- * (~55–60vh) typographic-halftone art band, headline row BELOW the art
- * (serif display left, sub + two pill CTAs right), a logo bar closing the
- * first viewport.
+ * Governed by docs/DESIGN-REVISIT-2.md D9 (stage-shell), D10 (page-panel +
+ * native snap), D11 (the slideshow — mechanics documented in full in
+ * ./HeroSlideshow.tsx, read that file too), §3.1 ("Hero owns the brand rail
+ * inside the first panel... refactor `BrandsMarquee` so it can render as a
+ * landmark inside the hero without a second snap target or a brittle
+ * hard-coded `--brands-h` subtraction") and §5.1 (the four-row desktop
+ * composition this file implements), and docs/DESIGN-REVISIT-3.md D25 (the
+ * panel must land on exactly one usable screen; row 3 spans the full
+ * `stage-shell` width like every other section instead of a centred
+ * `container-hk` column — see "Row 3" below, which SUPERSEDES this file's
+ * own prior container-hk doctrine, not quietly drops it). Rewritten this
+ * round — read this header before assuming any prior anatomy still applies;
+ * the "Row 4 is a SIBLING, never a child" doctrine this file used to carry is
+ * SUPERSEDED below, not quietly dropped.
  *
- * ── The defect this replaces ─────────────────────────────────────────────
- * Razim reviewed both live theme URLs on 2026-08-08 and rejected the previous
- * build: the art was a small block bottom-right of a two-column grid, and the
- * two themes ran two entirely different chassis — `HeroCoverPanel` (a dark
- * "cover panel," Theme G) and `HeroPlate` (a light "Coronal plate," Theme B),
- * each hosting an animated `<AsciiCanvas>` in an art *column* beside the copy.
- * Both files are DELETED by this change; there is exactly one chassis now,
- * and this file (no longer just a theme switch) IS it. `<AsciiCanvas>` is no
- * longer rendered anywhere on the page — `components/art/AsciiCanvas.tsx`,
- * `AsciiStatic.tsx` and `public/art/ascii-{gold,blue}.{json,svg}` are
- * untouched on disk (another agent owns them) but uninvested per D5; this
- * removes ~200KB gz of JSON asset fetch plus the canvas's own playback JS
- * from the hero's critical path, which is most of how the D7 budget (hero +
- * nav + stats interactive ≤200KB gzip) gets met from this file's side. The
- * "seam row" requirement the old files' headers documented at length (the
- * lettering resolving in-art at a fixed row) is retired along with them —
- * DESIGN-REVISIT §3.4 makes that a Razim-prompt concern now, not a build
- * concern, and nothing below carries the idea forward.
+ * ── Anatomy — four rows, ONE `page-panel` ────────────────────────────────
+ *   Row 1  Nav. Not this file's job — `SiteNav.tsx` renders as a normal-flow
+ *          surface band before `<Hero>` in `app/page.tsx`.
+ *   Row 2  `<HeroSlideshow>` — the art-directed slideshow (D11). Declared
+ *          per-breakpoint display ratio (4:3 mobile / 16:7 tablet / 4:1
+ *          desktop, §4.1) lives on that component's own root, which is what
+ *          fixes finding #1 in the task brief's evidence table (the crop
+ *          used to drift with viewport height and headline wrapping because
+ *          the art band absorbed whatever height the headline row didn't
+ *          use — it no longer does; the art band's height is now a pure
+ *          function of its own width and the declared ratio).
+ *   Row 3  Headline row, on the themed surface below the art: left = the h1
+ *          manifesto at `text-display0` (the one place that token is
+ *          allowed), one italic accent word; right = the sub line + two
+ *          CTAs. **Restructured 2026-08-10 (D25):** this used to be a
+ *          full-width stack (eyebrow+h1 spanning the whole row, a SEPARATE
+ *          split sub-row beneath it) inside a centred `container-hk` column
+ *          — Razim's review found the copy "sits in a centred column with
+ *          large dead margins on both sides." It is now a genuine two-column
+ *          split spanning the full `stage-shell` (ref 04 §5.1's anatomy,
+ *          "proposition dominant left, supporting line + CTAs right," which
+ *          the pre-D25 build never actually implemented): left column
+ *          (`lg:flex-1`) carries the eyebrow+h1 stack and claims whatever
+ *          width the right column does not; right column (`lg:w-[26rem]
+ *          lg:shrink-0`) carries the sub line + both CTAs, stacked. See the
+ *          inline comment at the JSX for the one-screen budget arithmetic.
+ *   Row 4  `<BrandsMarquee />` — now a DIRECT CHILD of `<section id="hero">`,
+ *          not a sibling landmark. See "Row 4 is now nested" below.
  *
- * ── Anatomy — four rows, exactly per §4.2 ────────────────────────────────
- *   Row 1  Nav. Not this file's job — `SiteNav.tsx` (owned by a concurrent
- *          agent) renders as a normal-flow surface band before `<Hero>` in
- *          `app/page.tsx`; this file does nothing to overlay or clear space
- *          for it beyond not fighting its own sticky positioning.
- *   Row 2  Full-bleed supplied 「北天」 glyph-mosaic art band, edge to edge (no
- *          `container-hk`), ~40svh mobile / ~55–60svh desktop. The LCP
- *          element: a plain `next/image`, `fill`, `preload` (see the
- *          "priority is deprecated" note below), real `alt` from the
- *          manifest. The art carries its own colours in both themes; nothing
- *          here recolors it.
- *   Row 3  Headline row on a themed surface below the art: left = the h1
- *          manifesto at `text-display0` (the one place on the site that
- *          token is allowed), one italic accent word; right = the sub line +
- *          two CTAs — runcycle's own split, read directly off the reference.
- *   Row 4  `<BrandsMarquee />` — see "Row 4 is a sibling, never a child"
- *          below.
+ * ── The panel, not two fixed boxes that happen to add up ─────────────────
+ * The retired build gave the SECTION a fixed
+ * `lg:h-[calc(var(--screen-fit)-var(--brands-h))]` height (subtracting a
+ * hard-coded `--brands-h: 184px` from `globals.css`) specifically because
+ * the brand rail was a SIBLING outside the section, so the pair had to sum
+ * to exactly one screen by construction. §3.1 calls that subtraction out by
+ * name as brittle and asks for it to go. Now that the rail is INSIDE this
+ * section, there is nothing to subtract: `<section id="hero">` simply
+ * carries `page-panel` (D10's `min-height: var(--screen-fit)` at ≥64rem) and
+ * composes its three content rows with flex —
+ *   `flex flex-col` on the section;
+ *   an inner `flex flex-1 flex-col lg:justify-center` wrapper around rows
+ *   2+3, so on a qualifying desktop where art+headline together are SHORTER
+ *   than the remaining height, they centre as a unit in the space above the
+ *   rail (§3.1: "vertically centre or distribute content within the usable
+ *   height") instead of pinning to the top with dead space below;
+ *   `<BrandsMarquee />` as the section's last child, `shrink-0` (its own
+ *   root), so it always sits flush at the BOTTOM of the panel — the
+ *   flex-1 sibling above it absorbs whatever space the rail does not need.
+ * If art+headline are TALLER than the remaining space (a short/zoomed
+ * viewport), `page-panel`'s `min-height` — never `height` — lets the whole
+ * section grow past one screen and the document scrolls through it before
+ * the next boundary; the (separately owned) tall-panel measurement island
+ * takes it out of the mandatory snap set via `data-tall`. Nothing here
+ * clips content to preserve a one-screen illusion.
  *
- * ── Nav scroll-sentinel contract ────────────────────────────────────────
+ * ── Row 4 is now NESTED — supersedes this file's own prior doctrine ──────
+ * The retired build kept `<BrandsMarquee />` as a Fragment SIBLING of
+ * `<section id="hero">`, specifically because `data-nav-sentinel` (below)
+ * used to report a THEME-DEPENDENT `data-surface`, and pulling the
+ * always-light marquee inside a sometimes-dark sentinel block would have
+ * corrupted that signal. That constraint no longer holds: `data-surface` is
+ * the constant `"light"` in both themes (see the surviving note on
+ * `data-surface` below, unchanged from the prior build) — and `BrandsMarquee`
+ * is ALSO always `.surface-paper` in both themes (its own file's "Band stays
+ * light in both themes" doctrine). Nesting one light landmark inside another
+ * light-sentinel section cannot corrupt anything nav reads. §3.1 asks for
+ * this directly ("Hero owns the brand rail inside the same panel... Render
+ * `<BrandsMarquee />` inside the hero panel") and it is also the correct
+ * reading of what `data-nav-sentinel` was always FOR — "spans the hero's
+ * FULL block extent" (SiteNav.tsx's own contract comment) now genuinely
+ * means the full first screen, art through brand rail, not art+headline
+ * with the rail silently excluded. `BrandsMarquee` still carries its own
+ * `<section id="brands" aria-labelledby="brands-heading">` — a nested
+ * landmark, not "wrapped in a second landmark" (that phrase in
+ * `BrandsSection.tsx`'s header warns against ADDING a new wrapping landmark
+ * of this file's own around the call, which this file does not do — it
+ * renders `<BrandsMarquee />` as a plain JSX child, nothing more). It still
+ * carries no `page-panel` of its own and is still not a second snap target;
+ * only `<section id="hero">` does.
+ *
+ * ── Nav scroll-sentinel contract — UNCHANGED, preserved exactly ─────────
  * `SiteNav.tsx`'s header comment defines this contract and reads it at
  * runtime; this file is the consumer, not the author:
  *
- *   <section id="hero" ... data-nav-sentinel data-surface="dark"|"light">
+ *   <section id="hero" ... data-nav-sentinel data-surface="light">
  *
  * `data-nav-sentinel` is presence-only, on the element spanning the hero's
- * FULL block extent — here that is `<section id="hero">` wrapping rows 2+3
- * ONLY (row 4 is deliberately outside it; see below).
+ * full block extent — with row 4 now nested, that is once again simply
+ * `<section id="hero">` itself, no caveats.
  *
- * `data-surface` is now the CONSTANT "light" in both themes. It used to be
- * derived from `themePresentation.heroSurface`; that was correct only while the
- * nav overlaid the hero, and it shipped invisible ivory-on-ivory nav controls in
- * Theme G under this anatomy. The full reasoning sits on the component itself,
- * immediately above `export function Hero()` — read it there before changing it.
+ * `data-surface` stays the constant `"light"` in both themes — this was
+ * already true in the previous build (dated 2026-08-09) because the nav is a
+ * normal-flow band ABOVE the full-bleed art, not overlaid on it, in either
+ * theme. Nothing in this round's brief touches that; do not re-derive it
+ * from `themePresentation.heroSurface` (that field governs ONLY row 3's own
+ * background, per its own doc comment in `lib/theme.ts` — a narrower, still-
+ * current, still-unchanged meaning).
  *
- * ── Row 4 is a SIBLING, never a child ────────────────────────────────────
- * The task brief is explicit: `<BrandsMarquee />` "owns its own
- * `<section id="brands">` wrapper and its own accessible name, so do not wrap
- * it in another landmark." Nesting it inside `<section id="hero">` would do
- * exactly that (and would also pull the marquee — always `.surface-paper`,
- * regardless of theme — into the hero's own `data-nav-sentinel` block extent,
- * corrupting the dark/light signal SiteNav reads). So this component returns
- * a Fragment: `<section id="hero">` (rows 2+3), then `<BrandsMarquee />` as
- * an immediate sibling. Visually the two sit flush against each other with no
- * gap, reading as one continuous "first screen" even though they are two
- * independent sectioning landmarks in the DOM.
+ * ── Art resolution — content/heroSlides.ts, not content/artwork.ts ──────
+ * The retired build resolved a SINGLE image via `getArt(themePresentation.
+ * heroArtPlacement)` against `content/artwork.ts`'s `hero.gold`/`hero.blue`
+ * placements. D11 replaces that with the typed slideshow manifest in
+ * `content/heroSlides.ts` — `getHeroSlidesForTheme`, `getHeroSlideArt`,
+ * `getHeroSlideSources`. `resolveHeroSlideshowSlides()` below adapts that
+ * manifest's per-breakpoint shape into `HeroSlideshow`'s prop shape, DROPPING
+ * (never rendering broken) any slide missing a resolvable breakpoint — D21's
+ * "a missing breakpoint uses the documented fallback and never silently
+ * changes the crop." Today all three `HERO_SLIDES` entries resolve cleanly at
+ * every breakpoint (they are Razim's accepted 2026-08-10 interim crops,
+ * flagged `isInterim` in the manifest but NOT flagged in this UI — the task
+ * brief is explicit: "do not hide or apologise for that in the UI; just
+ * render them"). If `resolveHeroSlideshowSlides()` ever returns an empty
+ * array (every slide `blocked: missing-crop`), this file falls back to the
+ * same designed `<KanjiAccent>` interim it always has, inside the identical
+ * aspect-ratio box so the panel's proportions do not jump between the two
+ * states.
  *
- * ── The page-assembly seam — RESOLVED 2026-08-09 ─────────────────────────
- * This file embeds `<BrandsMarquee />`, so `app/page.tsx` must NOT also render
- * the standalone `<BrandsSection />`; doing both put two `<section id="brands">`
- * landmarks (a duplicate DOM id) and two marquees on the page. The main loop
- * removed that call, and `page.tsx` carries a comment saying why. `BrandsSection`
- * is still exported for any other consumer. `content/site.ts`'s `SECTION_IDS`
- * keeps its `hero → stats → brands → …` order deliberately: it is the anchor
- * registry and the nav's DOM-order tie-break, not a rendering order.
+ * FLAG for whoever next owns `content/artwork.ts`: its `hero.gold`/
+ * `hero.blue` placements are no longer read by this file. Not cleaned up
+ * here — that manifest belongs to a different agent this round.
  *
- * ── Desktop viewport budget — RETUNED 2026-08-09 against a real render ───
- * The first pass gave `<section id="hero">` `section-fit` (a min-height of one
- * screen) and the art band a fixed `clamp(420px, 58svh, 760px)`, on the
- * assumption that the manifesto would set in one line. It does not: it is ~60
- * characters, and at `text-display0`'s then-132px maximum inside a half-width
- * column it wrapped to four lines. Measured at 1440x900 the hero came out 1402px
- * — 1.78 viewports — and pushed the CTAs and the whole brand marquee below the
- * fold, which is the one thing §4.2 says must not happen.
+ * ── Preserved from the prior build, unchanged ────────────────────────────
+ * The one `<h1>`, its one italic accent word, both CTAs routed through the
+ * shared `<AnchorLink>` focus-handling island, `heroContent.ts`'s copy
+ * verbatim (no new claim invented — see that file for why it did not need
+ * an edit this round), and the Theme B `plate-frame` inset-into-the-row fix
+ * (its own inline comment below explains why it cannot sit on the full-width
+ * row itself).
  *
- * Three changes fixed it, all verified by measuring the rendered page:
- *   1. `text-display0` retuned to a 4.75rem max (globals.css carries the note).
- *   2. The manifesto spans the FULL container and the sub + CTAs moved to the
- *      row beneath it. runcycle's literal left/right split works there because
- *      its headline is short; ours is a sentence.
- *   3. The art band became the FLEXIBLE element and the section took a fixed
- *      `lg:h-[calc(var(--screen-fit) - var(--brands-h))]`. The copy row is
- *      `shrink-0` and takes its natural height; the art absorbs the remainder.
- *      This is self-correcting — the hero is exactly one screen minus the
- *      marquee at any viewport height, instead of being the sum of two fixed
- *      boxes that only happened to add up at one size.
- *
- * Measured result at 1440x900: hero 604px + marquee 180px = 784px against a
- * 788px budget. Mobile is unchanged and deliberately NOT fit-to-viewport: the
- * art keeps its own `clamp(220px, 40svh, 380px)` band and the page flows.
+ * ── D25 (2026-08-10) SUPERSEDES the pre-D25 `container-hk` doctrine ──────
+ * The note this header used to carry here — "`container-hk` scoping row 3's
+ * own prose measure... row 3 is exactly that local prose+CTA measure, not
+ * the full `stage-shell`... widening it is out of this round's scope" — is
+ * retired outright. Razim's review named row 3 explicitly: "the hero text
+ * should be fit to whole width like other sections." Row 3's OUTER wrapper
+ * is now `stage-shell` (D9), matching every other section on the page (see
+ * the grep in ref 04/AGENT-BRIEF: `StatsSection`/`MandatesSection`/
+ * `DoorsSection`/`TeamSection`/`FaqSection`/etc. all made this exact swap
+ * already). The prose measure D9 still asks for ("constrain PROSE locally,
+ * never throttle the whole composition") now lives on the SUB LINE only
+ * (`max-w-[42ch]` on the `<p>`, tightened from the pre-D25 `56ch` to match
+ * the right column's own narrower `26rem` measure) — never on the row's
+ * outer wrapper, which is the one thing D25 explicitly forbids
+ * ("no `max-w-*` throttle on the row itself").
  */
 
-import Image from "next/image";
 import { KanjiAccent } from "@/components/art/KanjiAccent";
 import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { Reveal } from "@/components/motion/Reveal";
 import { AnchorLink } from "@/components/nav/AnchorLink";
 import { BrandsMarquee } from "@/components/sections/BrandsSection";
 import { Button } from "@/components/ui/button";
-import { getArt } from "@/content/artwork";
-import { themePresentation } from "@/lib/theme";
+import {
+  getHeroSlideArt,
+  getHeroSlideSources,
+  getHeroSlidesForTheme,
+  type HeroBreakpoint,
+} from "@/content/heroSlides";
+import { THEME, themePresentation } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { heroContent } from "./heroContent";
+import { HeroSlideshow, type HeroSlideshowSlide } from "./HeroSlideshow";
 
-/*
- * WHY THE HERO'S nav sentinel REPORTS "light" IN BOTH THEMES (2026-08-09).
- * This is a behaviour change, not a leftover — read it before "fixing" it back
- * to `themePresentation.heroSurface === "surface-black" ? "dark" : "light"`.
- *
- * `data-surface` tells SiteNav what sits BEHIND the nav band so it can pick a
- * contrasting text colour. Under the old anatomy the nav was overlaid on the
- * hero, so the hero's own surface was the right answer and Theme G reported
- * "dark". Under the runcycle anatomy the nav is a normal-flow band ABOVE the
- * full-bleed art (§4.2 row 1: "clean nav — surface, not overlaid"), so what is
- * behind it is the paper page top, in both themes. Deriving it from
- * `heroSurface` kept returning "dark" for Theme G and painted the nav links and
- * the menu trigger ivory-on-ivory: invisible controls, and no way to open the
- * menu on mobile at all. Caught in screenshot QA at 375px.
- *
- * The scrolled state stays correct too: SiteNav paints a translucent paper
- * background under itself once scrolled, so dark link text keeps its contrast
- * even where the hero's dark copy row passes underneath.
+const HERO_BREAKPOINTS: HeroBreakpoint[] = ["mobile", "tablet", "desktop"];
+
+/**
+ * Adapts `content/heroSlides.ts`'s manifest + resolvers into
+ * `HeroSlideshow`'s prop shape. Pure, synchronous, cheap (3 slides × 3
+ * breakpoints today) — safe to call directly in this Server Component's
+ * render. Drops any slide missing a resolvable breakpoint rather than
+ * rendering a broken or mismatched crop (D21).
  */
+function resolveHeroSlideshowSlides(): HeroSlideshowSlide[] {
+  const eligible = getHeroSlidesForTheme(THEME);
+  const resolved: HeroSlideshowSlide[] = [];
+
+  for (const slide of eligible) {
+    const art = Object.fromEntries(
+      HERO_BREAKPOINTS.map((bp) => [bp, getHeroSlideArt(slide.id, bp)]),
+    ) as Record<HeroBreakpoint, ReturnType<typeof getHeroSlideArt>>;
+    const sources = Object.fromEntries(
+      HERO_BREAKPOINTS.map((bp) => [bp, getHeroSlideSources(slide.id, bp)]),
+    ) as Record<HeroBreakpoint, ReturnType<typeof getHeroSlideSources>>;
+
+    const complete = HERO_BREAKPOINTS.every((bp) => art[bp] !== null && sources[bp] !== null);
+    if (!complete) continue;
+
+    resolved.push({
+      id: slide.id,
+      alt: slide.alt,
+      mobile: {
+        src: art.mobile!.src,
+        width: art.mobile!.width,
+        height: art.mobile!.height,
+        objectPosition: art.mobile!.objectPosition,
+        avifSrcSet: sources.mobile!.avif,
+        webpSrcSet: sources.mobile!.webp,
+      },
+      tablet: {
+        src: art.tablet!.src,
+        width: art.tablet!.width,
+        height: art.tablet!.height,
+        objectPosition: art.tablet!.objectPosition,
+        avifSrcSet: sources.tablet!.avif,
+        webpSrcSet: sources.tablet!.webp,
+      },
+      desktop: {
+        src: art.desktop!.src,
+        width: art.desktop!.width,
+        height: art.desktop!.height,
+        objectPosition: art.desktop!.objectPosition,
+        avifSrcSet: sources.desktop!.avif,
+        webpSrcSet: sources.desktop!.webp,
+      },
+    });
+  }
+
+  return resolved;
+}
+
 export function Hero() {
   const { eyebrow, headline, sub, ctaPrimary, ctaGhost } = heroContent;
-  const art = getArt(themePresentation.heroArtPlacement);
+  const slides = resolveHeroSlideshowSlides();
 
   return (
-    <>
-      <section
-        id="hero"
-        aria-labelledby="hero-heading"
-        data-nav-sentinel
-        data-surface="light"
-        /* NOT `section-fit`. The brands marquee is a sibling landmark (see the
-           bottom of this file), so the hero must claim one screen MINUS the
-           marquee's height or the pair overflows by exactly that much — which
-           is what shipped in the first pass. Retuned by the main loop against a
-           real 1440x900 render, 2026-08-09. */
-        className="relative flex flex-col lg:h-[calc(var(--screen-fit)-var(--brands-h))]"
-      >
-        {/* Row 2 — full-bleed art band, the LCP element. No container-hk: this
-            is the one deliberately edge-to-edge element in the hero. */}
-        <div
-          className={cn(
-            "relative w-full overflow-hidden bg-surface",
-            // Mobile keeps a fixed svh band and natural flow below it.
-            "h-[clamp(220px,40svh,380px)] shrink-0",
-            // Desktop: the art ABSORBS whatever the headline row does not use.
-            // Retuned 2026-08-09 against a real 1440x900 render. A fixed svh
-            // band here was the bug: the section had to be tall enough for the
-            // art AND the copy, so the pair overflowed one screen by exactly
-            // however much the headline wrapped. Making the art the flexible
-            // element inverts that — the hero is pinned to exactly one screen
-            // minus the marquee, the copy takes its natural height, and the art
-            // takes the rest. Self-correcting at 900px, 1080px and 1440px tall,
-            // and it degrades to the min rather than pushing the CTAs off.
-            "lg:h-auto lg:min-h-[220px] lg:flex-1 lg:shrink",
-          )}
-        >
-          {art ? (
-            <Image
-              src={art.src}
-              alt={art.alt}
-              fill
-              sizes={art.sizes}
-              preload
-              fetchPriority="high"
-              className="object-cover"
-            />
-          ) : (
-            // Dead code today (both hero placements are "delivered" in the
-            // manifest) — the designed interim if that ever changes. See
-            // this file's header, "Art resolution + the alt-text law."
+    <section
+      id="hero"
+      aria-labelledby="hero-heading"
+      data-nav-sentinel
+      data-surface="light"
+      className="page-panel relative flex flex-col"
+    >
+      {/* Rows 2+3 share the panel's remaining height above the brand rail;
+          `lg:justify-center` distributes any leftover space around them
+          rather than pinning both to the top (§3.1). */}
+      <div className="flex flex-1 flex-col lg:justify-center">
+        {slides.length > 0 ? (
+          <HeroSlideshow slides={slides} />
+        ) : (
+          // Dead code today (the interim slide manifest always resolves) —
+          // the designed fallback if a future manifest edit ever leaves
+          // every slide `blocked: missing-crop`. Same declared-ratio box as
+          // the real slideshow so the panel's proportions do not jump.
+          <div className="relative w-full shrink-0 overflow-hidden bg-surface aspect-[4/3] md:aspect-[16/7] lg:aspect-[4/1]">
             <div aria-hidden="true" className="absolute inset-0">
               <KanjiAccent />
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Row 3 — headline row, on the themed surface below the art. */}
+        {/* Row 3 — headline row, on the themed surface below the art.
+            D25 (2026-08-10): full `stage-shell` width, genuine two-column
+            split (dominant left / narrower right), padding retuned for the
+            one-screen budget. See the budget comment below for the numbers.
+        */}
         <Reveal
           as="div"
           className={cn(themePresentation.heroSurface, "relative flex shrink-0 items-center")}
         >
-          <div
-            className={cn(
-              // py-7/py-8 rather than section-pad-tight: every pixel this row
-              // does not use goes to the art band, which is flex-1 above and is
-              // the LCP element. section-pad-tight spends 96px here at 1440.
-              "container-hk w-full py-7 lg:py-8",
-              // NOTE: `plate-frame` deliberately does NOT go here. It draws its
-              // registration marks with ::before/::after at -5px, and this
-              // element spans the full viewport width — so on Theme B the
-              // bottom-right mark hung 5px past the right edge and gave the
-              // whole document a 4px horizontal scroll at 375 and 768. Caught
-              // in screenshot QA on the blue build (gold never showed it,
-              // because `plateChrome` is Theme B only). It also read wrong:
-              // a plate frame flush to the screen edge is not a frame. It now
-              // sits on the inner wrapper below, inside container-hk's gutter.
-            )}
-          >
-            {/* Theme B's plate chrome lives HERE, inset inside container-hk's
-                gutter, so its -5px registration marks stay on screen. */}
-            <div className={cn(themePresentation.plateChrome && "plate-frame px-5 py-6 lg:px-8")}>
-            {/* The manifesto spans the FULL container, then the sub line and
-                CTAs share the row beneath it.
+          {/*
+            ── D25 one-screen budget arithmetic (Razim: "the hero section is
+            not fully fit to screen"; hero must land on `100svh - var(--nav-h)
+            - var(--ticker-h)` = `--screen-fit`) ──────────────────────────
 
-                The first pass followed runcycle's split literally — h1 in a
-                half-width left column, sub + CTAs right. Measured at 1440 that
-                gave the h1 only ~670px, so a ~60-character headline wrapped to
-                four lines and the hero grew to 1.78 viewports. runcycle's split
-                works there because its headline is short. Ours is a sentence,
-                so it gets the full measure and the split moves down one row —
-                same anatomy, honest about the copy it has to carry. */}
-            <MicroLabel as="p">{eyebrow}</MicroLabel>
+            `--screen-fit` at the two reference viewports (`--nav-h` 72px +
+            `--ticker-h` 44px = 116px of fixed chrome, globals.css §2):
+              1440×900  → 900  - 116 = 784px
+              1920×1080 → 1080 - 116 = 964px
 
-            <h1 id="hero-heading" className="mt-4 font-display text-display0 font-light">
-              {headline.before}
-              <em className="italic">{headline.accent}</em>
-              {headline.after}
-            </h1>
+            Row 2 (`<HeroSlideshow>`) is full-bleed at its declared `4:1`
+            desktop ratio — height = viewport width / 4, NOT flexible (the
+            whole point of the crop fix, do not touch):
+              1440×900  → 1440 / 4 = 360px
+              1920×1080 → 1920 / 4 = 480px
 
-            <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
-              <p className="max-w-[56ch] text-body-lg text-fg-muted">{sub}</p>
-              <div className="flex flex-wrap items-center gap-4 lg:shrink-0">
-                <Button asChild variant="primary" size="lg">
-                  {/* Safe assertion — both hrefs are anchor() results, which
-                      always produce `#<SectionId>`. See this file's header,
-                      "CTAs route through the shared anchor-focus handler." */}
-                  <AnchorLink href={ctaPrimary.href as `#${string}`}>
-                    {ctaPrimary.label}
-                  </AnchorLink>
-                </Button>
-                <Button asChild variant="ghost" size="lg">
-                  <AnchorLink href={ctaGhost.href as `#${string}`}>{ctaGhost.label}</AnchorLink>
-                </Button>
+            Row 4 (`<BrandsMarquee>`, this section's own file) at the D25
+            chip clamp (`clamp(3rem, 2.5rem + 2.6vw, 5rem)`, ceiling reached
+            ~1538px width) plus its `py-6`/`gap-4` rhythm and the two-line
+            trademark microcopy that `container-hk`'s ~1104px content width
+            already forces pre-D25 (unrelated to this round's chip change):
+              chip height: 1440px → ~77px · 1920px → 80px (ceiling)
+              48 (py-6) + 32 (2× gap-4) + 16 (h2) + chip + ~31 (2-line p)
+              1440×900  → 48+32+16+77+31 ≈ 204px
+              1920×1080 → 48+32+16+80+31 ≈ 207px
+
+            That leaves row 3's own budget:
+              1440×900  → 784 - 360 - 204 = 220px
+              1920×1080 → 964 - 480 - 207 = 277px
+
+            Row 3's own height (this row, both columns vertically centred —
+            the taller column sets the row's height), at the padding below
+            and `text-display0`'s ceiling font-size (76px, reached ~1165px
+            viewport width — both reference widths exceed it, line-height
+            0.98 → ~75px/line):
+              Left column (dominant, `lg:flex-1`): eyebrow (~16px) + `mt-4`
+              (16px) + h1. The headline is 60 characters; at this column's
+              real rendered width (viewport-dependent, not hand-measurable
+              without a browser) it wraps 2–3 lines depending on actual
+              Fraunces Light glyph metrics — this is the ONE figure in this
+              budget that cannot be pinned exactly by hand:
+                2 lines → 16+16+150 = 182px    3 lines → 16+16+225 = 257px
+              Right column (`lg:w-[26rem]`): 2-line sub (~64px, the sentence
+              is long enough that 1 line is unrealistic at this measure) +
+              `gap-4` (16px) + the CTA row (Button `lg` = 52px) = 132px —
+              never the binding column, both scenarios.
+              Wrapper padding: `py-6 lg:py-5` = 40px (lg) both themes, PLUS
+              Theme B's `plate-frame py-4 lg:py-5` = 40px more (registration-
+              mark chrome Theme G does not carry — `plate-frame`'s marks are
+              absolutely positioned off the border box, ref globals.css, so
+              trimming this padding does not distort them).
+
+            Totals (row 3 alone), 2-line-headline scenario:
+              Gold  1440 → 40 + 182 = 222px  (budget 220 → ~at budget)
+              Blue  1440 → 40 + 40 + 182 = 262px  (budget 220 → over ~42px)
+              Gold  1920 → 222px  (budget 277 → fits, 55px margin)
+              Blue  1920 → 262px  (budget 277 → fits, 15px margin)
+
+            **Honest read:** 1920×1080 fits both themes under this estimate.
+            1440×900 is within hand-calculation noise for Theme G and short
+            by ~40px for Theme B specifically — the plate-frame chrome Theme
+            B alone carries. If the headline actually wraps 3 lines instead
+            of 2 (the one unmeasurable variable above), both themes need
+            another ~75px at 1440, which this hand calculation cannot rule
+            out. This is the exact gap docs/DESIGN-REVISIT-3.md §2 step 4
+            schedules a real headless measurement pass to close — the two
+            remaining levers if it does not already fit are `plate-frame`'s
+            `py-4 lg:py-5` (Theme B only, no visual floor below ~12px given
+            the -5px registration-mark offsets) and this wrapper's own
+            `py-6 lg:py-5`. Both are called out again at their class names
+            below so the next pass finds them without re-deriving this.
+          */}
+          <div className="stage-shell w-full py-6 lg:py-5">
+            {/* Theme B's plate chrome lives HERE, inset inside stage-shell's
+                gutter, so its -5px registration marks stay on screen rather
+                than hanging past the edge of a full-width row. Padding is
+                `py-4 lg:py-5` — the tightened, budget-driven figure; see the
+                arithmetic above before loosening it back toward the pre-D25
+                `py-6`. */}
+            <div
+              className={cn(
+                themePresentation.plateChrome && "plate-frame px-5 py-4 lg:px-8 lg:py-5",
+              )}
+            >
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+                {/* Left — the proposition, dominant (ref 04 §5.1). `lg:flex-1`
+                    claims whatever width the fixed-measure right column does
+                    not, rather than a hard percentage that would need
+                    re-tuning every time the right column's own measure
+                    changes. */}
+                <div className="lg:flex-1">
+                  <MicroLabel as="p">{eyebrow}</MicroLabel>
+
+                  <h1 id="hero-heading" className="mt-4 font-display text-display0 font-light">
+                    {headline.before}
+                    <em className="italic">{headline.accent}</em>
+                    {headline.after}
+                  </h1>
+                </div>
+
+                {/* Right — supporting line + dual CTAs, stacked, at a fixed
+                    narrower measure so the left column stays visibly
+                    dominant at every `stage-shell` width (ref 04 §5.1:
+                    "supporting line + CTAs right"). */}
+                <div className="flex flex-col gap-4 lg:w-[26rem] lg:shrink-0">
+                  <p className="max-w-[42ch] text-body-lg text-fg-muted">{sub}</p>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <Button asChild variant="primary" size="lg">
+                      {/* Safe assertion — both hrefs are anchor() results, which
+                          always produce `#<SectionId>`. */}
+                      <AnchorLink href={ctaPrimary.href as `#${string}`}>
+                        {ctaPrimary.label}
+                      </AnchorLink>
+                    </Button>
+                    <Button asChild variant="ghost" size="lg">
+                      <AnchorLink href={ctaGhost.href as `#${string}`}>{ctaGhost.label}</AnchorLink>
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
             </div>
           </div>
         </Reveal>
-      </section>
+      </div>
 
-      {/* Row 4 — a SIBLING landmark, never nested inside #hero. See this
-          file's header, "Row 4 is a sibling, never a child" and "KNOWN
-          INTEGRATION GAP." */}
+      {/* Row 4 — nested, `shrink-0`, no `page-panel` of its own. See this
+          file's header, "Row 4 is now nested." */}
       <BrandsMarquee />
-    </>
+    </section>
   );
 }

@@ -20,6 +20,12 @@ import { cn, metaLine } from "@/lib/utils";
 
 export type DataLinePart = string | number | null | undefined;
 
+/**
+ * Longest part that still gets `whitespace-nowrap`. Above this a part is prose,
+ * not a data token, and must be allowed to wrap — see the note at the render.
+ */
+const LONG_PART_CHARS = 32;
+
 export type DataLineProps = {
   /** Ordered parts. Null/undefined/"" are dropped, matching `metaLine`. */
   parts: ReadonlyArray<DataLinePart>;
@@ -66,11 +72,31 @@ export function DataLine({
   if (values.length === 0) return null;
 
   return (
-    <Tag className={cn("data-line", className)}>
+    <Tag className={cn("data-line min-w-0", className)}>
       {values.map((value, i) => (
         <Fragment key={`${i}-${value}`}>
           {i > 0 ? SEPARATOR : null}
-          <span className="whitespace-nowrap">{value}</span>
+          {/* `whitespace-nowrap` only for parts SHORT enough to plausibly fit a
+              column. The rule exists so a real data value never breaks
+              mid-token ("Lake Harmony," / "PA") — but a part longer than its
+              container cannot honour it, and `nowrap` then forces the span to
+              overflow the layout entirely rather than wrap.
+
+              That is not hypothetical: #mandates splits a criteria line on its
+              `·` separators, and one clause is a full prose sentence. In a
+              two-column grid its column measured 245px while the nowrap span
+              demanded 486px, which pushed the document's scrollWidth to 1616px
+              at a 1440px viewport — a horizontal scrollbar on every breakpoint.
+              Razim called that out as a hard release gate (D29), so the fix is
+              here at the source rather than masked by the root's overflow clip.
+
+              LONG_PART_CHARS is deliberately generous: every genuine data value
+              this component was built for (prices, "450 keys", "Lake Harmony,
+              PA", LP/SP ratios) is far below it, so the no-mid-token guarantee
+              is untouched for its real use case. */}
+          <span className={value.toString().length <= LONG_PART_CHARS ? "whitespace-nowrap" : undefined}>
+            {value}
+          </span>
         </Fragment>
       ))}
     </Tag>

@@ -1,32 +1,52 @@
 /**
  * components/cards/ListingCard.tsx — one "Hotels for sale" deal ticket.
  *
- * Governed by docs/design/specs/listings.md, docs/DESIGN-REVISIT.md §4.5 (D4
- * ticket anatomy) and hokuten-design-director ref 04 (#listings), ref 07 (the
- * 5-second CRE gate: a LoopNet/Crexi user finds price, keys, cap rate and a
- * contact route at a glance). Rebuilt onto `Ticket` — see that file's header
- * for the chassis contract this component composes against. Server
- * Component — Ticket, PhotoFrame and Badge carry the only client-side pieces
- * (PhotoFrame's tap toggle).
+ * Governed by docs/DESIGN-REVISIT-2.md D13 + §5.4 ("02 — Hotels for sale",
+ * screen 4) — this wave's rebuild — and hokuten-design-director ref 04
+ * (`#listings`), ref 07 (the 5-second CRE gate: a Crexi/LoopNet user finds
+ * price, keys, cap rate and a contact route at a glance). Built onto
+ * `Ticket` (components/cards/Ticket.tsx) — read that file's header for the
+ * chassis contract this component composes against; it is NOT owned or
+ * modified here. Server Component — `Ticket`, `PhotoFrame` and `Badge`
+ * carry the only client-side pieces (PhotoFrame's tap toggle).
+ *
+ * ── THIS WAVE: migrated onto Ticket's dedicated `price`/`serial` slots ─────
+ * `Ticket.tsx`'s own header left an explicit "NEXT-WAVE TODO" for whoever
+ * rebuilds this file: move the price-valued entry OUT of `metrics` and into
+ * the new `price` prop, and add `serial` from the grid's real array index.
+ * That migration is what makes D13's four-level hierarchy (micro serial →
+ * serif title → mono money PRICE → compact mono facts) actually reach the
+ * page instead of leaving price sitting inside the small metrics grid at the
+ * same visual weight as keys/cap rate. Both are done below:
+ *   `price`   → `Ticket`'s dedicated slot (`text-heading` + `text-money`,
+ *               THE dominant data moment, visibly larger than everything in
+ *               `metrics`). `displayPrice()` already returns the approved
+ *               "Price on Request" fallback — passed through unmodified.
+ *   `serial`  → `"OFFERING NN"`, derived from the REAL, already-rendered
+ *               array index `ListingsSection` passes in via the new
+ *               `index` prop (never invented here — see that prop's doc
+ *               below). "Offering" reads correctly for active-for-sale
+ *               inventory, distinct from `ClosingCard`'s "Record" framing
+ *               for the retired track-record grid (a separate file, a
+ *               separate agent's assignment this wave).
+ *   `metrics` → now ONLY keys and cap rate, in that order, when the seed
+ *               supplies them — never price again (Ticket's own migration
+ *               note: "NEVER the primary price again").
  *
  * ── The 5-second gate ───────────────────────────────────────────────────────
- * Price is always the FIRST metric in the structured grid (Ticket's no-reflow
- * contract keeps every ticket the same height regardless of how many metrics
- * follow it). Keys and cap rate join it only when the seed data supplies
- * them — the Phase 1 seed carries none of roomCount, serviceLevel, price or
- * cap for any of the five active listings, so today every ticket ships a
- * single, full-width "Price" row (`Ticket` spans a sole metric across both
- * grid columns rather than leaving a half-empty row). Nothing here is
- * invented when the source hasn't supplied it — `keys` and `cap rate` are
- * genuinely omitted rows, never "N/A", per the source data's own contract
- * (content/listings.ts header comment).
+ * Price always renders (real value or the "Price on Request" fallback — it
+ * is never blank). Keys and cap rate join the facts grid only when the seed
+ * data supplies them; the Phase 1 seed currently carries neither for any of
+ * the five active listings (content/listings.ts), so today every ticket's
+ * facts grid is empty and `Ticket`'s `reserveMetrics` default still holds
+ * the row's height steady across the grid. Nothing here is invented when the
+ * source hasn't supplied it — `keys` and `cap rate` are genuinely omitted
+ * rows, never "N/A" (content/listings.ts header comment).
  *
- * ── D4: what moved where ────────────────────────────────────────────────────
+ * ── D4: what moved where (carried forward from the pre-Ticket CardShell era,
+ *    unchanged this wave) ────────────────────────────────────────────────────
  *   EXCLUSIVE (status) badge  → the "class" chip, overlaid top-left on the
- *     header photo band (was CardShell's bottom badge row).
- *   cap rate                  → a metric-grid row ("Cap rate" / "7.25% Cap"),
- *     using `displayCapRate`'s exact formatted string — was a separate
- *     `<Badge>` chip in the badge row.
+ *     header photo band.
  *   "View on Crexi ->"        → the stub action below the tear line, plain
  *     text + a Lucide `ArrowUpRight` (never the "→" glyph directly — a11y
  *     law reserves the literal arrow character for mono micro-label type).
@@ -40,45 +60,48 @@
  * mismatched link — it degrades to a non-linking tile with a real `mailto:`
  * contact route in the stub instead.
  *
- * ── Photo: real listing photo, or the artwork-manifest placeholder ─────────
- * The Phase 1 seed has no photograph of any of these five properties (the
- * kwc source repo carries closing photos only) — every `listing.photo` is
- * the sentinel `/art/listing-placeholder.svg`, detected below rather than
- * guessed. Where that sentinel is set, the header resolves
- * `content/artwork.ts`'s `"listing.placeholder"` placement (delivered:
- * `beachfront-aerial`, the D5 glyph-mosaic art) via `getArt()` — "that is the
- * right wiring" per the round's task brief — and falls back to the legacy
- * static SVG only if the manifest ever reports the placement blocked.
+ * ── Photo: the listing-media adapter, not inline resolution ────────────────
+ * THIS WAVE: photo/placeholder resolution moved OUT of this file and into
+ * the new `lib/listingMedia.ts` adapter (`getListingMedia()`) — read that
+ * file's header for the full three-branch contract (real CRM photo / glyph-
+ * art placeholder / raw-SVG degrade) and the `focalPoint` gap it documents.
+ * This file now only asks "what media does this listing have?" and renders
+ * whatever comes back — it no longer knows the sentinel value, the artwork
+ * manifest, or which branch fired. That is the whole point of the adapter
+ * (D13: "when CRM media arrives it changes DATA, not component anatomy") —
+ * the day a real `photoUrl` lands on a `Listing` record, this file changes
+ * NOTHING; `getListingMedia()`'s first branch already renders it.
  *
- * KNOWN GAP, not something this component can fix: as of this pass the
- * manifest's `breakpoints` for `listing.placeholder` point at
- * `/art/beachfront-aerial-card-{640,1280}.{avif,webp,jpg}`, and NONE of those
- * six files exist on disk yet (only `beachfront-aerial-hero-1024.avif/webp`
- * do — a different placement's breakpoint, generated for the hero). The
- * generation contract is owned by a concurrent agent (artwork.ts's own header
- * comment). Until those files land, every listing ticket's header will 404.
- * Verify before shipping / before the mandatory screenshot QA pass.
+ * KNOWN GAP, not something this component can fix (docs/PLACEHOLDERS.md row
+ * 41, `provisional`): none of the five active listings has real photography
+ * yet — every one resolves the approved 「北天」 glyph-mosaic placeholder via
+ * the adapter's second branch. This is the designed, tracked interim state,
+ * not a bug.
  *
- * ── Header aspect: 3:2, not the old 4:3 ─────────────────────────────────────
+ * ── `focalPoint`: consumed here, not yet populated anywhere (see the adapter's
+ *    header for the full gap note) ──────────────────────────────────────────
+ * `FOCAL_IMAGE_CLASS` below is a closed, literal Tailwind lookup — never a
+ * dynamically interpolated class name (PhotoFrame.tsx's own established
+ * pattern: "Literal class strings so Tailwind's source scan can see them").
+ * No listing supplies a focal point today, so this branch is inert in
+ * practice, but it is real, wired code: the day `getListingMedia()` starts
+ * returning one (once `Listing` gains a source field for it — the adapter's
+ * documented gap), this file needs no further change.
+ *
+ * ── Header aspect: 3:2, matching the adapter's own canonical box ───────────
  * The artwork manifest fixes the "card" variant (used by both
- * `listing.placeholder` and `#closings`' `closings.accent`) at 3:2 — adopted
- * here for both the real-photo and placeholder-art branches so every ticket
- * in the grid shares one aspect regardless of source. This supersedes the
- * pre-ticket CardShell era's "4/3 crops least off the 5:4 SVG" reasoning,
- * which no longer governs now that a real 3:2 artwork piece is the intended
- * asset. The interim raw-SVG fallback branch (reached only if the manifest
- * ever reports this placement blocked — not the case today) inherits the
- * same 3:2 box and takes a slightly larger crop than the old 4/3 choice; that
- * branch is not live under the current manifest state, so this is a
- * documented, low-stakes tradeoff rather than a regression anyone will see.
+ * `listing.placeholder` and `#closings`' `closings.accent`) at 3:2, and
+ * `lib/listingMedia.ts`'s real-photo branch reserves that same 3:2 box —
+ * this file's `HEADER_ASPECT` constant matches both so every ticket in the
+ * grid shares one aspect regardless of source.
  */
 
 import { ArrowUpRight } from "lucide-react";
 
 import type { Listing } from "@/lib/types";
 import { displayCapRate, displayPrice, metaLine } from "@/lib/utils";
+import { getListingMedia, isRawSvgFallback, type ListingMediaFocalPoint } from "@/lib/listingMedia";
 import { isTrustedCrexiUrl } from "@/content/listings";
-import { getArt } from "@/content/artwork";
 import { CONTACT } from "@/content/site";
 import Ticket, { type TicketMetric } from "@/components/cards/Ticket";
 import PhotoFrame from "@/components/atoms/PhotoFrame";
@@ -87,60 +110,66 @@ import { Button } from "@/components/ui/button";
 
 export type ListingCardProps = {
   listing: Listing;
+  /**
+   * The listing's REAL, already-rendered position in the grid array (0-based
+   * — this file adds 1 for display). `ListingsSection` passes its own
+   * `.map((listing, index) => …)` index straight through; this component has
+   * no serial-generation logic of its own and never invents one (Ticket's
+   * own contract: a serial "MUST be derived by the caller from the real,
+   * already-rendered array index"). Optional so a future standalone/preview
+   * render of this card (outside the grid) simply omits the serial rather
+   * than requiring a fabricated position.
+   */
+  index?: number;
   className?: string;
 };
 
-/** The seed's "no real photo yet" marker — see content/listings.ts header. */
-const NO_PHOTO_SENTINEL = "/art/listing-placeholder.svg";
-
 const HEADER_ASPECT = "3/2" as const;
 const HEADER_SIZES = "(min-width: 1024px) 360px, (min-width: 768px) 45vw, 90vw";
+
+/** Literal, closed lookup — see file header "focalPoint" note. Every value
+ *  is a built-in Tailwind utility; nothing here is interpolated. */
+const FOCAL_IMAGE_CLASS: Record<ListingMediaFocalPoint, string> = {
+  center: "object-center",
+  top: "object-top",
+  bottom: "object-bottom",
+  left: "object-left",
+  right: "object-right",
+};
 
 /** "City, ST" when a city is on file, "ST" alone otherwise — never an invented municipality. */
 function locationLabel(listing: Listing): string {
   return listing.city ? `${listing.city}, ${listing.stateCode}` : listing.stateCode;
 }
 
-export function ListingCard({ listing, className }: ListingCardProps) {
+export function ListingCard({ listing, index, className }: ListingCardProps) {
   const hasTrustedLink = Boolean(listing.crexiUrl && isTrustedCrexiUrl(listing.crexiUrl));
   const cap = displayCapRate(listing.displayCapRate);
   const meta = metaLine([locationLabel(listing), listing.brand, listing.serviceLevel]);
 
-  const hasRealPhoto = listing.photo !== NO_PHOTO_SENTINEL;
-  const placeholderArt = hasRealPhoto ? null : getArt("listing.placeholder");
-
-  const headerPhoto = hasRealPhoto ? (
-    <PhotoFrame src={listing.photo} alt={listing.photoAlt} aspect={HEADER_ASPECT} sizes={HEADER_SIZES} />
-  ) : placeholderArt ? (
-    <PhotoFrame
-      src={placeholderArt.src}
-      alt={placeholderArt.alt}
-      aspect={HEADER_ASPECT}
-      sizes={placeholderArt.sizes}
-    />
-  ) : (
-    // Interim fallback — only reached if the manifest ever reports
-    // "listing.placeholder" as blocked (it does not today). Kept as the
-    // documented degrade path rather than an empty slot.
-    <PhotoFrame
-      src={NO_PHOTO_SENTINEL}
-      alt={listing.photoAlt}
-      aspect={HEADER_ASPECT}
-      sizes={HEADER_SIZES}
-      reveal={false}
-    />
-  );
+  const media = getListingMedia(listing);
+  // The raw-SVG degrade is a flat interim icon, not a photograph — it skips
+  // the grayscale-at-rest/colour-on-hover photo treatment every real image
+  // (real or glyph-art) gets elsewhere on the site. See lib/listingMedia.ts.
+  const isFlatFallback = isRawSvgFallback(media);
 
   const header = (
     <>
-      {headerPhoto}
+      <PhotoFrame
+        src={media.src}
+        alt={media.alt}
+        aspect={HEADER_ASPECT}
+        sizes={HEADER_SIZES}
+        reveal={!isFlatFallback}
+        imageClassName={media.focalPoint ? FOCAL_IMAGE_CLASS[media.focalPoint] : undefined}
+      />
       <div className="absolute left-3 top-3 z-1">
         <Badge status={listing.status} className="bg-paper" />
       </div>
     </>
   );
 
-  const metrics: TicketMetric[] = [{ label: "Price", value: displayPrice(listing.price) }];
+  const metrics: TicketMetric[] = [];
   if (listing.roomCount) {
     metrics.push({ label: "Keys", value: listing.roomCount });
   }
@@ -176,9 +205,11 @@ export function ListingCard({ listing, className }: ListingCardProps) {
       className={className}
       href={hasTrustedLink ? listing.crexiUrl : undefined}
       external={hasTrustedLink}
+      serial={index !== undefined ? `OFFERING ${String(index + 1).padStart(2, "0")}` : undefined}
       header={header}
       title={title}
       meta={meta}
+      price={displayPrice(listing.price)}
       metrics={metrics}
       stub={stub}
     />

@@ -30,15 +30,52 @@
  * free space, so nothing clips — it degrades to ordinary top-down flow.
  * `#team` sits between `#mandates` (`surface-dark`) and `#faq`
  * (`surface-paper`) — different surface above, so this section keeps its
- * own full `section-pad` gutter rather than a `section-join`; `#faq` is the
- * one that joins onto it (see FaqSection.tsx). Header-to-content and grid
- * gaps compress at `lg:` only — mobile keeps the original values, per D6
+ * own full gutter rather than a `section-join`; `#faq` is the one that
+ * joins onto it (see FaqSection.tsx). Header-to-content and grid gaps
+ * compress at `lg:` only — mobile keeps the original values, per D6
  * ("do not compress below lg").
  *
  * ── D8 typography pass ───────────────────────────────────────────────────
  * No change here beyond spacing: the section's one focal step is still
  * `SectionHeader`'s Display-2 headline. The hierarchy work for this section
  * lives inside `TeamCard` (name weight, role voice) — see that file's header.
+ *
+ * ── Design Revisit 2 (2026-08-10, D9/D10/D20, §5.6) — chassis swap, spatial
+ *    only ─────────────────────────────────────────────────────────────────
+ * `container-hk` (1200px cap) → `stage-shell` (D9: full-width, fluid
+ * gutter). `section-fit` → `page-panel` (identical `min-height:
+ * var(--screen-fit)` mechanism — the panel fills the usable viewport height
+ * and centres/distributes its content, so the page still reads as one of
+ * twelve deliberate screens; if the roster ever grows past one usable
+ * screen, the panel simply grows and the document scrolls through it). The
+ * `lg:flex-1 lg:justify-center` split (outer `<section>` flex host, inner
+ * `stage-shell` the one growing/centred child) matches the pattern
+ * `StatsSection.tsx` already established this wave.
+ *
+ * D22 note (2026-08-10): scroll snap is gone — the route-scoped mandatory
+ * snap rule in `globals.css` and `components/motion/PagedMode.tsx` are both
+ * deleted, so scrolling on the landing route is entirely natural. This
+ * section no longer "participates in a paged mode"; it never depended on
+ * snap for anything beyond the `min-height` behaviour described above, which
+ * is unchanged.
+ *
+ * `section-pad` → `section-pad-tight`: NOT the surface-adjacency reason
+ * (unchanged — `#mandates` above is still `.surface-dark`, so no
+ * `section-join` applies here), but the OTHER documented reason
+ * `globals.css` gives that utility: "sections that carry a lot of content"
+ * (its own example is the calculator). Three cards plus an Operations block
+ * is exactly that, and the tighter gutter is what keeps the section inside
+ * one usable screen now that `TeamCard` flips to a landscape row at `lg:`
+ * (see `TeamCard.tsx`'s own header for why the card shape had to change
+ * before "use the width" could mean anything at `stage-shell` widths
+ * without the portrait becoming absurd).
+ *
+ * `Reveal as="ul"` gains `role="list"`: `ol`/`ul` lose their implicit list
+ * semantics under VoiceOver once Tailwind's preflight sets `list-style:
+ * none` on them (confirmed in `node_modules/tailwindcss/preflight.css`) —
+ * the same defensive `role="list"` `StatsSection.tsx` already carries on
+ * its own `Reveal as="ul"`, applied here for the same reason, not because
+ * anything about the grid itself changed.
  */
 
 import { team } from "@/content/team";
@@ -56,9 +93,9 @@ export function TeamSection() {
     <section
       id="team"
       aria-labelledby="team-heading"
-      className="surface-paper section-pad section-fit lg:flex lg:flex-col lg:justify-center"
+      className="surface-paper section-pad-tight page-panel lg:flex lg:flex-col"
     >
-      <div className="container-hk">
+      <div className="stage-shell flex flex-col gap-10 lg:flex-1 lg:justify-center lg:gap-8">
         <Reveal>
           <SectionHeader
             id="team-heading"
@@ -71,7 +108,8 @@ export function TeamSection() {
         <Reveal
           as="ul"
           stagger
-          className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:mt-8 lg:grid-cols-3 lg:gap-6"
+          role="list"
+          className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-6"
         >
           {principals.map((member) => (
             <RevealItem key={member.name} as="li">
@@ -82,7 +120,7 @@ export function TeamSection() {
 
         {/* Operations — lighter treatment, own Reveal, outside the stagger group. */}
         {operations ? (
-          <Reveal delay={0.1} className="hairline-t mt-12 pt-8 lg:mt-8 lg:pt-6">
+          <Reveal delay={0.1} className="hairline-t pt-8">
             <MicroLabel as="p" className="mb-4">
               Operations
             </MicroLabel>

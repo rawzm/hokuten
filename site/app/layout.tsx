@@ -1,14 +1,68 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { LazyMotion, domAnimation } from "motion/react";
+import { BrandLoader } from "@/components/loader/BrandLoader";
 import { ConsentProvider } from "@/components/modals/ConsentProvider";
 import { TickerBar } from "@/components/ticker/TickerBar";
 import { stats } from "@/content/stats";
 import { SITE_NAME } from "@/content/site";
 import { THEME, themePresentation } from "@/lib/theme";
 import "./globals.css";
+
+/**
+ * D16 loader gate (docs/DESIGN-REVISIT-2.md §6.3) — a `beforeInteractive`
+ * script, verified against this repo's own `node_modules/next/dist/client/
+ * script.js`: strategy `"beforeInteractive"` is injected into the initial
+ * server-rendered HTML and, per Next's own implementation, guaranteed to run
+ * BEFORE any page JS hydrates, regardless of where in the tree this element
+ * is placed. That is the one guarantee this whole mechanism depends on — a
+ * plain `useEffect` inside BrandLoader.tsx runs AFTER the browser has already
+ * painted the raw SSR HTML at least once, which is too late to prevent
+ * either direction of flash (loader-over-content OR raw-content-before-
+ * loader). This script decides BEFORE that first paint, so there is nothing
+ * to correct after the fact.
+ *
+ * ALL this script does is decide "should the loader run this load?" and, if
+ * so, stamp `data-loader-pending` onto `<html>` — a presence-only attribute
+ * BrandLoader.tsx's own render-blocking CSS keys off (see that file's header,
+ * "THE GATE ATTRIBUTE," for the full contract and why the literal string is
+ * duplicated rather than shared as a JS import across this boundary). It
+ * never touches scroll, timers, or anything else — that is BrandLoader.tsx's
+ * job once it mounts and finds the attribute present.
+ *
+ * DECISION, per D16's CONDITIONS:
+ *   - Navigation Timing `type === "back_forward"` → never show (covers real
+ *     back/forward reloads; bfcache restoration doesn't re-run this script
+ *     at all, so it is already excluded structurally, not by this check).
+ *   - `type === "reload"` → always show, a hard refresh, regardless of
+ *     whether this session has already shown it once.
+ *   - Anything else (a fresh `"navigate"`, or an unsupported/absent
+ *     Navigation Timing entry) → show only once per `sessionStorage`-tracked
+ *     browser session.
+ * `sessionStorage` and `performance.getEntriesByType` are both wrapped in one
+ * `try`; ANY failure (storage denied, private-mode throw, API absent) FAILS
+ * OPEN — the attribute is simply never set, so BrandLoader's CSS default
+ * (hidden) stands and the real page shows immediately. This must never fail
+ * toward showing an overlay this script cannot reason about clearing.
+ */
+const LOADER_GATE_SCRIPT = `(function () {
+  try {
+    var KEY = "hk-loader-seen";
+    var entries =
+      typeof performance !== "undefined" && performance.getEntriesByType
+        ? performance.getEntriesByType("navigation")
+        : [];
+    var navType = entries && entries[0] ? entries[0].type : undefined;
+    if (navType === "back_forward") return;
+    var seen = window.sessionStorage.getItem(KEY) === "1";
+    if (navType !== "reload" && seen) return;
+    window.sessionStorage.setItem(KEY, "1");
+    document.documentElement.setAttribute("data-loader-pending", "");
+  } catch (e) {}
+})();`;
 
 /* Three voices, no more (ref 01). Self-hosted by next/font at build time —
    zero runtime CDN font requests. ≤2 files per family (ref 05 perf gate). */
@@ -124,6 +178,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full">
+        {/* Must run before hydration — see the file-level comment above
+            LOADER_GATE_SCRIPT. Placement in the tree does not matter for
+            `beforeInteractive` (Next hoists it into the document regardless),
+            but it sits first for readability: it is the first decision made
+            on every load. */}
+        <Script id="hk-loader-gate" strategy="beforeInteractive">
+          {LOADER_GATE_SCRIPT}
+        </Script>
+
         <a href="#main" className="skip-link">
           Skip to content
         </a>
@@ -169,6 +232,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               navigation. Still inside <LazyMotion> — see note above. */}
           <TickerBar />
         </LazyMotion>
+
+        {/* D16 — last in the tree on purpose. `position: fixed` means DOM
+            order has no effect on its z-stacked visual coverage, so it is
+            placed here (after everything else that mounts on every route)
+            rather than disturbing the ConsentProvider/LazyMotion nesting
+            above, per this file's "mount narrowly, do not restructure"
+            brief. It does not need <LazyMotion>: BrandLoader.tsx is
+            deliberately plain-CSS, no motion/react, for reasons documented
+            in that file's own header. */}
+        <BrandLoader />
 
         <Analytics />
         <SpeedInsights />

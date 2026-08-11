@@ -6,16 +6,18 @@
  *
  * Mount once, near the top of the tree. Renders nothing.
  *
- * Three gates before Lenis exists at all:
+ * Four gates before Lenis exists at all:
  *   1. motionAllowed() — prefers-reduced-motion, the global kill switch, and
  *      the data-saver signal.
  *   2. (hover: hover) and (pointer: fine) — a real mouse or trackpad. Touch and
  *      hybrid-touch devices keep native scroll, which is what they are good at.
- *   3. The library itself is dynamically imported only once both pass, so phone
- *      visitors never download it (ref 05: 180KB landing budget).
+ *   4. The library itself is dynamically imported only once the rest pass, so
+ *      phone visitors never download it at all (ref 05: JS
+ *      budget).
  *
- * The media query is watched, not sampled: plugging in a mouse starts Lenis,
- * unplugging it destroys the instance and hands scrolling back to the browser.
+ * Every media query above is watched, not sampled: plugging in a mouse starts
+ * Lenis, unplugging it destroys the instance and hands scrolling back to the
+ * browser; resizing a paged-mode window below threshold does the same.
  *
  * globals.css sets `html { scroll-behavior: smooth }`. Native smooth scrolling
  * and Lenis fight over the same scroll position, so Lenis takes ownership while
@@ -26,6 +28,14 @@
  * `anchors` is left off on purpose. In-page navigation stays native so that
  * `scroll-margin-top: var(--nav-h)` and focus movement to the target heading
  * (ref 05, a11y) keep working exactly as they do without Lenis.
+ *
+ * ── The D10 paged-mode gate is GONE (D22, Razim, 2026-08-10) ───────────────
+ * This file briefly refused to instantiate Lenis while the landing route's
+ * mandatory scroll-snap qualified, because Lenis drives the scroll position
+ * with its own rAF loop and native snap needs to own that to settle. Razim
+ * reviewed the snap system on a live render and rejected it, so globals.css's
+ * "6b" block and `PagedMode.tsx` are both deleted — there is no snap left to
+ * fight. Lenis is back to its original three gates above, on every route.
  */
 
 "use client";

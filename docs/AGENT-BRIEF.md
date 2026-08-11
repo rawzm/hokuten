@@ -11,6 +11,19 @@ Repo root `/Users/razim/Documents/Hakuten` · app in `site/`.
 [DESIGN-REVISIT.md](DESIGN-REVISIT.md) for the full decision text. Each change here carries an
 inline dated note; nothing below is silently overwritten.
 
+**Design revisit 2, 2026-08-10 (D9–D21)** supersedes several of D1–D8's own rules — see
+[DESIGN-REVISIT-2.md](DESIGN-REVISIT-2.md) for the full decision text. The reversals that matter
+most because they flip earlier law outright: **D3's split CoStar placement is dead** — all five
+awards live in Trust Metrics (`#stats`) only; the hero's single static image becomes a **slideshow**
+(D11); the menu's glyph-mosaic-only rule opens to real photography (D17); D6's free-scrolling
+fit-to-viewport becomes **native CSS scroll snap** on qualifying desktop (D10) — still zero
+wheel/touch interception; the calculator's `scroll-well` is dead, replaced by two more steps (D14);
+SOLD tickets that D4 exempted from hover-color-reveal now get it (D13); and the standing "no
+preloader ever" rule gets one narrow, approved exception (D16, a branded first-visit/reload loader).
+`site/app/globals.css` and `site/app/page.tsx` already carry this wave's chassis foundation
+(`stage-shell`, `page-panel`, the route-scoped snap CSS, the `--money`/`--live` token bindings,
+`--nav-h` 72px/64px) — read it before assuming a utility doesn't exist yet.
+
 ## Stack (verified against `site/node_modules` — do not assume from memory)
 
 Next.js 16.3 App Router · React 19.2 · Tailwind v4.3 (no `tailwind.config`; all
@@ -62,6 +75,22 @@ site/public/team/       dino-monteverde.jpg
 site/public/data/       us-cities.min.json (552KB — fetch at runtime, NEVER import)
 ```
 
+**Design Revisit 2 chassis, already landed by the main loop in `globals.css`/`page.tsx` — reuse,
+never redefine (2026-08-10):** `stage-shell` (the landing route's viewport-scale shell, fluid
+`--gutter` clamp, no max-width — `container-hk`/`container-wide` now scope to legal/editorial routes
+and locally-narrow prose only) · `page-panel` (`min-height: var(--screen-fit)` at ≥64rem, one per
+twelve-screen chassis) · the route-scoped native scroll-snap rules under
+`:root:has(main[data-page="home"])`, qualifying only at ≥1024×760 fine-pointer no-reduced-motion ·
+`data-tall="true"` (client-measured, drops a panel out of mandatory snap when it's genuinely taller
+than the usable screen — set by a measurement island, never by hand) · `--nav-h` 72px desktop /
+`--nav-h-mobile` 64px (D18, up from 68px/60px) · `--money-on-light` `--money-on-dark` `--live-on-dark`
+plus the `text-money` utility and `--color-live` binding (D13/D19 — money green is monetary-primary-
+value-only, never a button/border/success-state/occupancy/cap-rate). Expected new components this
+wave (build them if your assignment calls for them; don't assume another agent already has unless you
+can see the file): `HeroSlideshow` (wraps the existing static-hero-image contract, D11), `BrandLoader`
+(D16, conditional first-visit/reload loader), and `ContextRail` moving onto the shared `Ticket`
+chassis (D15). `MenuOverlay` is a rebuild of the existing file, not a new component (D17).
+
 **Retired from the page (D5, Razim 2026-08-08):** `AsciiCanvas` / `AsciiStatic` and the
 build-time ascii-gen pipeline no longer render anywhere on the site. Supplied 「北天」
 glyph-mosaic images (via `next/image`, `priority` on the hero instance) replace them — Razim
@@ -104,6 +133,13 @@ it is drifting to brochure; zero warmth means it is drifting to terminal.**
   colour carries emphasis.
 - 2–4 sizes per section (a fifth is P1) — D8 asks for bigger steps and firmer contrast inside
   that budget, not more sizes. Body never below 16px (P0).
+- **D20 (2026-08-10) — the four-level hierarchy device.** A naming layer on top of the ramp above,
+  not a new set of sizes: every section's 2–4-size budget should fill four **jobs** — `Display`
+  (Fraunces 300/500, hero/section proposition, one italic accent max), `Heading/value` (Fraunces for
+  names; IBM Plex Mono semibold for price/stat), `Body/data` (Inter body; mono tabular data), `Micro`
+  (mono tracked caps — indices, labels, evidence families, step state). Confirms, does not relax:
+  Fraunces still never exceeds 500; still exactly one italic accent word per headline maximum; Inter
+  600 stays selective (actions/key conclusions), never a body bold-up. Full table: ref 03.
 
 ## Token law (P0 gate)
 
@@ -115,9 +151,9 @@ accent and hairline: `.surface-paper` `.surface-deep` `.surface-card` `.surface-
 
 | | |
 |---|---|
-| Colour | `text-fg` `text-fg-muted` `text-fg-meta` `text-accent-text` `border-hairline` `bg-surface` `bg-field` `bg-accent` `text-on-accent` `bg-accent-chip` `bg-accent-wash` `text-brick` |
+| Colour | `text-fg` `text-fg-muted` `text-fg-meta` `text-accent-text` `border-hairline` `bg-surface` `bg-field` `bg-accent` `text-on-accent` `bg-accent-chip` `bg-accent-wash` `text-brick` `text-money` (D13, monetary primary values ONLY) `text-live`/`--color-live` (D19, ticker status dot ONLY) |
 | Type | `text-display0` (D8, hero `h1` only) · `text-display1/display2/heading/body-lg/body/data/micro` · `font-display/sans/mono` · `tracking-brand/micro` |
-| Utilities | `micro-label` `brand-line` `data-line` `tabular` `hairline{,-t,-b,-l}` `rail-mask` `star-grain` (DARK ONLY) `plate-frame` (LIGHT ONLY) `container-hk` `container-wide` `section-pad` `section-pad-tight` `section-join` `section-fit` `scroll-well` `ticket` `ticket-dark` `ticket-perf` `ticket-notch` `overprint` `photo-reveal` `visually-hidden` `skip-link` |
+| Utilities | `stage-shell` (D9, the landing route's viewport-scale shell) · `page-panel` (D10, one per twelve-screen chassis) · `micro-label` `brand-line` `data-line` `tabular` `hairline{,-t,-b,-l}` `rail-mask` `star-grain` (DARK ONLY) `plate-frame` (LIGHT ONLY) `container-hk` `container-wide` (D9: legal/editorial routes + locally-narrow prose ONLY now — not the landing route) `section-pad` `section-pad-tight` `section-join` `section-fit` `scroll-well` (D14: no longer a `#calculator` caller — still legitimate for the menu's exceptional-viewport fallback, D17) `ticket` `ticket-dark` `ticket-perf` `ticket-notch` `overprint` `photo-reveal` `visually-hidden` `skip-link` |
 | Shape/motion | `rounded-none/-card/-pill` · `duration-fast/base/reveal/slow` · `ease-out/ease-in-out` |
 
 **New this round, already in `globals.css` — do not redefine (D4/D6/D8, Razim 2026-08-08):**
@@ -126,6 +162,18 @@ density pass; `ticket` `ticket-dark` `ticket-perf` `ticket-notch` `overprint` im
 deal-ticket card system (shadows via `--shadow-ticket` / `--shadow-ticket-dark` / `--shadow-chip`
 — soft, ink-tinted, never a gray blur halo); `text-display0` implements D8's hero-only display
 step.
+
+**New again this round, already in `globals.css` — do not redefine (D9/D10/D13/D18/D19, Razim
+2026-08-10):** `stage-shell` + the fluid `--gutter` token implement D9 (the landing route composes
+at viewport scale; `container-hk`/`container-wide` are scoped OUT of it, not deleted); `page-panel`
+plus the `:root:has(main[data-page="home"])`-scoped snap rules implement D10 (native
+`scroll-snap-type: y mandatory` on qualifying desktop only — zero wheel/touch interception, see
+Motion law below); `data-tall="true"` is a **client-measured** attribute, never hand-set, that drops
+a panel out of the mandatory snap set when it's genuinely taller than the usable screen; `--nav-h`
+72px / `--nav-h-mobile` 64px implement D18 (up from 68px/60px, funding the corrected lockup size);
+`--money-on-light`/`--money-on-dark`/`--live-on-dark` plus `text-money`/`--color-live` implement
+D13/D19 — see the Colour row above for scope. `#calculator` may never reach for `scroll-well` again
+(D14) — five steps replace the three-step + nested-scroll layout that used to need it.
 
 Two themes (`[data-theme="gold"|"blue"]`) ship from ONE codebase — **never assume the accent is
 gold.** Accent is scarce: CTAs, one accent word per headline, badges, thin rules. Past ~5% of a
@@ -145,6 +193,35 @@ hairline accent ~40%. Cards carry a **resting**, soft, ink-tinted dimensional sh
 lift": the shadow does not change on hover, it is present at rest)**. **Never translate a card.
 No spring.**
 
+**D13 (2026-08-10) reverses D4's one exemption:** SOLD/closing tickets now get the same
+grayscale→colour hover/focus/touch reveal as every other card — D4's "the ticket is retired, no
+reveal" rule is dead. The `overprint` SOLD stamp stays visible in both states regardless.
+
+**D10 (2026-08-10) — native scroll snap is not scroll-jacking.** On qualifying desktop
+(≥1024×760, fine pointer, `prefers-reduced-motion: no-preference`) the landing route's scroller
+carries `scroll-snap-type: y mandatory`. This is the browser's own mechanism — **no wheel/touch
+listener, no delta threshold, no `preventDefault`, no synthetic jump, ever.** Lenis is removed or
+gated off on this route while paged mode qualifies so it can't fight the native snap for the same
+scroll position; legal/editorial routes are untouched. Outside the qualifying tier the page is
+plain natural scroll, exactly as before.
+
+**D11 (2026-08-10) — hero slideshow.** 3 slides recommended / 5 max; slide 1 stays the real
+`priority` LCP image; transition is a deterministic CSS mosaic-tile reveal (~40 tiles, 720–800ms,
+quiet diagonal cadence, unmounts after the transition — no persistent rAF loop); ~7s autoplay,
+pauses offscreen/hidden-tab/hover/focus/manual-pause; reduced-motion/Save-Data = static slide 1,
+no autoplay, no mosaic. Counts as one signature effect, not two. Full spec: ref 05.
+
+**D16 (2026-08-10) — the loader exception.** "No preloader ever" is narrowly superseded: a short,
+branded, theme-matched lockup loader shows on first-session visit and real reload/hard-refresh
+only (never soft nav, anchor movement, or bfcache restoration) — min ~550–650ms, normal <1.4s,
+hard cap 2s, releases body scroll on every path including timeout/error. No fake percentage.
+
+**D19 (2026-08-10) — ticker rebuild.** `LIVE` + its green status dot live in a fixed, non-animated
+block, never duplicated inside the moving content. The moving viewport measures itself and one
+metric-set width via `ResizeObserver`, repeats until a half exceeds the viewport, then duplicates
+that whole half and animates by exactly one half-width — speed stays constant regardless of screen
+width. A pause/resume control is mandatory (WCAG 2.2.2). FRED fetch behavior itself is unchanged.
+
 ## Accessibility law — WCAG 2.1 AA treated as binding (CA Unruh exposure)
 
 - `<section id aria-labelledby>` pointing at its own heading. Exactly one `h1` (the hero owns it).
@@ -152,7 +229,11 @@ No spring.**
   placeholder-as-label · errors via `aria-describedby` **and an icon**, never colour alone ·
   error summary focused on submit failure · `autocomplete` attributes.
 - No hover-only information (touch uses the `tapped` toggle). Marquees pause on hover **and**
-  focus and go static under reduced motion.
+  focus and go static under reduced motion. **D19 (2026-08-10) extends this: the ticker needs an
+  explicit pause/resume control**, not just hover/focus pausing (WCAG 2.2.2 — moving content needs
+  a mechanism keyboard users can reach without accidentally freezing it forever). **D11 (2026-08-10)
+  applies the same discipline to the hero slideshow**: prev/next, dots/tabs, and pause are all real
+  ≥44px controls, not hover-only.
 - Anchor navigation moves focus to the target heading.
 - Lucide icons only. No emoji. No text-glyph arrows in UI (`→` only inside mono micro-labels, as type).
 - Decorative art `aria-hidden` **with** an adjacent visually-hidden description.
@@ -166,11 +247,17 @@ it; do not invent it.
 - **Evidence gate**: no claim ships without a `verified-current` row in ref 06. Nothing
   `pending-verification` renders — the Sarhan-era "~$1B" narrative and the Sarhan testimonials
   in particular. KW corporate awards are `prohibited`.
-- **Brands marquee (D2, Razim 2026-08-08 — supersedes the grayscale-only law in refs 01/04):**
-  the marquee renders real franchise flag chips, in colour, uniform optical height (~44–52px
-  desktop / ~36px mobile — dimensional glass chips carry more presence than the old flat 28px
-  marks). The trademark/disclaimer microcopy stays byte-exact but renders as one tiny asterisked
-  `text-micro` line beside the marquee — never a paragraph block.
+- **Brands marquee (D2, Razim 2026-08-08 — supersedes the grayscale-only law in refs 01/04; chip
+  size superseded again 2026-08-10, D9/D11):** the marquee renders real franchise flag chips, in
+  colour, uniform optical height — current target **~64px desktop / 52–56px tablet / 42–44px
+  mobile** (the D2-era 44–52px/36px figure, itself up from a 28px flat mark, is now superseded
+  again). The `& INDEPENDENTS` string and any `INDEPENDENTS_MARK` node are removed from markup and
+  content ownership entirely — ship only the supplied franchise chips. The trademark/disclaimer
+  microcopy stays byte-exact but renders as one tiny asterisked `text-micro` line beside the
+  marquee — never a paragraph block.
+- **Menu imagery (D17, Razim 2026-08-10):** the menu's art panel may be a supplied full-color real
+  hotel photograph **or** approved 「北天」 glyph-mosaic artwork — never stock, never a CSS
+  grayscale treatment of either.
 - Voice: numbers-first, discreet, unhurried. Say the metric, then stop. "Confidential" replaces
   a missing number proudly, never "N/A". Price fallback is exactly `"Price on Request"`.
 - **BANNED**: unlock · elevate · seamless · world-class · "experience you can count on" ·
@@ -211,13 +298,23 @@ gesture knowledge.
 - Do not install packages.
 - **WRITE ONLY YOUR ASSIGNED FILES.** Other agents run concurrently. Never edit `globals.css`,
   `layout.tsx`, `page.tsx`, or anything under `lib/`, `content/`, `ui/`, `atoms/`, `motion/`,
-  `cards/` unless it is explicitly assigned to you. Report needed changes instead.
+  `cards/` unless it is explicitly assigned to you. Report needed changes instead. As of
+  2026-08-10, `globals.css`/`page.tsx` already carry the Design Revisit 2 chassis foundation
+  (`stage-shell`, `page-panel`, snap CSS, `--nav-h` 72/64px, money/live tokens) — read them, don't
+  re-derive them.
 
 ## The calculator is frozen
 
 `site/lib/valuation.ts` is a byte-equivalent port of the source math. Its config, defaults,
 bands, adjusters, rounding and ADVICE rules **may not change** without a dated
 PROJECT-MEMORY.md decision. Design restyles the UI; design does not touch the math.
+
+**D14 (2026-08-10) — five steps, still an IA change only.** Asset → Market → Performance →
+Estimate → Strategy replaces the old three-step layout. Every field, popover, autofill/backfill
+behavior, cap, validation rule, insight, result string, disclaimer, and rate input carries forward
+field-for-field — repartition the content across five steps, never rewrite it. No `scroll-well`,
+fixed result height, or nested scrollbar anywhere in `#calculator` (P0, ref 07). Re-run frozen-math
+parity after every structural change.
 
 ## Your return value
 

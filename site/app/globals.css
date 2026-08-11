@@ -102,6 +102,11 @@
   --animate-marquee: hk-marquee 45s linear infinite;
   --animate-marquee-brands: hk-marquee 40s linear infinite;
   --animate-shake: hk-shake 300ms cubic-bezier(0.65, 0, 0.35, 1) 1;
+  /* D19: the ticker's LIVE dot. A slow OPACITY pulse — never a size pulse.
+     Ends at opacity 1, so the global reduced-motion block (which collapses
+     every animation to one 0.01ms run) leaves the dot steadily green rather
+     than frozen mid-fade. */
+  --animate-live-pulse: hk-live-pulse 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 
   @keyframes hk-marquee {
     from {
@@ -128,6 +133,16 @@
     }
     80% {
       transform: translate3d(3px, 0, 0);
+    }
+  }
+
+  @keyframes hk-live-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
     }
   }
 
@@ -160,14 +175,37 @@
   --black: #000000;
   --brick: #a33b2c; /* form errors only */
 
+  /* Financial / status green (D13 + D19, approved by Razim 2026-08-10; the
+     values are recorded in skill reference 01 alongside every other hex).
+     These are SEMANTIC PROOF COLOURS, not a third brand accent:
+       --money-*  monetary primary values only — a ticket's price, a valuation
+                  result. Never a generic success green, never a button, never
+                  a border, never decoration. Occupancy and cap rate are NOT
+                  money; they stay in the normal data palette.
+       --live-*   the ticker's LIVE status dot only.
+     Bound per surface scope in §3 so a price is correct on paper, on card and
+     on dark without a component ever naming a hex. */
+  --money-on-light: #1f6a4a; /* 5.94:1 on Theme G paper · 6.52:1 on card white */
+  --money-on-dark: #58a66e; /* ~6:1 on both themes' dark surfaces */
+  --live-on-dark: #58a66e; /* status dot; decorative, label carries the meaning */
+
+  /* Fluid stage gutter (D9). ~22px at 375, ~32px at 768, ~49px at 1440,
+     capped at 72px so an ultrawide screen does not grow an absurd margin.
+     One token, not per-component numbers. */
+  --gutter: clamp(1.25rem, 0.75rem + 2.6vw, 4.5rem);
+
   /* Layout rhythm.
      D6 (2026-08-08): the nav compresses from 88px to 68px. Every desktop
      section now targets fit-to-viewport, and 88px of chrome was the single
      largest fixed tax on that budget. The header lockup renders 40–44px tall
      inside it (D1), so 68px still leaves 12px of breathing room top and
      bottom. `scroll-margin-top` tracks this token, so anchors stay correct. */
-  --nav-h: 68px;
-  --nav-h-mobile: 60px;
+  /* D18 (2026-08-10): 68px -> 72px desktop, 60px -> 64px mobile, so the theme
+     lockup can render ~52px (desktop) / ~46-48px (mobile) and still keep an
+     8-10px safety inset. The 2026-08-08 compression to 68px was correct when
+     the header carried a text wordmark; the lockup needs the toolbar height. */
+  --nav-h: 72px;
+  --nav-h-mobile: 64px;
   --ticker-h: 44px;
   --ticker-h-mobile: 32px;
   --container: 1200px;
@@ -177,14 +215,11 @@
      the persistent ticker. `section-fit` is defined in terms of this. */
   --screen-fit: calc(100svh - var(--nav-h) - var(--ticker-h));
 
-  /* D2: the brand-chip marquee closes the hero's first viewport, but it is a
-     SIBLING landmark of <section id="hero">, not a child — it owns its own
-     <section id="brands">. So the hero cannot simply take `section-fit`, or
-     hero + marquee together overflow the screen by exactly the marquee's
-     height. The hero claims `--screen-fit` minus this instead. Measured from
-     the rendered strip (section-pad-tight + a 52px chip row + the one-line
-     asterisked disclaimer); keep the two in step if either changes. */
-  --brands-h: 184px;
+  /* (--brands-h retired 2026-08-10, D25.) It existed so the hero could
+     subtract a hard-coded brand-rail height from one screen, back when the rail
+     was a SIBLING of <section id="hero">. The rail is now a direct child of the
+     hero panel and the hero sizes its rows with flex, so there is nothing to
+     subtract and no magic pixel constant to keep in sync with a chip clamp. */
 
   /* D5 (2026-08-08): <KanjiAccent> ceiling. The 北天 motif is background, never
      content — past these values it competes with the type. */
@@ -267,6 +302,7 @@
   --accent-text: var(--accent-ink);
   --focus: var(--accent-ink);
   --field: var(--card);
+  --money: var(--money-on-light);
 }
 
 .surface-deep {
@@ -278,6 +314,7 @@
   --accent-text: var(--accent-ink);
   --focus: var(--accent-ink);
   --field: var(--card);
+  --money: var(--money-on-light);
 }
 
 .surface-card {
@@ -289,6 +326,7 @@
   --accent-text: var(--accent-ink);
   --focus: var(--accent-ink);
   --field: var(--card);
+  --money: var(--money-on-light);
 }
 
 .surface-dark {
@@ -300,6 +338,7 @@
   --accent-text: var(--accent-on-dark);
   --focus: var(--accent-on-dark);
   --field: color-mix(in srgb, var(--paper) 7%, var(--dark));
+  --money: var(--money-on-dark);
 }
 
 .surface-black {
@@ -311,6 +350,7 @@
   --accent-text: var(--accent-on-dark);
   --focus: var(--accent-on-dark);
   --field: color-mix(in srgb, var(--paper) 7%, var(--black));
+  --money: var(--money-on-dark);
 }
 
 .surface-paper,
@@ -334,6 +374,8 @@
   --color-surface: var(--surface);
   --color-field: var(--field);
   --color-accent-text: var(--accent-text);
+  --color-money: var(--money);
+  --color-live: var(--live-on-dark);
   --color-focus: var(--focus);
 
   /* absolute palette roles */
@@ -380,6 +422,18 @@
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+
+    /* D29 (Razim, 2026-08-10): "there should never be a horizontal scrollbar
+       anywhere." Every real offender is fixed at its source — this is the
+       insurance so a future regression can never surface one to a visitor.
+
+       `clip`, NEVER `hidden`. `overflow-x: hidden` makes the element a scroll
+       container, which silently breaks `position: sticky` on descendants (the
+       nav) and hijacks programmatic scrolling. `clip` clips without creating a
+       scroll container, so sticky, anchor jumps and scroll-behavior all keep
+       working. The print block above restores `visible` so nothing is cut on
+       paper. */
+    overflow-x: clip;
   }
 
   body {
@@ -463,6 +517,19 @@
   letter-spacing: var(--tracking-brand);
   color: var(--accent-text);
   font-weight: 500;
+}
+
+/* D13/D6.5 — the money voice. Monetary primary values ONLY: a ticket's price,
+   a valuation result. Not a success state, not a button, not a border, not
+   decoration, and NOT occupancy or cap rate (those are data, not currency).
+   The colour is bound per surface scope, so this is correct on paper, on card
+   and on dark in both themes without a component naming a hex. */
+@utility text-money {
+  color: var(--money);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 /* All deal data */
@@ -566,6 +633,36 @@
   &::after {
     bottom: -5px;
     right: -5px;
+  }
+}
+
+/* ── D9: the stage ────────────────────────────────────────────────────────
+   The landing route is composed at VIEWPORT scale, not in a 1200px editorial
+   column. `stage-shell` is full-width with a fluid gutter and NO max-width;
+   readable measure is constrained locally (a prose block gets `max-w-[68ch]`,
+   a form gets its own field measure) rather than by throttling the whole
+   composition. `container-hk` survives for legal/editorial routes and for
+   deliberately narrow prose OUTSIDE this landing route — it is not deprecated,
+   it is scoped. */
+@utility stage-shell {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ── D10 + §3.1: the twelve-screen panel system ───────────────────────────
+   Every one of the twelve screens carries `page-panel`. On its own this only
+   asks the panel to fill the usable screen — snap is layered on top, and only
+   where it is safe (see the qualifying block below).
+
+   `min-height`, never `height`: a panel whose truthful content is taller than
+   the viewport GROWS and the document scrolls through it. Nothing is ever
+   clipped to preserve the illusion of a page. */
+@utility page-panel {
+  position: relative;
+
+  @media (width >= 64rem) {
+    min-height: var(--screen-fit);
   }
 }
 
@@ -754,6 +851,23 @@
 }
 
 /* ---------------------------------------------------------------------------
+   6b. RETIRED — D22 (Razim, 2026-08-10 evening).
+
+   This slot held D10's route-scoped `scroll-snap-type: y mandatory` system,
+   plus a `data-tall` exemption driven by a measurement island. Razim reviewed
+   it on a live render and rejected it outright: "this auto scroll fit on each
+   section is messy and not properly navigating… buggy overall." Scrolling on
+   this route is now entirely natural — no snap, no scroll-padding override,
+   no measurement island (components/motion/PagedMode.tsx is deleted).
+
+   WHAT SURVIVES, deliberately: the twelve `page-panel` compositions and the
+   `stage-shell` layout. The page still READS as twelve deliberate screens —
+   each panel still fills its usable height and centres its content — it just
+   scrolls freely between them instead of being pinned. The `data-page="home"`
+   marker also survives; it costs nothing and keeps a route hook available.
+   --------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------
    7. Reduced motion — global kill switch (P0 gate: every effect has a designed
    static state; nothing is merely missing).
    --------------------------------------------------------------------------- */
@@ -818,6 +932,28 @@
   nav,
   .ticker-bar {
     display: none !important;
+  }
+
+  /* No viewport-height lock, no sticky/fixed chrome, no clipped overflow.
+     Everything prints in source order at natural height. (The snap resets that
+     used to sit here retired with D22 — there is no snap left to reset.) */
+  .page-panel {
+    min-height: 0 !important;
+    break-inside: auto;
+  }
+  /* D29's belt-and-braces clip must not survive onto paper, where a wide table
+     or ticket row needs to print in full rather than being cut at the margin. */
+  html {
+    overflow-x: visible !important;
+  }
+  [data-loader-root],
+  [data-slideshow-controls] {
+    display: none !important;
+  }
+  /* Sold tickets print in full colour, not the grayscale rest state. */
+  .photo-reveal,
+  [data-reveal-photo] {
+    filter: none !important;
   }
 
   /* Force every scroll-revealed element visible.
