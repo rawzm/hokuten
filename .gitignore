@@ -20,3 +20,7 @@ site/out/
 site/node_modules/
 site/next-env.d.ts
 site/.turbo/
+
+# Private deliveries + delegation scratch — never commit (R17 / P17, 2026-08-17)
+full-brand-toolkit/
+.tmp/

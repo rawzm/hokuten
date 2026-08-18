@@ -33,6 +33,24 @@
  *   • Separator is " · " (U+00B7, one space each side) per the lib/types.ts
  *     contract; join location/keys/segment/note with metaLine() from @/lib/utils.
  *   • Order is the source's own, which already leads with the largest close.
+ *
+ * ── LAUNCH 2026-08-17 (docs/LAUNCH-IMPLEMENTATION.md §3.4, Appendix B4) ─────
+ * Two strings are ADDED below and nothing in the six records changes. §3.4 is
+ * explicit on both halves of that:
+ *   • `EDITS` §8.3 — "Do not renumber or thin the grid without Dino's word."
+ *     All six cards stay, Renaissance Reno included (D4 default: it stays and
+ *     ships as-is).
+ *   • Every price, day count, LP/SP ratio, key count and role still owes a
+ *     check against Claims & Coverage Register v1.1 (`V2` §2 bullet 4), and
+ *     that register was never delivered (X10/D17). So the figures ship as the
+ *     frozen kwc port, UNVERIFIED-AGAINST-REGISTER, and correcting a number
+ *     here on any other authority is out of the question — the register is
+ *     the only thing that could authorise it. Post-push item G7.
+ * What is added: `dealTeamCredits` (the two cards `PROFILE` §6 ties to
+ * William Betancourt) and `closingsProvenance` (the section's fine print,
+ * which is what keeps six transactions closed at prior affiliations from
+ * reading as closings of The Hokuten Group, which did not exist when they
+ * closed). Both pasted from Appendix B4, never retyped.
  */
 
 import type { Closing } from "@/lib/types";
@@ -103,3 +121,35 @@ export const closings = [
       "The Rodeway Inn of the two-property Rohnert Park portfolio, its porte-cochere lit at dusk beside the two-story guestroom wing.",
   },
 ] satisfies Closing[];
+
+/**
+ * Deal-team credit lines (`EDITS` §8.1, Appendix B4), keyed by the closing's
+ * own `name` so the pairing survives any reorder of the array above. The two
+ * entries are the two site case studies `PROFILE` §6 attributes to William
+ * Betancourt — The Last Hotel, Saint Louis and Radisson McAllen. No other
+ * card carries a credit line, and no name outside this string appears on any
+ * closing: the scrub target for `#closings` is zero prior-affiliation
+ * personal names in rendered copy, which the six records already meet.
+ *
+ * Rendered by `ClosingsSection.tsx` as a caption beneath the card rather than
+ * inside it: `Ticket`'s meta slot is `line-clamp-2` with a fixed 3.2em
+ * reservation, so appending the credit to `note` (the only card field this
+ * agent owns a path into) would have TRUNCATED it at the two narrower
+ * breakpoints. A truncated attribution is worse than none. See the build
+ * report — a first-class `dealTeam` slot on `Closing`/`ClosingCard` is the
+ * proper fix and belongs to whoever owns `lib/types.ts` + `components/cards/`.
+ */
+export const dealTeamCredits: Readonly<Record<string, string>> = {
+  "The Last Hotel": "Deal team: Dino Monteverde · William Betancourt",
+  "Radisson McAllen": "Deal team: Dino Monteverde · William Betancourt",
+};
+
+/**
+ * Provenance fine print (`EDITS` §8.4, Appendix B4) — renders verbatim at the
+ * bottom of `#closings`. Source rationale, quoted in plan §3.4: "the deals are
+ * advertised as Dino's transaction experience, not as closings of The Hokuten
+ * Group (which did not exist when they closed)." Never shortened, never moved
+ * out of the section it qualifies.
+ */
+export const closingsProvenance =
+  "Selected transactions completed by Dino Monteverde, 2022–2026, including transactions completed at prior affiliations.";

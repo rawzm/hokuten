@@ -5,7 +5,12 @@
   arched-entry base, nine floors of a tapering window grid, a colonnaded
   attic floor screening the top windows, a deep dentillated cornice).
   Pure strokes, no fills. stroke="currentColor" so it inherits the host
-  surface's --fg in both themes when inlined by HotelEngraving.tsx.
+  surface's fg token in both themes when inlined by HotelEngraving.tsx.
+  (Token names are written WITHOUT their leading double hyphen inside this
+  comment on purpose: XML 1.0 section 2.5 forbids a double hyphen in a
+  comment, and spelling it made this file fail to parse as XML at all -
+  harmless while the artwork ships inlined in the component, fatal the day
+  anything loads the standalone copy. Fixed 2026-08-17.)
   133 paths, ~9.3KB. Perspective: true 2-point (vertical parallels, shared
   far vanishing points on both faces) — not decorative guesswork.
 -->

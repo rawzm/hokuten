@@ -5,11 +5,11 @@
 /* CSS custom properties resolve from the host document when this file is
    inlined; the literal fallbacks make it correct as a standalone &lt;img&gt;. */
 .g,.w{font-size:10px;white-space:pre}
-.g{font-family:var(--font-mono,"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace)}
-.w{font-family:var(--font-mono,"IBM Plex Mono",ui-monospace),"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif}
-.t0{fill:var(--art-ink,#B8902E)}
-.t1{fill:var(--art-mid,#C9A04A)}
-.t2{fill:var(--art-light,#F7F4ED)}
+.g{font-family:var(--font-mono,"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace)}
+.w{font-family:var(--font-mono,"JetBrains Mono",ui-monospace),"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif}
+.t0{fill:var(--art-ink,#B08D3F)}
+.t1{fill:var(--art-mid,#C8A552)}
+.t2{fill:var(--art-light,#FBF9F3)}
 </style>
 <rect width="960" height="640" fill="var(--art-ground,#000000)"/>
 <text class="g t0" x="66.0" y="8.0" textLength="780.0" lengthAdjust="spacing" xml:space="preserve">*=     :           7*            *****7-           +            +     7:             +=              =*****          7           :</text>

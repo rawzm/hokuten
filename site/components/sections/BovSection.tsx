@@ -11,7 +11,7 @@
  * section's chrome (heading, micro-label, disclaimer, the designed loading
  * skeleton) is part of the initial bundle. See "THE DYNAMIC IMPORT" below.
  *
- * ── DESIGN REVISIT 2 (2026-08-10) — screen 11 of 12, D9/D10/§5.7 ────────────
+ * ── DESIGN REVISIT 2 (2026-08-10) — screen 8 of 12, D9/D10/§5.7 ────────────
  * Two chassis swaps, both mechanical, neither touching a field/state/string:
  *   1. `container-hk` (max-width 1200px) → `stage-shell` (D9): the full-width,
  *      fluid-gutter shell every one of the twelve landing screens now shares.
@@ -23,7 +23,8 @@
  *      see "THE TCPA BLOCK" below, unchanged by this swap — but `page-panel`
  *      is the specific selector the route-level `:root:has(main[data-page=
  *      "home"]) .page-panel` scroll-snap rule in globals.css targets, so this
- *      section now participates in the twelve-screen paged mode as screen 11.
+ *      section now participates in the twelve-screen paged mode as screen 8
+ *      (it was screen 11 until the 2026-08-17 reorder, §3.2).
  *      `lg:flex lg:flex-col lg:justify-center` is unchanged from the prior
  *      pass — it is what actually vertically CENTRES the pitch/form pair
  *      inside the panel's usable height once `page-panel` reserves it, per
@@ -172,26 +173,28 @@ const BovForm = dynamic(() => import("@/components/forms/BovForm").then((mod) =>
 
 export interface BovSectionProps {
   /**
-   * Bracketed micro-label index. Default `09` — the last entry in the
-   * definitive sitewide run fixed by the 2026-08-08 coherence audit:
-   * 01 #closings · 02 #listings · 03 #calculator · 04 #method · 05 #doors ·
-   * 06 #mandates · 07 #team · 08 #faq · 09 #bov, with #hero / #stats /
+   * Bracketed micro-label index. Default `06` — this section's slot in the
+   * sitewide run, re-sequenced by the 2026-08-17 launch reorder
+   * (docs/LAUNCH-IMPLEMENTATION.md §3.2, R5):
+   * 01 #closings · 02 #listings · 03 #calculator · 04 #method · 05 #faq ·
+   * 06 #bov · 07 #team · 08 #doors · 09 #mandates, with #hero / #stats /
    * #brands deliberately unindexed above it (ref 04 pins #closings to 01, so
-   * nothing earlier in the page may take a number). The earlier `07` guess
-   * predated the registry. Do not change this without renumbering the run.
+   * nothing earlier in the page may take a number). It was `09` while this
+   * section closed the page. Do not change this without renumbering the whole
+   * run — `content/nav.ts` carries the other half of it.
    */
   index?: string;
   className?: string;
 }
 
-export function BovSection({ index = "09", className }: BovSectionProps) {
+export function BovSection({ index = "06", className }: BovSectionProps) {
   return (
     <section
       id="bov"
       aria-labelledby={HEADING_ID}
       className={cn(
         "surface-deep section-pad-tight",
-        // D10: screen 11 of 12. `page-panel` is min-height ONLY (globals.css
+        // D10: screen 8 of 12. `page-panel` is min-height ONLY (globals.css
         // §6) — it cannot clip the TCPA block; it can only ever make the
         // section AT LEAST one screen tall, never cap it shorter.
         "page-panel lg:flex lg:flex-col lg:justify-center",

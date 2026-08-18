@@ -5,8 +5,8 @@
 /* CSS custom properties resolve from the host document when this file is
    inlined; the literal fallbacks make it correct as a standalone &lt;img&gt;. */
 .g,.w{font-size:10px;white-space:pre}
-.g{font-family:var(--font-mono,"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace)}
-.w{font-family:var(--font-mono,"IBM Plex Mono",ui-monospace),"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif}
+.g{font-family:var(--font-mono,"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace)}
+.w{font-family:var(--font-mono,"JetBrains Mono",ui-monospace),"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif}
 .t0{fill:var(--art-ink,#1F3C8C)}
 .t1{fill:var(--art-mid,#7E96D0)}
 .t2{fill:var(--art-light,#C9D4EE)}

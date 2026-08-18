@@ -1,48 +1,93 @@
 # RESUME — build handoff
 
-> **2026-08-10 (late): Design Revisits 2 AND 3 shipped in one push.** Revisit 2 had never been
-> committed; it went out together with most of Revisit 3. The authoritative record is the top entry
-> of [PROJECT-MEMORY.md](../PROJECT-MEMORY.md) §4 — read that first.
+> **2026-08-17: the launch run.** The site was retuned to Dino's Brand Design Guide v1.3 and loaded with his
+> locked launch content, executing [docs/LAUNCH-IMPLEMENTATION.md](LAUNCH-IMPLEMENTATION.md) (`approved`,
+> Razim, 2026-08-17). **The authoritative record of what was decided is the top of
+> [PROJECT-MEMORY.md](../PROJECT-MEMORY.md) — read that first.** This file is the practical handoff: what
+> state the tree is in, what is deliberately still open, and where the next session starts.
+>
+> The 2026-08-10 handoff that used to open this file is preserved below under "Historical — 2026-08-10".
 
-**State at handoff:** build green · `tsc` clean · vitest 128/128 · **no horizontal scrollbar at
-375 / 768 / 1440 / 1920 / 2560** (D29 gate passes) · scroll snap removed, scrolling is natural ·
-Razim's three real hero triplets live in both themes · `main` and `theme-blue` at the same commit.
+## What changed in the launch run
+
+Nine things, each with a dated supersession written where the old rule lived — nothing was deleted silently:
+
+| # | Change | Supersedes |
+|---|---|---|
+| 1 | **Faces** — Cormorant Garamond (display) · Inter (body) · JetBrains Mono (data/labels), with the ramp re-tuned upward and looser, because Cormorant is smaller-x-height, narrower and lighter than what it replaced | the 2026-08-10 Fraunces / IBM Plex Mono decision, and the matching design-skill non-negotiable |
+| 2 | **Palette** — `--accent #B08D3F`, `--accent-dim #C8A552`, paper `#FBF9F3`, ivory `#F4EFE3`, cream `#EDE7D8`, charcoal `#1A1C1F`, with every derived tone re-derived and re-measured to zero contrast FAILs | the `#B8902E` website-gold hard guardrail in `AGENTS.md` and skill ref 01 |
+| 3 | **Theme G locked, Theme B parked** — parked in place: unreachable, un-retuned, not deleted | the 2026-08-07 two-variant comparison programme, for production |
+| 4 | **Section order** — Dino's sequence: `#faq` and `#bov` move up, `#team`/`#doors`/`#mandates` move down behind them | the 2026-08-10 canonical order |
+| 5 | **Content** — the 4 + 1 award split with the real Winner Badges; the `3×` stat tile removed; the locked `$200M+` hedge verbatim; the deals-scrub provenance line; three allowlisted listings; a six-seat roster with per-seat licence law | the previous stats/awards/listings/team content |
+| 6 | **FAQ cut to two answered questions** — the five `[PLACEHOLDER:confirm]` answers are **deleted, not deferred**, and re-added verbatim when Dino answers | the "≥5 real diligence questions" anatomy rule |
+| 7 | **Forms + feeds** — the browser-only Web3Forms path is retired for a server-side `POST /api/contact-intake` into monday.com; `/api/public-listings` is an additive same-origin proxy with a three-ID allowlist | the 2026-08-07 "Phase 1 is static, later phases integrate the API" decision |
+| 8 | **Launch config** — Calendly wired, WhatsApp invite + verbatim disclosure in the footer, consent-aware measurement slots, `noindex` unchanged | — |
+| 9 | **Repo hygiene** — brand masters restored and tracked; `full-brand-toolkit/` gitignored; build source assets copied into tracked `Ref/{awards,team,brand-kit,listings}/`; the CoStar email-signature derivatives deleted so they cannot be re-intaked | the `AGENTS.md` brand-master path |
+
+**Three deviations from Dino's master directive are recorded, not hidden** — he reviews the production URL and
+iterates: the site keeps its **paper-page / dark-hero chassis** rather than the all-dark system his directive names
+for four routes (R1); the **nav bar stays dark** with the on-charcoal linear lockup rather than the white bar the
+directive specifies (R14, legibility rationale); and **`#doors` carries the marketplace intent** rather than a
+separate marketplace route (R16). A fourth is recorded at the placement level: all five CoStar assets stay
+consolidated in `#stats` rather than moving to the team section (D16).
 
 ## Next session starts here
 
-**1. D28 panel fit — the only substantive item left.** Measured at 1440x900, one screen = 784px:
+**1. The open items are in [PLACEHOLDERS.md](PLACEHOLDERS.md) §14** — 17 rows, and they are the real work list.
+The ones that block anything are: monday.com credentials + column map (the intake ships dry-run until they arrive),
+a100 endpoint access, the four measurement vendor IDs, and the three **cutover** gates. Everything else is a
+verification or a decision.
 
-| panel | height | screens |
-|---|---:|---:|
-| method | 1234px | 1.57 |
-| listings | 1179px | 1.50 |
-| calculator | 1022px | 1.30 |
-| closings | 860px | 1.10 |
-| team | 858px | 1.09 |
-| hero | 806px | 1.03 |
+**2. The cutover is the gate, not the push.** The build goes to the Vercel **production** deployment while it still
+emits `noindex, nofollow`; that is how Dino reviews. Removing `noindex` — **both** mechanisms, `lib/seo.ts`
+`INDEXING_ENABLED` *and* the hardcoded `robots` object in `app/layout.tsx` — plus the DNS change and the 301 wait on
+the FBN filing, the broker approval email and the licence-number gates.
 
-Every other panel is exactly 1.0. Per-panel internal breakdowns (which child is eating the height)
-are in `docs/DESIGN-REVISIT-3.md` §1 D28 and in the PROJECT-MEMORY entry. A fit workflow with those
-exact budgets was launched and stopped at the session budget cap — re-launch it.
-**Warning:** an earlier fit wave edited these same files and moved the measured heights by ZERO.
-Re-measure after any change; do not trust an agent's claim that it cut 400px.
-With snap gone this is density, not breakage — over-height panels just scroll. Razim named #method.
+**3. Verify on the deployed build, not in the tree:** that the header's linear on-charcoal lockup actually reads at
+its render height (row 65 — if the COMMERCIAL wordmark dies on the dark bar, fall back to the stacked mark), the
+two-golds delta (row 66), and the panel-fit re-measure — **the type swap moved every headline's height, so the
+2026-08-10 D28 numbers are stale by construction** (row 73).
 
-**2. Docs are behind the code.** Skill refs 03/04/05/07 still describe scroll snap as live;
-`docs/PLACEHOLDERS.md` rows 51/52 still say `Ref/hero/` is empty; ref 06's CoStar rows want a dated
-note naming the new costarpowerbrokers.com verification link; `content/artwork.ts`'s
-`hero.gold`/`hero.blue` want a retirement comment; `docs/design/AUDIT_LOG.md` is not appended.
+**4. Do not re-litigate the supersessions.** Every one of them is dated and carries the rule it replaced, in
+`AGENTS.md`, `.agents/skills/hokuten-design-director/SKILL.md`, skill refs 01/03/04/05/06/07 and
+`docs/design/AUDIT_LOG.md`. If a rule looks wrong, add a new dated entry — never edit the old one out.
 
-**3. Never verified this session** (Razim reviews on Vercel, dev servers were forbidden): screenshots
-in either theme, Core Web Vitals, the Theme B build specifically, and an ultrawide ticker/brand soak.
+**Kickoff:** *"Read the top entry of PROJECT-MEMORY.md, then docs/PLACEHOLDERS.md §14, and take the next open row."*
 
-**4. Flag:** the new hero alt text names real Marriott signage — the first time a franchisor brand
-appears in hero imagery rather than as a chip. Worth a business-side look with the counsel flag.
+**Last updated:** 2026-08-17, in the launch run's documentation portion.
 
-**Kickoff:** *"Read the top entry of PROJECT-MEMORY.md, then docs/PLACEHOLDERS.md, and take the review pass on the design revisit."*
+## Verification constraint (standing, Razim)
 
-**Last updated:** 2026-08-10, at the 98% session-budget push.
-All work below is committed and pushed to `main`. Nothing is uncommitted.
+No long-running dev servers, no prolonged local review. Allowed: `pnpm build`, `npx tsc --noEmit`, `npx vitest run`,
+the QA greps, the asset scripts, and **one transient headless pass** for the overflow/fit/screenshot gates — then
+`kill` the server. Razim reviews on the Vercel URLs. Horizontal overflow at 375 / 768 / 1440 / 1920 / 2560 is a
+**hard release gate** (D29); the calculator's golden-parity suite is frozen and must stay green and untouched.
+
+---
+
+# Historical — 2026-08-10 handoff (kept for the record)
+
+> **2026-08-10 (late): Design Revisits 2 AND 3 shipped in one push.** Revisit 2 had never been
+> committed; it went out together with most of Revisit 3.
+
+**State at that handoff:** build green · `tsc` clean · vitest 128/128 · **no horizontal scrollbar at
+375 / 768 / 1440 / 1920 / 2560** (D29 gate passes) · scroll snap removed, scrolling is natural ·
+Razim's three real hero triplets live in both themes · `main` and `theme-blue` at the same commit.
+
+**Its "next session" list, and what happened to it:**
+
+1. **D28 panel fit** — still open, now PLACEHOLDERS row 73, and explicitly not a launch gate. Measured at
+   1440×900 (one screen = 784px): method 1234px (1.57) · listings 1179px (1.50) · calculator 1022px (1.30) ·
+   closings 860px (1.10) · team 858px (1.09) · hero 806px (1.03); every other panel exactly 1.0.
+   **Warning that still applies:** an earlier fit wave edited these same files and moved the measured heights by
+   ZERO. Re-measure after any change; do not trust a claim that 400px was cut.
+2. **"Docs are behind the code"** — **closed 2026-08-17.** Skill refs 03/04/05/07 no longer describe scroll snap as
+   live, PLACEHOLDERS rows 51/52 are corrected, ref 06 carries the `costarpowerbrokers.com` verification note, and
+   `AUDIT_LOG.md` is appended.
+3. **Never verified that session** (dev servers were forbidden): screenshots, Core Web Vitals, the Theme B build, an
+   ultrawide soak. Theme B is now parked, so its build is no longer something to verify.
+4. **Flag** — the hero alt text names real Marriott signage, the first time a franchisor brand appears in hero
+   imagery rather than as a chip. Still worth a business-side look with the counsel flag (PLACEHOLDERS row 35a).
 
 > **Do not try to resume the old workflows.** Workflow resume-from-cache is
 > same-session only; after a reset the cache is gone. **Disk state is the
@@ -170,7 +215,7 @@ across sections — some shipped unindexed rather than guess. One agent (or the
 main loop) must assign the full sequence once every section exists. Ref 04
 assigns a number only to `#closings`; decide the rest deliberately.
 
-## 7. Rules that do not change
+## 7. Rules that do not change — **one line corrected 2026-08-17**
 
 Read `AGENTS.md` and `docs/AGENT-BRIEF.md`. The load-bearing ones: HOKUTEN never
 "Hakuten" · semantic tokens only, no hex in components · both themes must be
@@ -178,3 +223,8 @@ correct · calculator math frozen · compliance strings byte-exact ·
 `FRED_API_KEY` server-side only · no public deploy until the KW / Forward
 Wilshire paperwork gate clears · commits authored as rawzm with **no
 Co-Authored-By or AI attribution trailers, ever**.
+
+**Corrected 2026-08-17:** ~~"both themes must be correct"~~ — Theme B is **parked** (L1/R12). Only Theme G must be
+correct; Theme B stays in the tree unreachable and deliberately un-retuned, so its values are not a target and
+not current brand law. Everything else in this list stands unchanged. Add to it: **no Monday or other server
+token in browser code**, and **no runtime path may begin with `Ref/`** (prep scripts read it at build time only).

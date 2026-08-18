@@ -15,12 +15,18 @@
  * notices themselves are UNCHANGED by the D6/D8 pass below and stay fully
  * visible — design-revisit §4.8: "they are a launch gate, not a bug."
  *
- * ── D6 density pass (2026-08-08/09) ──────────────────────────────────────
- * `#faq` sits between `#team` (`surface-paper`) and `#bov` (`surface-deep`).
- * `#team` → `#faq` is a same-surface pair (`surface-paper` → `surface-paper`),
- * so this section — the SECOND of that pair — carries `section-join` to zero
- * its own top padding and share `#team`'s gutter instead of stacking two.
- * (`#bov` below is a different surface, so no join applies on that side.)
+ * ── D6 density pass (2026-08-08/09), re-based 2026-08-17 ─────────────────
+ * As built, `#faq` sat between `#team` (`surface-paper`) and `#bov`
+ * (`surface-deep`); `#team` → `#faq` was a same-surface pair, so this section —
+ * the SECOND of that pair — carries `section-join` to zero its own top padding
+ * and share the gutter above instead of stacking two.
+ *
+ * The 2026-08-17 reorder (docs/LAUNCH-IMPLEMENTATION.md §3.2, R5) moved this
+ * section up to screen 7, so the neighbour above is now `#method`
+ * (`surface-dark`) and the pair no longer shares a surface, so `section-join`
+ * was UNEARNED — it zeroed this section's top padding and jammed the paper
+ * content against the dark band's edge. REMOVED 2026-08-17 (wave-1 review).
+ * `#bov` below is still a different surface, so nothing applies on that side.
  * `section-fit` + `lg:flex lg:flex-col lg:justify-center` follow the same
  * pattern as `MethodSection`
  * and `TeamSection` — a no-op once the accordion genuinely runs past one
@@ -44,9 +50,8 @@
  *
  * "Index/context" is read here as the `SectionHeader` block ITSELF — its
  * `MicroLabel` already IS the page's bracketed numbered-index device
- * (`[ 08 — DILIGENCE FAQ ]`, ref 04: "a bracketed numbered index on every
- * section"), and its `sub` line already carries the topic-spread context
- * ("Confidentiality, exchange timelines, off-market access, licensing…").
+ * (`[ 05 — DILIGENCE FAQ ]`, ref 04: "a bracketed numbered index on every
+ * section"), and its `sub` line already names what this section answers.
  * A second, invented table-of-contents (e.g. a plain-text echo of all 7
  * question strings as a mini nav) was considered and rejected: this task's
  * brief is explicit that `#method` through `#faq` "KEEP their current
@@ -78,9 +83,21 @@
  * columns is what actually reads as "two zones," not one drifting past the
  * other.
  *
- * `section-pad section-join` unchanged: `#team` above is still
- * `.surface-paper`, so the shared-gutter join still applies exactly as
- * before; nothing about the two-zone layout changes that adjacency.
+ * `section-pad` unchanged. The `section-join` that rode with it was dropped in
+ * the 2026-08-17 reorder review — `#method` (`.surface-dark`) is the neighbour
+ * above now, so there is no shared gutter to collapse into.
+ *
+ * ── 2026-08-17 · the `sub` line, re-cut after the D3 FAQ cut ───────────────
+ * The header's `sub` used to read "Confidentiality, exchange timelines,
+ * off-market access, licensing — the diligence a serious buyer or seller runs
+ * before signing anything." Every one of those four topics belonged to a
+ * question that decision D3 CUT this run (plan §3.12; the five cut questions
+ * and what each is waiting on are tabulated in `content/faq.ts`'s header), so
+ * the line advertised four answers the section no longer contains. It is
+ * rewritten from the two SURVIVING questions' own words — "written BOV",
+ * "calculator estimate" — and makes no claim of its own. **Rule for whoever
+ * re-adds a cut question: the `sub` is a promise, so re-widen it in the same
+ * change, and never let it name a topic the accordion does not answer.**
  */
 
 import { AlertTriangle } from "lucide-react";
@@ -180,16 +197,16 @@ export function FaqSection() {
     <section
       id="faq"
       aria-labelledby="faq-heading"
-      className="surface-paper section-pad section-join page-panel lg:flex lg:flex-col lg:justify-center"
+      className="surface-paper section-pad page-panel lg:flex lg:flex-col lg:justify-center"
     >
       <div className="stage-shell grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start lg:gap-16">
         <Reveal className="lg:sticky lg:top-[calc(var(--nav-h)+2.5rem)] lg:col-span-4">
           <SectionHeader
             id="faq-heading"
-            index="08"
+            index="05"
             label="Diligence FAQ"
             headline="The questions a *closer* answers first."
-            sub="Confidentiality, exchange timelines, off-market access, licensing — the diligence a serious buyer or seller runs before signing anything."
+            sub="What a written BOV needs from you, and how it differs from the calculator estimate."
           />
         </Reveal>
 

@@ -23,25 +23,41 @@
  * carried forward from the D6 density pass) still does the actual vertical
  * distribution inside the panel.
  *
- * ── THE 3+2 CENTRED COMPOSITION (§5.4 point 1) ──────────────────────────────
- * "A first row of THREE tickets; a second row of TWO CENTRED tickets at THE
- * SAME WIDTH as row one. Do NOT stretch the last two into oversized cards."
- * A naive `grid-cols-3` leaves a trailing partial row LEFT-aligned (item 4
- * under item 1, item 5 under item 2) — not centred, and if the grid instead
- * stretched that last row to fill the width, the two remaining tickets would
- * balloon to 1.5x the width of row one, which the spec explicitly forbids.
+ * ── THE CENTRED-REMAINDER COMPOSITION (§5.4 point 1) ───────────────────────
+ * §5.4 was written against the five-listing seed: "A first row of THREE
+ * tickets; a second row of TWO CENTRED tickets at THE SAME WIDTH as row one.
+ * Do NOT stretch the last two into oversized cards."
+ *
+ * THE LISTING COUNT CHANGED, THE RULE DID NOT. The launch plan's decision L8
+ * (docs/LAUNCH-IMPLEMENTATION.md §3.5) cuts the active-listing allowlist to
+ * EXACTLY THREE properties, so `listings.length` is 3 and this section now
+ * renders a single full row of three — `total % 3 === 0`, the remainder-0
+ * branch below, which was already written and is simply the live branch now.
+ * That is not a deviation from §5.4: the spec's actual instruction is about
+ * how a PARTIAL row behaves (centre it; never stretch it), and with no
+ * partial row there is nothing to centre. Nothing here needed changing for
+ * the cut, which is exactly the property the arithmetic was built for — and
+ * the 3+2 path stays live code, because a fourth or fifth listing is a
+ * PROJECT-MEMORY decision away, not a rewrite.
+ *
+ * Why the arithmetic exists at all: a naive `grid-cols-3` leaves a trailing
+ * partial row LEFT-aligned (item 4 under item 1, item 5 under item 2) — not
+ * centred, and if the grid instead stretched that last row to fill the width,
+ * the two remaining tickets would balloon to one and a half times the width
+ * of row one, which
+ * the spec explicitly forbids.
  * `tileGridClass()` below solves both at once by doubling the grid's
  * resolution to SIX columns at `lg:` — every tile still spans two of those
  * six columns (`lg:col-span-2`, i.e. exactly one visual column of three, the
  * SAME width row one uses), but a trailing partial row's tiles get an
  * explicit `lg:col-start-*` that centres them within the six-column row
  * instead of just stacking under row one's leftmost columns:
- *   remainder 0 (a full multiple of 3, not today's case but handled anyway)
+ *   remainder 0 (TODAY'S CASE — the three-listing allowlist, one full row)
  *     → every tile is a plain `lg:col-span-2`, normal left-to-right flow.
  *   remainder 1 (one tile left over)
  *     → that tile gets `lg:col-start-3`, landing in the row's true centre
  *       (columns 3–4 of 6).
- *   remainder 2 (TODAY'S CASE — five listings, 3+2)
+ *   remainder 2 (the former five-listing case, 3+2 — dormant, still correct)
  *     → the two tiles get `lg:col-start-2` and `lg:col-start-4` (columns
  *       2–3 and 4–5 of 6), leaving exactly one empty sub-column on each
  *       side — centred, same width as row one, nothing stretched.
@@ -67,12 +83,15 @@
  * `mt-10/lg:mt-8` to `mt-8/lg:mt-6`. Landscape tickets are naturally shorter
  * per unit width than the old vertical cards were (the row's height is set
  * by the content column, not a tall photo band — see `Ticket.tsx`'s own
- * "Landscape image zone" note), which is what makes fitting 3+2 rows of
+ * "Landscape image zone" note), which is what made fitting 3+2 rows of
  * tickets at 1440x900 plausible in the first place; this section spends its
  * own share of that budget by trimming chrome, not ticket content.
- * NOT independently verified against a real 1440x900 render — `pnpm dev`/
- * `pnpm build` are off-limits this round (agents share `.next`). Flagged for
- * the W7 screenshot pass.
+ * The three-listing allowlist (L8) removes an entire ticket row from this
+ * panel, so the fit can only improve against the 2026-08-10 panel-fit
+ * baseline (listings 1.50) — this section must not regress it. Still NOT
+ * independently verified against a real 1440x900 render: `pnpm dev`/
+ * `pnpm build` are off-limits to concurrent builders (agents share `.next`).
+ * Flagged for the gate agent's screenshot pass.
  *
  * `#listings` sits between `#closings` (`surface-paper`) and `#calculator`
  * (`surface-paper`) — this section's own `surface-deep` matches neither
@@ -88,31 +107,33 @@
  * `Ticket`'s own structured slots (micro serial → serif title → mono money
  * price → compact mono facts), not in the section chrome.
  *
- * ── Content gap (see spec "Content gap — flagged, not invented") ───────────
- * Ref 04 §#listings gives the sub-line "Powered by our confidential channel"
- * verbatim but `content/listings.ts` — a file this agent does not own — has no
- * export for it or for a headline. Both are authored as local constants below
- * with this citation rather than invented from nothing; the content owner
- * should promote them into `content/listings.ts` next time that file is
- * touched, matching the `content/doors.ts` / `content/mandates.ts` pattern of
- * section-chrome copy living beside its section's data.
+ * ── Content gap: CLOSED this wave ──────────────────────────────────────────
+ * The headline and the ref-04 sub-line used to live as local constants here,
+ * with a standing recommendation (this file's old header, and
+ * docs/design/specs/listings.md §"Content gap") that the content owner
+ * promote them into `content/listings.ts` "next time that file is touched."
+ * That has now happened: `listingsHeadline` and `listingsSub` are exports of
+ * `content/listings.ts`, moved byte-for-byte with their citations, and this
+ * section carries no literal copy at all — matching the
+ * `content/doors.ts` / `content/mandates.ts` pattern of section-chrome copy
+ * living beside its section's data. Change the copy THERE, not here.
  */
 
 import { Lock } from "lucide-react";
 
 import { A100_ARMS_SIGNUP_URL } from "@/content/site";
-import { listings, listingsEmptyState } from "@/content/listings";
+import {
+  listings,
+  listingsEmptyState,
+  listingsHeadline,
+  listingsSub,
+} from "@/content/listings";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
 import { ListingCard } from "@/components/cards/ListingCard";
 import { Reveal, RevealItem } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
 
-/** ref 04 §#listings — no verbatim headline given; new copy in the established voice. */
-const LISTINGS_HEADLINE = "On the market, handled *quietly*.";
-/** ref 04 §#listings, verbatim: "Header + 'Powered by our confidential channel' subline." */
-const LISTINGS_SUB = "Powered by our confidential channel.";
-
-/** Every tile at `lg:` — see file header "3+2 centred composition." */
+/** Every tile at `lg:` — see file header "THE CENTRED-REMAINDER COMPOSITION." */
 const GRID_COLS = 3;
 const TILE_NORMAL = "lg:col-span-2";
 const TILE_CENTER_SOLO = "lg:col-span-2 lg:col-start-3";
@@ -134,7 +155,7 @@ function tileGridClass(index: number, total: number): string {
 
   if (remainder === 1) return TILE_CENTER_SOLO;
 
-  // remainder === 2 — today's five-listing case.
+  // remainder === 2 — the 3+2 case (dormant under the three-listing allowlist).
   const positionInRow = index - firstPartialRowIndex;
   return positionInRow === 0 ? TILE_CENTER_PAIR_FIRST : TILE_CENTER_PAIR_SECOND;
 }
@@ -151,8 +172,8 @@ export function ListingsSection() {
           id="listings-heading"
           index="02"
           label="Hotels for sale"
-          headline={LISTINGS_HEADLINE}
-          sub={LISTINGS_SUB}
+          headline={listingsHeadline}
+          sub={listingsSub}
         />
 
         {listings.length > 0 ? (
@@ -161,9 +182,10 @@ export function ListingsSection() {
             stagger
             // 2-up starts at `md`, not `sm` (ref 03: "2-up only ≥640px if
             // cards stay ≥320px wide"). `lg:` doubles to a six-column grid
-            // so the 3+2 centred composition can place tiles at half-column
-            // resolution — see `tileGridClass()` above; every tile still
-            // spans two of the six columns, i.e. one visual column of three.
+            // so a partial row can be CENTRED at half-column resolution —
+            // see `tileGridClass()` above. Every tile spans two of the six
+            // columns, i.e. one visual column of three, at any listing count;
+            // today's three-listing allowlist fills exactly one such row.
             className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:mt-6 lg:grid-cols-6 lg:gap-6"
           >
             {listings.map((listing, index) => (

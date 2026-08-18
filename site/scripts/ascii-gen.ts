@@ -41,7 +41,12 @@ const TAU = Math.PI * 2;
 /**
  * cellHeight / cellWidth for the mono face.
  *
- * IBM Plex Mono's advance width is 600/1000 em = 0.6em. The art grid pins the
+ * JetBrains Mono's advance width is 600/1000 em = 0.6em (L3, 2026-08-17 — the
+ * mono face changed, the advance did NOT: the retired face and JetBrains Mono
+ * both measure 600 units at 1000 upem, verified against
+ * node_modules/next/dist/server/capsize-font-metrics.json, where both entries'
+ * `xWidthAvg` is 600). So the grid constant below is unchanged by the face
+ * swap. The art grid pins the
  * line box to 1.0em (a flush terminal grid — glyphs touch vertically, which is
  * what gives the field its density). So a cell is 0.6em wide by 1.0em tall:
  *
@@ -102,7 +107,7 @@ const HEADLINE_SAFE = { rowMax: 0.42, colMax: 0.62 };
  * WHY THESE ARE NOT RAMP MEMBERS
  * ------------------------------
  * Every CJK glyph in a monospace face is TWO cells wide (East Asian Wide, and
- * IBM Plex Mono has no CJK coverage at all — the browser substitutes a CJK
+ * JetBrains Mono has no CJK coverage at all — the browser substitutes a CJK
  * face whose advance is 2x the Latin advance). Put one in the luminance ramp
  * and every subsequent glyph on that row shifts half a cell right, so the
  * whole image shears one row at a time; the seam row stops lining up; and
@@ -142,7 +147,7 @@ const SEAM_LUM_BAND: Record<AsciiPalette, [number, number]> = {
 
 /** Literal fallbacks for the standalone SVG. Mirrors app/globals.css section 2. */
 const SVG_FALLBACK: Record<AsciiPalette, Record<string, string>> = {
-  gold: { ink: "#B8902E", mid: "#C9A04A", light: "#F7F4ED", ground: "#000000" },
+  gold: { ink: "#B08D3F", mid: "#C8A552", light: "#FBF9F3", ground: "#000000" },
   blue: { ink: "#1F3C8C", mid: "#7E96D0", light: "#C9D4EE", ground: "#F7F8F5" },
 };
 
@@ -270,14 +275,18 @@ const CHARSET = [
 /**
  * The mono face used for coverage measurement.
  *
- * IBM Plex Mono is delivered by `next/font` as woff2 and is not installed on
+ * L3 (2026-08-17): the site's mono voice is JetBrains Mono. The stack below is
+ * what coverage is measured against, so it moves with the face — otherwise the
+ * ramp is ranked against a grid the browser will never draw.
+ *
+ * JetBrains Mono is delivered by `next/font` as woff2 and is not installed on
  * the build machine, so fontconfig falls through this stack to Menlo — a true
  * monospace with the SAME 0.6em advance. Coverage is only ever used to RANK
  * glyphs, and the rank order of `.:-=+*#`, HOKUTEN and 0-9 is a property of
- * the shapes, not of the face. If IBM Plex Mono is ever installed on the build
+ * the shapes, not of the face. If JetBrains Mono is ever installed on the build
  * host, this stack picks it up automatically and the ramp regenerates.
  */
-const MEASURE_FONT_STACK = "IBM Plex Mono, Menlo, monospace";
+const MEASURE_FONT_STACK = "JetBrains Mono, Menlo, monospace";
 const MEASURE_FONT_SIZE = 100;
 /** Nominal cell area at MEASURE_FONT_SIZE: 0.6em advance x 1.0em line box. */
 const MEASURE_CELL_AREA = MEASURE_FONT_SIZE * 0.6 * MEASURE_FONT_SIZE;
@@ -799,8 +808,8 @@ function buildSvg(built: Built): string {
 /* CSS custom properties resolve from the host document when this file is
    inlined; the literal fallbacks make it correct as a standalone &lt;img&gt;. */
 .g,.w{font-size:${FS}px;white-space:pre}
-.g{font-family:var(--font-mono,"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace)}
-.w{font-family:var(--font-mono,"IBM Plex Mono",ui-monospace),"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif}
+.g{font-family:var(--font-mono,"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace)}
+.w{font-family:var(--font-mono,"JetBrains Mono",ui-monospace),"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif}
 .t0{fill:var(--art-ink,${fb.ink})}
 .t1{fill:var(--art-mid,${fb.mid})}
 .t2{fill:var(--art-light,${fb.light})}

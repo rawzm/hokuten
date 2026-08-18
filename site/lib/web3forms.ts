@@ -1,34 +1,42 @@
 /**
- * lib/web3forms.ts — the single typed path from any Hokuten form to Web3Forms.
+ * lib/web3forms.ts — RETIRED FOR THE BOV FORM (P10 / F28, 2026-08-17).
  *
- * Ported from ~/Documents/Dino/dino-sites/kwc-dinomonteverde/index.html
- * (BOV submit handler :2212-2266, calculator email-capture handler :1949-2025)
- * via docs/port/05-forms-and-ticker.md §A.3, §A.6, §A.9.
+ * ─── WHAT HAPPENED ──────────────────────────────────────────────────────────
+ * `V2` §2 and `HANDOFF-02` ("Protected intake") replaced the browser-only
+ * Web3Forms path with a server-side endpoint using protected credentials:
+ * `POST /api/contact-intake`, governed by docs/MONDAY-INTAKE-CONTRACT.md. The
+ * BOV form no longer touches this module at all — its payload builder, its
+ * subject/from-name constants and its `mailto:` fallback moved to
+ * `lib/intake.ts`, where the server and the client share one contract.
  *
- * WHY THIS FILE EXISTS
- * The source had two hand-rolled submit paths against the same endpoint with two
- * different transports (BOV posted `FormData`, the calculator posted JSON) and a
- * duplicated "is the key configured" guard. Both are collapsed here so the BOV
- * form and the calculator's "Email me this estimate" capture share one payload
- * builder, one guard, and one result type.
+ * ─── WHY THE FILE STILL EXISTS ──────────────────────────────────────────────
+ * The calculator's "Email me this estimate" capture (index.html:1949-2025,
+ * `components/calculator/Calculator.tsx`) is a SECOND, separate lead path that
+ * still posts here, and `components/sections/BovSection.tsx` still reads
+ * `isWeb3FormsConfigured()` for its skeleton branch. Neither file is in P10's
+ * scope, so deleting this module would have broken two components this portion
+ * does not own. What is left below is exactly what those two callers use and
+ * nothing else.
  *
- * FIELD NAMES ARE A CONTRACT. The destination inbox parses `name`, `hotel_name`,
- * `city`, `state`, `phone`, `email`, `sms_consent`, `sms_consent_text` and
- * `consent_timestamp` by name. Renaming one silently breaks the funnel — it does
- * not error, the lead just arrives blank. Do not "tidy" these keys.
+ * ─── FOLLOW-UP, NAMED ───────────────────────────────────────────────────────
+ * `NEXT_PUBLIC_WEB3FORMS_KEY` is still unprovisioned (site/.env.example:
+ * "blocked: a NEW Hokuten key must be provisioned"), so the calculator's email
+ * capture is still disabled behind `configured === false` with its designed
+ * honest state. Plan §5.3 marks the variable "retired by §3.7 — remove after
+ * `/api/contact-intake` lands". It has landed. The remaining work — pointing
+ * the calculator's capture at `/api/contact-intake` too (a `submission_type` of
+ * its own, the same server-side consent discipline), then deleting this file,
+ * the env var and the Web3Forms references on the /privacy route — belongs to
+ * whoever next owns `components/calculator/`. It is recorded in the P10 report.
  *
- * KEY HANDLING. `NEXT_PUBLIC_WEB3FORMS_KEY` is public-class by design: it names a
- * destination inbox, it authorises nothing. It is still never hardcoded — not
- * here, not in a comment, not in an example. It is ALSO not provisioned yet
- * (site/.env.example: `blocked: a NEW Hokuten key must be provisioned — do not
- * reuse the kwc key`). Every caller must handle `configured === false` with a
- * designed, honest state plus the mailto fallback. Never fake a success.
- *
- * The FRED key has no business in this file or anywhere else client-side.
+ * KEY HANDLING is unchanged: `NEXT_PUBLIC_WEB3FORMS_KEY` is public-class by
+ * design (it names a destination inbox, it authorises nothing), it is never
+ * hardcoded, and every caller must handle `configured === false` with a
+ * designed, honest state. Never fake a success. The FRED key and the Monday
+ * token have no business in this file or anywhere else client-side.
  */
 
-import { CONTACT, SITE_NAME, siteDomain } from "@/content/site";
-import { SMS_CONSENT, consentTimestamp } from "@/content/compliance";
+import { SITE_NAME, siteDomain } from "@/content/site";
 
 /* -------------------------------------------------------------------------- */
 /*  Endpoint + configuration                                                   */
@@ -56,7 +64,7 @@ export function web3formsKey(): string | null {
 }
 
 /**
- * Is submission wired up at all?
+ * Is the calculator's email capture wired up at all?
  *
  * Replaces the source's two literal sentinel checks (`key === "YOUR_WEB3FORMS_
  * ACCESS_KEY"` at :2231 and `ACCESS_KEY.indexOf("YOUR_") === 0` at :1994) with a
@@ -72,21 +80,14 @@ export function isWeb3FormsConfigured(): boolean {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Subject prefixes. The separator is an em dash (U+2014) with a space on each
- * side — index.html:1270 and :1997. `siteDomain()` is the single source of truth
- * for the trailing domain (content/site.ts), so a DNS cutover changes one value.
+ * Subject prefix. The separator is an em dash (U+2014) with a space on each
+ * side — index.html:1997. `siteDomain()` is the single source of truth for the
+ * trailing domain (content/site.ts), so a DNS cutover changes one value.
  */
-export const BOV_SUBJECT_PREFIX = "New BOV request — ";
 export const VALUATION_SUBJECT_PREFIX = "Valuation lead — ";
 
-/** index.html:1171 `Dino Monteverde Website` → team-first (docs/port/05 §A.3 VOICE). */
-export const BOV_FROM_NAME = `${SITE_NAME} Website`;
 /** index.html:2003 `KWC Valuation Tool` → team-first (docs/port/05 §A.9 VOICE). */
 export const VALUATION_FROM_NAME = `${SITE_NAME} Valuation Tool`;
-
-export function bovSubject(): string {
-  return `${BOV_SUBJECT_PREFIX}${siteDomain()}`;
-}
 
 export function valuationSubject(): string {
   return `${VALUATION_SUBJECT_PREFIX}${siteDomain()}`;
@@ -104,33 +105,6 @@ export type Web3FormsEnvelope = {
 };
 
 /**
- * The BOV request as it goes on the wire.
- *
- * Optional keys are omitted rather than sent empty, mirroring `FormData`
- * semantics for an unchecked checkbox (index.html:1172, :1199): the source's
- * honeypot and consent box contribute NO key when unchecked. `phone` is the one
- * deliberate exception — index.html:2246 does `data.set("phone", …)`
- * unconditionally, so the key is always present, empty string when blank.
- */
-export type BovPayload = Web3FormsEnvelope & {
-  name: string;
-  hotel_name: string;
-  city: string;
-  state: string;
-  /** E.164 (`+16507206995`) or `""`. Never a national/pretty-printed string. */
-  phone: string;
-  email: string;
-  /** Static 10DLC/TCR audit-trail string. index.html:1174. */
-  sms_consent_text: string;
-  /** ISO 8601 UTC, stamped on EVERY submit regardless of the box. index.html:2241. */
-  consent_timestamp: string;
-  /** Present only when the SMS box is ticked. index.html:1199. */
-  sms_consent?: string;
-  /** Honeypot. Present only when a bot ticked it; Web3Forms rejects server-side. */
-  botcheck?: string;
-};
-
-/**
  * The calculator's "Email me this estimate" lead. index.html:1998-2016.
  * The estimate fields are open-ended by design — the calculator owns their names
  * and this module must not constrain them — but they are all flat strings.
@@ -139,62 +113,12 @@ export type ValuationLeadPayload = Web3FormsEnvelope & {
   email: string;
 } & Record<string, string>;
 
-/** Anything this module knows how to post. */
-export type Web3FormsPayload = BovPayload | ValuationLeadPayload;
+/** Anything this module still knows how to post. */
+export type Web3FormsPayload = ValuationLeadPayload;
 
 /* -------------------------------------------------------------------------- */
-/*  Payload builders                                                           */
+/*  Payload builder                                                            */
 /* -------------------------------------------------------------------------- */
-
-/** Caller-side shape for a BOV request — domain values, not wire keys. */
-export type BovRequestInput = {
-  name: string;
-  hotelName: string;
-  /** City name only, e.g. `Albany`. */
-  city: string;
-  /** Full state name, e.g. `New York`. */
-  state: string;
-  /** E.164 or `""`. Normalise BEFORE calling — this module does not parse phones. */
-  phone: string;
-  email: string;
-  /** Ticked state of the SMS box. Optional, unchecked by default (TCPA rule R3). */
-  smsConsent: boolean;
-  /** Ticked state of the honeypot. `true` means a bot filled a hidden field. */
-  botcheck: boolean;
-};
-
-/**
- * Build the BOV payload. Trims user input, stamps the consent timestamp, and
- * attaches the frozen consent strings from content/compliance.ts — nothing here
- * retypes a legal string.
- *
- * @param accessKey resolved by the caller via `web3formsKey()`, so the guard and
- *   the designed unconfigured state stay in the component that renders them.
- */
-export function buildBovPayload(input: BovRequestInput, accessKey: string): BovPayload {
-  const payload: BovPayload = {
-    access_key: accessKey,
-    subject: bovSubject(),
-    from_name: BOV_FROM_NAME,
-    name: input.name.trim(),
-    hotel_name: input.hotelName.trim(),
-    city: input.city.trim(),
-    state: input.state.trim(),
-    phone: input.phone.trim(),
-    email: input.email.trim(),
-    [SMS_CONSENT.hiddenFields.consentText]: SMS_CONSENT.consentText,
-    [SMS_CONSENT.hiddenFields.timestamp]: consentTimestamp(),
-  };
-
-  if (input.smsConsent) {
-    payload[SMS_CONSENT.checkboxField] = SMS_CONSENT.checkboxValue;
-  }
-  if (input.botcheck) {
-    payload.botcheck = "on";
-  }
-
-  return payload;
-}
 
 /**
  * Build the calculator lead payload. `fields` is the estimate snapshot the
@@ -230,12 +154,8 @@ export type Web3FormsResult =
 /**
  * POST a payload to Web3Forms.
  *
- * Transport note (logged decision): the source posted the BOV form as
- * `FormData` (:2248) and the calculator lead as JSON (:2019). Both paths are
- * JSON here. Web3Forms treats the two identically and the source already proved
- * the JSON path against this same endpoint and inbox, so the received email is
- * unchanged — only the encoding is. This is what lets both forms share one
- * typed builder.
+ * Transport note (logged decision): the source posted the calculator lead as
+ * JSON (:2019) and this keeps that encoding, so the received email is unchanged.
  *
  * Never throws: a network failure, a timeout, and a non-JSON response all
  * resolve to `{ ok: false, reason: "network" }`.
@@ -262,42 +182,4 @@ export async function submitWeb3Forms(payload: Web3FormsPayload): Promise<Web3Fo
   } finally {
     clearTimeout(timer);
   }
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Mailto fallback                                                            */
-/* -------------------------------------------------------------------------- */
-
-/**
- * The honest degradation path while `NEXT_PUBLIC_WEB3FORMS_KEY` is unprovisioned,
- * and the recovery path after a failed send. Carries the SAME information the
- * POST would have carried, so the visitor never has to retype anything.
- *
- * The SMS consent line is included only when the visitor ticked the box —
- * an email cannot be a consent record for a box that was never ticked.
- */
-export function bovMailtoHref(input: Partial<BovRequestInput> = {}): string {
-  const lines: string[] = [];
-  const add = (label: string, value?: string) => {
-    const v = value?.trim();
-    if (v) lines.push(`${label}: ${v}`);
-  };
-
-  add("Name", input.name);
-  add("Hotel", input.hotelName);
-  const place = [input.city?.trim(), input.state?.trim()].filter(Boolean).join(", ");
-  add("City, State", place);
-  add("Phone", input.phone);
-  add("Email", input.email);
-  if (input.smsConsent) {
-    lines.push(`SMS consent: ${SMS_CONSENT.checkboxValue}`);
-    lines.push(`Consent recorded: ${consentTimestamp()}`);
-  }
-
-  lines.push("");
-  lines.push("Available property data (T-12, STR report, franchise / PIP):");
-
-  const subject = bovSubject();
-  const body = lines.join("\n");
-  return `mailto:${CONTACT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

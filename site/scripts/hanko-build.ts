@@ -30,8 +30,10 @@
  * ── Why apple-touch-icon gets an opaque ground ───────────────────────────────
  * iOS composites a transparent home-screen icon onto black and then applies its
  * own superellipse mask, so a transparent PNG reads as a dirty rectangle. The
- * icon is therefore stamped on `--dark` #16181B (gold on dark = 5.99:1, the
- * measured value in docs/design/CONTRAST.md) with a 12% inset so the mask never
+ * icon is therefore stamped on `--dark` #1A1C1F (gold on dark = 5.47:1, the
+ * measured value in docs/design/CONTRAST.md — L2, 2026-08-17 retuned both the
+ * charcoal and the gold, so this ground and that ratio both moved) with a 12%
+ * inset so the mask never
  * clips the seal border. The `.ico` stays transparent on purpose — it has to sit
  * on both a light and a dark browser tab strip.
  *
@@ -58,7 +60,7 @@ const ICO_SIZES = [16, 32, 48] as const;
 
 const APPLE_SIZE = 180;
 /** Brand `--dark`. iOS masks the corners, so the seal needs room to breathe. */
-const APPLE_GROUND = "#16181B";
+const APPLE_GROUND = "#1A1C1F";
 const APPLE_INSET = 0.12;
 
 /**

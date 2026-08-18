@@ -39,6 +39,22 @@ export const SITE_NAME = "The Hokuten Group";
 export const BRAND_LINE = "THE HOKUTEN GROUP";
 
 /**
+ * The brand tagline, from `GUIDE` line 37 and `PROFILE` (docs/LAUNCH-IMPLEMENTATION.md
+ * §3.11, R15). It is a brand line, not a claim — no number, no coverage
+ * assertion, no award reference — so it carries no register row.
+ *
+ * ONE PLACEMENT, SITE-WIDE: a mono kicker beneath the footer lockup
+ * (`components/sections/SiteFooter.tsx`), rendered uppercase by the mono-label
+ * type tokens while the source string stays sentence case so assistive tech
+ * reads words rather than shouted caps. It does NOT go in the hero, a headline,
+ * `<title>`, the meta description or the OG card — `V2` never uses it and
+ * `EDITS` carried it only as an optional footer line, so it gets exactly one
+ * restrained placement. Grep-enforced at §7.3 (one occurrence in `site/`,
+ * which is why no comment in this repo's `site/` tree repeats the words).
+ */
+export const BRAND_TAGLINE = "True north for hotel owners";
+
+/**
  * Brand hierarchy as it reads on official assets (PROJECT-MEMORY §1, ref 01).
  * On the WEBSITE the hierarchy inverts — Hokuten leads and KW Commercial is a
  * footer compliance mark only. Use this stack for lockup-faithful surfaces
@@ -73,6 +89,12 @@ export function copyrightLine(year: number = COPYRIGHT_YEAR): string {
  * Every in-page anchor, in render order. Entry 13 is ref 04's
  * "Footer + persistent #ticker (fixed bottom)" — the footer shares that slot and
  * carries no anchor of its own.
+ *
+ * RE-SEQUENCED 2026-08-17 with the launch reorder (docs/LAUNCH-IMPLEMENTATION.md
+ * §3.2, R5): #faq and #bov move above #team/#doors/#mandates. The order is
+ * load-bearing — `SiteNav.tsx` builds `DOM_ORDER` from this array's INDEX to
+ * break scroll-spy ties, so a stale sequence silently mis-highlights the nav.
+ * Keep it in step with `app/page.tsx` and `content/nav.ts`.
  */
 export const SECTION_IDS = [
   "hero",
@@ -82,11 +104,11 @@ export const SECTION_IDS = [
   "listings",
   "calculator",
   "method",
-  "doors",
-  "mandates",
-  "team",
   "faq",
   "bov",
+  "team",
+  "doors",
+  "mandates",
   "ticker",
 ] as const;
 
@@ -149,10 +171,33 @@ export const A100_ARMS_SIGNUP_URL = "https://a100arms.com/signup";
 export const CREXI_PROFILE_URL =
   "https://www.crexi.com/profile/dino-monteverde-dinomon";
 
+/**
+ * The public investor-community invite (docs/LAUNCH-IMPLEMENTATION.md §3.11,
+ * Appendix B10 — `V2` §11 step 8). This is the controlling invite. The earlier
+ * invite named in that appendix is historical and must never be restored; this
+ * comment does not repeat its id, because §7.3 greps `site/` for it and expects
+ * zero hits.
+ *
+ * Renders ONCE, in the footer legal block, with `WHATSAPP_DISCLOSURE`
+ * (content/compliance.ts) immediately adjacent — the phone-visibility and
+ * vetting disclosure is part of the link, not a separate nicety. Opens in a new
+ * tab with `rel="noopener noreferrer"` like every other external destination
+ * here. The community name is Dino's own (`Ref/listings/README.md` carries the
+ * HOKUTEN-branded flyer for it), not authored copy.
+ *
+ * Unlike a100 Arms this is a PUBLIC channel: it is not the confidential
+ * off-market lane, so it must never be labelled as private access.
+ */
+export const WHATSAPP_COMMUNITY = {
+  label: "Hotel Investor Network on WhatsApp",
+  href: "https://chat.whatsapp.com/Jk5rP0D1ad4J68SnGo8KJG",
+} as const;
+
 export const EXTERNAL_URLS = {
   a100Arms: A100_ARMS_URL,
   a100ArmsSignup: A100_ARMS_SIGNUP_URL,
   crexiProfile: CREXI_PROFILE_URL,
+  whatsappCommunity: WHATSAPP_COMMUNITY.href,
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -160,12 +205,27 @@ export const EXTERNAL_URLS = {
 /* -------------------------------------------------------------------------- */
 
 /**
- * `blocked: calendly-url` — the team Calendly URL is not provisioned
- * (PROJECT-MEMORY open item: "Provision: new Web3Forms access key + team Calendly
- * URL"). The kwc value is Dino's personal link and does not carry over.
- * Every caller must degrade to CALENDLY_FALLBACK.
+ * PROVISIONED 2026-08-17 (F36). Dino's verified scheduling link, from the
+ * verified-public-links list he delivered (`V2` §8 line 119, transcribed in
+ * docs/LAUNCH-IMPLEMENTATION.md Appendix B11). This clears `blocked:
+ * calendly-url` / PLACEHOLDERS.md #29 — the calculator's tertiary CTA
+ * (`components/calculator/CalculatorResult.tsx`) stops degrading to
+ * CALENDLY_FALLBACK and now opens the real popup widget on first click.
+ *
+ * TWO CONSEQUENCES, both deliberate and both recorded rather than hidden:
+ *   1. The Calendly widget script is fetched from assets.calendly.com on first
+ *      CTA click (never before) — a third-party request the site did not make
+ *      while this was null. PLACEHOLDERS.md #12 (privacy processor list) is
+ *      the row that now has to name Calendly as live.
+ *   2. `hide_gdpr_banner=1` is still deliberately NOT appended (PLACEHOLDERS.md
+ *      #44 / #13). Suppressing a third party's own consent prompt stays a
+ *      decision nobody has made; provisioning the URL does not make it.
+ *
+ * The `string | null` annotation is kept on purpose: every caller still guards,
+ * so reverting to null is a one-token change and no null-check goes stale.
  */
-export const CALENDLY_URL: string | null = null;
+export const CALENDLY_URL: string | null =
+  "https://calendly.com/dino-monteverde-kw";
 
 /** Where a scheduling CTA lands while CALENDLY_URL is null. */
 export const CALENDLY_FALLBACK = "#bov";

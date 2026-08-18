@@ -6,17 +6,49 @@
  * no FAQPage JSON-LD). These questions are therefore AUTHORED, which makes the
  * evidence gate binding on every sentence below. Each answer is assembled only
  * from (a) sentences the kwc source actually says, cited by index.html line, or
- * (b) rows in design-skill reference 06's verified claims register, or (c) US
- * statute, in the single case of the 1031 clocks.
+ * (b) rows in design-skill reference 06's verified claims register.
  *
- * PLACEHOLDERS: where the source is silent, the answer says less rather than
- * more and carries a bracketed PLACEHOLDER:confirm marker instead of an
- * invention. Five markers ship here — NDA mechanics, the a100 Arms vetting bar,
- * qualified-intermediary coordination, fee/engagement terms, and the
- * KW / Forward Wilshire paperwork gate. None of them may render as live public
- * copy; resolve each before `#faq` goes public.
+ * 2026-08-17 — FIVE QUESTIONS CUT FOR LAUNCH (decision D3; portion P9 of
+ * docs/LAUNCH-IMPLEMENTATION.md §3.12). Five of the seven answers ended in a
+ * bracketed confirm-marker where the source was silent, and FaqSection.tsx
+ * renders such a marker as an unmissable alert block. None could go public, and
+ * D3 is a CUT, not a wait: the five entries are DELETED here and are re-added
+ * verbatim when Dino supplies the answers. `#faq` therefore ships with the two
+ * fully answered questions below, in their original order.
  *
- * NOT ASSERTED ANYWHERE BELOW, deliberately:
+ * THE FIVE CUT QUESTIONS, verbatim, at their original indices, each with the
+ * one thing it was waiting on. The deleted answer text survives in git history
+ * (the commit immediately preceding this cut) and its provenance is tabulated
+ * in docs/LAUNCH-IMPLEMENTATION.md §3.12, so restoring one is a single edit:
+ * paste the entry back at its index, drop the trailing marker, and put the
+ * confirmed sentence in its place.
+ *
+ *   3. "Is my inquiry confidential, and can you run a quiet process?"
+ *      — waiting on: buyer-side NDA mechanics — who signs, at what stage of a
+ *        confidential process, and what information is gated behind it.
+ *   4. "How do I get access to off-market deals?"
+ *      — waiting on: the vetting bar for a100 Arms access — proof of funds,
+ *        stated mandate, minimum check size.
+ *   5. "Can you work with a 1031 exchange?"
+ *      — waiting on: how we coordinate with a buyer's or seller's qualified
+ *        intermediary, and whether we name referral relationships.
+ *   6. "What does a valuation cost, and when does an engagement start?"
+ *      — waiting on: fee and engagement terms — commission structure,
+ *        marketing-cost allocation, listing term and exclusivity, cancellation.
+ *   7. "Who is the brokerage of record, and can you work outside California?"
+ *      — waiting on: the KW / Forward Wilshire paperwork gate, and whether the
+ *        named licensee is a team block or Dino individually. Re-add at cutover,
+ *        once the FBN filing and the broker email exist. That answer opened with
+ *        the brokerage disclosure IMPORTED from content/compliance.ts, which is
+ *        the single owner of that string (ship-gate finding, DESIGN-REVISIT
+ *        §5.3): restore it as `BROKERAGE_DISCLOSURE.join(" ")` — the inline
+ *        one-sentence-pair form, since an FAQ answer is a plain string — and
+ *        never retype the string itself. Its coverage sentence was also a
+ *        deliberate NARROWING of index.html:1152; keep the narrower wording
+ *        until ref 06 carries a row for "every U.S. state".
+ *
+ * NOT ASSERTED ANYWHERE BELOW, deliberately — and still not assertable when the
+ * cut questions come back:
  *   · the 180-day listing term / two 90-day cycles (index.html:1095) — a
  *     contractual timeframe with no register row, and port pack 04 §10b warns
  *     specifically against conflating its "180 days" with the 1031 clock;
@@ -24,25 +56,9 @@
  *     source states none (port pack 04 §10e, "the biggest hole on the page");
  *   · any NDA workflow — the source's only NDA reference is `lender NDAs` as a
  *     deal category (index.html:1223).
- *
- * COMPLIANCE: the brokerage disclosure in the last answer is no longer retyped
- * here — it is IMPORTED from content/compliance.ts, the single owner of that
- * string (ship-gate finding, DESIGN-REVISIT §5.3). The two copies were diffed
- * character by character before the swap and were byte-identical over all 145
- * characters, with no non-ASCII codepoints on either side, so this change is
- * refactor-only: the rendered answer is unchanged. Never retype it back.
  */
 
-import { BROKERAGE_DISCLOSURE } from "@/content/compliance";
 import type { FaqItem } from "@/lib/types";
-
-/**
- * The disclosure as one inline sentence pair. content/compliance.ts documents
- * this join: the source uses a hard line break between the two elements in the
- * footer, and a single space in the inline form used on the legal pages. An FAQ
- * answer is a plain string, so the inline form is the correct one here.
- */
-const DISCLOSURE_INLINE = BROKERAGE_DISCLOSURE.join(" ");
 
 export const faq = [
   {
@@ -57,53 +73,5 @@ export const faq = [
     question: "How is the calculator estimate different from a written BOV?",
     answer:
       "The calculator returns an indicative range only, based on the figures you provide and generalized market assumptions — not a Broker Opinion of Value. A written BOV is built on verified comps backed by CoStar and RCA, market analysis, and a pricing recommendation, and we pressure-test it against your real numbers.",
-  },
-  {
-    // index.html:1060 ("fully confidential"), :1100 (public launch vs. controlled
-    // confidential process). The source defines no buyer-side NDA workflow — see
-    // port pack 04 §10a gap note. Do not fill that gap from imagination.
-    question: "Is my inquiry confidential, and can you run a quiet process?",
-    answer:
-      "Yes to both. Every inquiry and every written BOV is confidential. The default launch is public — CoStar, LoopNet and Crexi, supported by direct database distribution and owner outreach — unless the seller's circumstances require a controlled confidential process, in which case we run one instead. [PLACEHOLDER:confirm — buyer-side NDA mechanics: who signs, at what stage of a confidential process, and what information is gated behind it]",
-  },
-  {
-    // index.html:1222-1223 verbatim, :1225 (signup destination), :1868 (empty state).
-    // The source never defines the vetting bar — port pack 04 §10c open question.
-    question: "How do I get access to off-market deals?",
-    answer:
-      "a100 Arms is our invite-only platform for vetted hotel investors: deals that require confidentiality — partnership wind-downs, lender NDAs, ownership transitions where public listing would damage value. Request an invite and we review it. [PLACEHOLDER:confirm — the vetting bar for a100 Arms access: proof of funds, stated mandate, minimum check size]",
-  },
-  {
-    // The 45/180-day clocks are federal statute (IRC §1031), not a company claim.
-    // The kwc source says nothing about 1031 exchanges at all (port pack 04 §10b),
-    // so everything operational is held back behind the marker.
-    question: "Can you work with a 1031 exchange?",
-    answer:
-      "The statutory clocks are fixed: 45 days from the closing of the relinquished property to identify replacement property, and 180 days to close it. They run concurrently, not back to back. We are brokers, not tax counsel — exchange structure, qualified-intermediary selection, and tax treatment stay with your CPA and your QI. [PLACEHOLDER:confirm — how we coordinate with a buyer's or seller's qualified intermediary, and whether we name referral relationships]",
-  },
-  {
-    // index.html:1165 ("No cost, no obligation."), :1060, :1065, :1099 ("Delivered
-    // before the listing agreement."). Everything else about fees is unsourced —
-    // port pack 04 §10e: `blocked: needs fee/engagement terms from Razim`.
-    question: "What does a valuation cost, and when does an engagement start?",
-    answer:
-      "The written BOV is no cost and no obligation, and it is delivered before the listing agreement — asking for a number does not start an engagement, and no listing agreement follows automatically. [PLACEHOLDER:confirm — commission structure, marketing-cost allocation, listing term and exclusivity, and cancellation terms; the source site states none of these]",
-  },
-  {
-    // Disclosure sentences IMPORTED from content/compliance.ts, which owns them
-    // (kwc index.html:1140, :1241, :1249 — the same string 7 times across 4 files).
-    //
-    // The coverage sentence is a deliberate NARROWING of index.html:1152, not a
-    // port of it: the source line ("Nationwide referral network and formal
-    // partner-brokerage relationships in every U.S. state…") is now exported
-    // byte-exact as compliance.ts `OUT_OF_STATE_QUALIFIER` for the footer, and
-    // asserting "every U.S. state" inside an FAQ answer would widen a coverage
-    // claim that has no register row yet. Keep the narrower wording here until
-    // ref 06 carries the row; then this becomes a one-line swap, not a rewrite.
-    //
-    // The whole block is gated on the KW / Forward Wilshire paperwork item
-    // tracked in PROJECT-MEMORY.md.
-    question: "Who is the brokerage of record, and can you work outside California?",
-    answer: `${DISCLOSURE_INLINE} Out-of-California engagements run through formal partner-brokerage relationships, and Forward Wilshire is brokerage of record for all listings. [PLACEHOLDER:confirm — the KW / Forward Wilshire paperwork gate must clear before this answer ships publicly under the Hokuten name, and whether the named licensee is a team block or Dino individually]`,
   },
 ] satisfies FaqItem[];

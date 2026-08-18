@@ -6,9 +6,28 @@
  * hierarchy, serial, SOLD colour-reveal reversal), D20 (the four-level type
  * system this component enforces), docs/DESIGN-REVISIT.md §2 D4 and §4.5 (the
  * original boarding-pass anatomy this evolves), hokuten-design-director ref 03
- * (Surfaces, Radius), ref 05 (Hovers — "hover lifts nothing" is the one
- * documented exception the resting shadow carves out of "1px borders over
- * shadows"), ref 07 (P0 focus, the 5-second CRE gate).
+ * (Surfaces, Radius), ref 05 (Hovers — "hover lifts nothing"), ref 07 (P0
+ * focus, the 5-second CRE gate).
+ *
+ * ── D-VOCAB / R2 (Razim, 2026-08-17) — the resting shadow is GONE ──────────
+ * Brand Design Guide v1.3 (line 29): "hairline rules and outlined boxes —
+ * never filled buttons, never rounded card grids, never drop shadows."
+ * `docs/LAUNCH-IMPLEMENTATION.md` §1.2 resolves the collision with D4/D13 as
+ * R2: the ticket's resting `box-shadow` — BOTH layers, the ink-tinted drop
+ * shadow AND D13's `4px 4px 0 0` offset backing plane, since a backing plane
+ * implemented as a shadow layer is still a shadow — becomes a single 1px
+ * hairline, and hover/focus "elevation" becomes a hairline COLOUR shift.
+ * What R2 explicitly does NOT touch, and what therefore stays byte-identical
+ * below: the perforation, the two punched notches, the tear line and the
+ * landscape/vertical seam flip. That geometry is what makes a ticket read as
+ * a ticket; it is the approved D4 signature and is not up for renegotiation.
+ * Radii stay on the `--radius-card` TOKEN — never a px literal here. The token
+ * layer resolved it to `0` in the same pass, and that is safe for this
+ * chassis: the notches are radial-gradient MASKS on the seam strip, not a
+ * border-radius, so they render identically at any radius. R2's reserved
+ * `--radius-notch` (2px) exists for the case where that ever stops being
+ * true; nothing in this file consumes it today, and nothing should start
+ * without a dated decision.
  *
  * THIS WAVE (Design Revisit 2, 2026-08-10): Ticket is the ONLY file this
  * agent owns. ClosingCard, ListingCard, both section grids and ContextRail
@@ -26,56 +45,49 @@
  *
  * ── TWO ELEMENTS, not one: Root (position/stacking only) + the card surface
  *    (everything visual) ───────────────────────────────────────────────────
- * Every previous version of this file put shadow, radius, overflow-hidden,
- * border and the focus ring all on ONE element. That element ALSO clipped its
- * own children (`overflow-hidden`, needed so the header photo's rounded
- * corners and hover-scale never escape the card shape) — and clipping and
- * "let the resting shadow's offset backing-plane layer peek past the card's
- * own edge" are incompatible on the same box: an element cannot both hide its
- * own overflow and show a shadow that extends past that same overflow
- * boundary. D13 asks for a genuine second cardstock layer, so the box that
- * clips (the photo/seam/content bands) and the box that casts the shadow
- * (which must be allowed to overflow) have to be two different elements:
+ * The split ORIGINALLY existed because a box cannot both clip its own
+ * children (`overflow-hidden`, needed so the header photo's hover-scale never
+ * escapes the card shape) and let an offset shadow layer peek past that same
+ * clip. R2 deleted the shadow, so that particular reason is retired — but the
+ * two elements stay, for three reasons that never depended on it: Root is the
+ * `card-hit group` marker every photo-reveal rule hovers off and must sit
+ * ABOVE the clip; Root is the polymorphic `as` element (`li` must not paint a
+ * card of its own); and the clip still has to be a separate box from the one
+ * that draws the focus ring, which paints OUTSIDE its border box.
  *   Root          `<article>`/`<li>`/`<div>` (the `as` prop) — position/stacking
  *                 host only. `flex h-full flex-col` so a single normal-flow
  *                 child fills it (and so `as="li"` never shows a bullet).
  *                 Carries NO border, radius, shadow, overflow or caller
  *                 `className` — nothing here is meant to be styled directly.
  *   card surface  the one child of Root. `h-full w-full`, `rounded-card`,
- *                 `overflow-hidden` (the clip), the border/hover/focus-ring
- *                 chain, caller `className`, and the `style` that computes
- *                 the two-layer box-shadow below. This is where
- *                 header/seam/content actually live and where `lg:flex-row`
- *                 flips the card from the mobile column into the desktop row.
+ *                 `overflow-hidden` (the clip), the resting hairline and the
+ *                 hover/focus colour-shift + focus-ring chain, and caller
+ *                 `className`. It carries NO `style` and NO `box-shadow` at
+ *                 all. This is where header/seam/content actually live and
+ *                 where `lg:flex-row` flips the card from the mobile column
+ *                 into the desktop row.
  *
- * ── Dimension: a solid offset layer UNDER the existing ink-tinted shadow,
- *    not a decorative sibling node ──────────────────────────────────────────
- * D13: "a subtle second cardstock layer or offset backing plane behind the
- * ticket, plus the existing ink-tinted resting shadow… the card NEVER lifts,
- * floats or translates on hover." `box-shadow` accepts multiple comma-
- * separated layers, painted front-to-back in the order listed, so BOTH
- * requirements are one `box-shadow` value instead of an extra DOM node:
- *   1. `4px 4px 0 0 <colour>` — zero blur, zero spread: a crisp, flat,
- *      slightly-offset rectangle in a colour mixed a little toward `--ink`
- *      from whatever `--surface` this ticket has inherited (Root paints no
- *      background of its own, so `--surface` here is genuinely the
- *      SECTION's, making the peeking layer read as "a second card sitting on
- *      the same surface," not a fixed hex any theme/section would clash
- *      with). This is the "second cardstock layer."
- *   2. `var(--shadow-ticket)` / `var(--shadow-ticket-dark)` — the existing,
- *      unmodified, ink-tinted resting shadow (ref 03's one documented
- *      exception to "1px borders over shadows"). Untouched by `onDark`
- *      beyond selecting the correct token, exactly as before.
- * Because this is `box-shadow`, not `transform`, it costs nothing on the
- * compositor and — critically — it CANNOT be confused with a hover lift: it
- * is set once, in `style`, and nothing in this file ever touches it after
- * mount or on `:hover`. The `ticket` / `ticket-dark` utility classes are
- * deliberately NOT applied here (a class can only ever REPLACE `box-shadow`,
- * never add a layer to it) — this file computes the full value itself and
- * sets it via `style`, matching the codebase's own established pattern for
- * computed, non-token CSS (SiteNav's scroll threshold, Stamp's sized frame,
- * BenchmarkBars' `scaleX`, BrandLoader's progress width — inline `style` for
- * arithmetic, never for a raw colour).
+ * ── Dimension: ONE resting hairline, and a hover that shifts its colour ────
+ * D13 asked for "a subtle second cardstock layer or offset backing plane
+ * behind the ticket, plus the existing ink-tinted resting shadow… the card
+ * NEVER lifts, floats or translates on hover." R2 (2026-08-17) supersedes the
+ * first half of that sentence and keeps the second: both shadow layers are
+ * removed, and the chassis is now stated by a single 1px hairline —
+ *   rest       `border border-hairline`  — surface-relative, so it is cream on
+ *              paper/ivory/card and a 14% light rule on the dark chapters,
+ *              resolved by CSS inheritance from the SECTION's `.surface-*`
+ *              scope (the card surface deliberately paints no scope of its
+ *              own; the seam and the content zone do).
+ *   hover/focus `border-accent-text/40` — a COLOUR shift on the same 1px box.
+ * `border-width` never changes, only `border-color`, and `transition-colors`
+ * is the only transition — so the card still never lifts, floats, translates
+ * or springs, and the reduced-motion block in globals.css already has its
+ * designed static state (the colour still changes, it just changes instantly).
+ * This is the identical rest/hover law `CardShell` already uses, so the two
+ * card families on the page now read as ONE system rather than two.
+ * DO NOT reintroduce `box-shadow` here, in any layer, under any name —
+ * "backing plane", "cardstock", "offset" — it is the same property and the
+ * same guide violation.
  *
  * ── The vertical seam — NEW mechanism, because `ticket-perf`/`ticket-notch`
  *    (globals.css, not owned by this file) only ever drew the horizontal
@@ -282,15 +294,19 @@
  *
  * ── Focus ring on the whole ticket, not just the title (unchanged) ─────────
  * `has-[a:focus-visible]` on the card surface delegates the ring to the
- * whole visible card. D4/D13 drop the always-on hairline border in favour of
- * the resting shadow doing that job, so the surface still carries `border
- * border-transparent` at rest (0 visual weight, same 1px box) and transitions
- * only `border-color`, never `border-width` — unchanged.
+ * whole visible card. D4/D13 dropped the always-on hairline in favour of the
+ * resting shadow doing that job; R2 reverses that trade — the hairline is
+ * back on at rest and IS the chassis — so the surface carries `border
+ * border-hairline` and transitions only `border-color`, never `border-width`.
  *
- * ── `onDark` (unchanged contract) ────────────────────────────────────────────
- * Neither current grid sits on a dark surface yet; the token pair
- * (`--shadow-ticket` / `--shadow-ticket-dark`) is still selected purely by
- * this prop, now inside the computed `style` value instead of a class swap.
+ * ── `onDark` — REMOVED by R2, deliberately not left as a dead prop ──────────
+ * The prop existed for exactly one purpose: selecting `--shadow-ticket-dark`
+ * over `--shadow-ticket`. With no shadow there is nothing for it to select,
+ * and the replacement hairline needs no equivalent — `--hairline` is
+ * surface-scoped and already resolves correctly on `.surface-dark` /
+ * `.surface-black` by inheritance. No caller ever passed it (verified by
+ * grep across `components/`, `app/`, `content/`, `lib/`), so removing it is
+ * not a source-breaking change. A dark-surface ticket needs no prop at all.
  *
  * Server Component — no client JS of its own. The header/photo the caller
  * passes in (PhotoFrame) carries the only client boundary, same as CardShell.
@@ -362,9 +378,6 @@ export type TicketProps = {
    *  action (D13 — reverses Revisit 1's "always muted" rule). Pair with
    *  `overprint` for the SOLD stamp, which stays visible in both states. */
   retired?: boolean;
-  /** Swaps in `--shadow-ticket-dark` for a ticket that sits on `.surface-dark`
-   *  / `.surface-black`. Neither current grid needs this yet. */
-  onDark?: boolean;
   /** Stub body surface. `card` on a paper/deep section, `paper` on a deep band. */
   surface?: "card" | "paper";
   /** Heading level — keep the document outline honest inside its section. */
@@ -415,7 +428,6 @@ export default function Ticket({
   href,
   external = false,
   retired = false,
-  onDark = false,
   surface = "card",
   titleAs: Heading = "h3",
   as: Root = "article",
@@ -430,16 +442,6 @@ export default function Ticket({
   const surfaceClass = surface === "paper" ? "surface-paper" : "surface-card";
   const soleMetric = metrics?.length === 1;
 
-  // Backing plane + resting shadow, one `box-shadow` value (see file header
-  // "Dimension" note for why this is computed here rather than two utility
-  // classes). Mixed toward `--ink` from whatever `--surface` this ticket
-  // inherits from its section, so the peeking layer is always a plausible
-  // "second card on the same surface," never a fixed colour some section
-  // could clash with.
-  const boxShadow = `4px 4px 0 0 color-mix(in srgb, var(--surface) 88%, var(--ink) 12%), var(${
-    onDark ? "--shadow-ticket-dark" : "--shadow-ticket"
-  })`;
-
   return (
     <Root className="card-hit group relative isolate flex h-full flex-col">
       {/* The card surface — everything visual lives here. `lg:flex-row` is
@@ -448,11 +450,12 @@ export default function Ticket({
           a row (image zone / seam / content-stub zone side by side). Same
           three children, same DOM order, in both cases. */}
       <div
-        style={{ boxShadow }}
         className={cn(
           "relative isolate flex h-full w-full flex-col overflow-hidden rounded-card",
           "lg:flex-row",
-          "border border-transparent transition-colors duration-base ease-out",
+          // R2 (D-VOCAB): the chassis is a 1px hairline, never a shadow. Only
+          // `border-color` animates — the card still never lifts or moves.
+          "border border-hairline transition-colors duration-base ease-out",
           href && "hover:border-accent-text/40",
           "has-[a:focus-visible]:border-accent-text/40",
           "has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-focus",
@@ -487,7 +490,34 @@ export default function Ticket({
             on the strip's own left/right edges) below 1024px; vertical
             (border-left, notches on the strip's own top/bottom edges) at
             >=1024px. Same element, same two CSS-variable masks, switched by
-            the `lg:` classes below — see file header "vertical seam" note. */}
+            the `lg:` classes below — see file header "vertical seam" note.
+
+            UNCHANGED BY R2 — every value here is byte-identical to the
+            pre-R2 build. Two measured consequences of R2 that a design
+            reviewer with a real render should rule on, recorded here rather
+            than "fixed" by inventing geometry this file was told to preserve:
+
+            1. The card surface's hairline now PAINTS, where it used to be
+               `border-transparent`. A mask on this strip cannot remove a
+               border painted by its PARENT, and the parent's
+               `overflow-hidden` clips to the padding box, so the strip cannot
+               overhang and cover it either. Result: a 1px hairline runs
+               across the mouth of each notch, so the bite reads as a void
+               just inside the card edge rather than a bite out of it.
+            2. The notch void shows the SECTION ground through the card. With
+               the resting shadow gone, that is `--paper` (#fbf9f3) against a
+               `--card` (#ffffff) interior — a ~2% tonal step. The shadow used
+               to be most of what made the punch legible.
+
+            If a render says the notch has lost its read, the fix is to move
+            the hairline OFF the card surface and onto the three zones (header
+            `border-x border-t`, this strip `border-x`, content
+            `border-x border-b`, all flipped at `lg:`): a mask DOES remove the
+            masked element's own border, so the bite comes back clean. That
+            costs ~15 responsive lines plus an arbitrary
+            `[border-top-style:dashed]` (Tailwind has no per-side border-style
+            utility) and changes corner joins — real work, and not something
+            to do blind. Do NOT instead reintroduce a shadow. */}
         <div
           aria-hidden="true"
           style={seamStyle}

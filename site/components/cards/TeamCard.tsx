@@ -1,32 +1,33 @@
 /**
- * components/cards/TeamCard.tsx — one principal tile in the `#team` grid.
+ * components/cards/TeamCard.tsx — one FEATURED seat in the `#team` grid.
  *
  * Governed by hokuten-design-director ref 04 (`#team`), ref 06 (Team bios,
- * evidence gate, Dino's CA DRE), ref 07 (P0: phone visible in plain text +
- * `tel:`, email copy-to-clipboard AND `mailto:`) and
- * docs/design/specs/team.md — read that file for the full IA/states/motion
- * rationale before touching this one.
+ * evidence gate, licence lines) and ref 07 (P0: phone visible in plain text +
+ * `tel:`, email copy-to-clipboard AND `mailto:`).
  *
  * Server Component — the only client boundaries in the tree are `PhotoFrame`
  * (touch tap-reveal) and `CopyButton` (clipboard), both existing, unmodified
  * modules.
  *
+ * ── Featured seats only (LAUNCH-IMPLEMENTATION §3.9, R7/D6) ─────────────────
+ * The roster is six seats split by `content/team.ts`'s `featured` flag. This
+ * card renders the three featured seats (Dino, Razim, William) — full bio,
+ * portrait, licence line, contact row. The other three render as a compact
+ * roster row composed inside `TeamSection`, NOT as a variant prop here: the
+ * lighter row is a different shape, and the precedent this section already set
+ * (and `MandatesSection`/`DoorsSection` before it) is that a section composes
+ * its own lighter-weight local block rather than overloading a card component
+ * with a variant it only half fits.
+ *
  * ── Not using `CardShell` (decision — mirrors `MandatesSection`'s own call)─
  * `CardShell`'s `meta` slot line-clamps to 2 lines / reserves `3.2em` — sized
  * for a short caption ("Lake Harmony, PA · Full-Service · 450 keys"), not
- * prose. A person's bio is prose, and Dino's real content (`content/team.ts`)
- * runs 3–4 sentences of verified, register-tracked figures ("$200M+ …
- * USMC veteran. Former hotel owner-operator."). Clamping it would visually
- * truncate a claim ref 06's register lists as one verified unit, and
- * `CardShell.tsx` is not a file this task owns, so its clamp can't be relaxed
- * for this one caller. `CardShell` also has no fourth slot for a
- * compliance-adjacent DRE line and forces its `data` slot to mono type —
+ * prose. A person's bio is prose. `CardShell` also has no slot for a
+ * compliance-adjacent licence line and forces its `data` slot to mono type —
  * wrong for prose. So this file applies the same chassis TOKENS `CardShell`
  * itself is built from (`border-hairline`, `surface-card`, the `card-hit`
  * hover marker) directly, rather than duplicating a second generic card
- * abstraction — see `MandatesSection.tsx` for the identical precedent with
- * mandate cards ("a different shape ref 04 asks for explicitly, not a
- * duplicated primitive").
+ * abstraction — see `MandatesSection.tsx` for the identical precedent.
  *
  * ── D4 ticket kinship — a LIGHT borrow, deliberately not the full anatomy ──
  * Design-revisit §4.8 offers the deal-ticket system (colour header band,
@@ -40,17 +41,34 @@
  * mono/caps micro-voice for the role line, below. That is the full borrow —
  * no header band, no tear line, no `ticket-perf`/`ticket-notch`.
  *
- * ── Portrait vs. glyph plate ────────────────────────────────────────────
- * Only Dino has a sourced photo (ref 04; ref 06; `content/team.ts`). Every
- * other card renders `GlyphPlate`: the same `aspect-[3/4]` box `PhotoFrame`
- * would occupy (so the grid row stays visually aligned), toned
- * `surface-deep`, holding the north-star/compass motif ref 01's Motif system
- * sanctions by name: "the site mark accent; usable as bullet, section stamp,
- * loading indicator." That is this use — a scarce, deliberate brand-mark
- * placement, not the "decorative fill" ref 03 bans (that targets colour
- * washes, not a single small glyph in one card's empty portrait slot). Never
- * initials-in-a-circle — that pattern IS the "grey avatar" AGENT-BRIEF names
- * as banned for this exact section.
+ * ── Portrait: one CSS aspect, and a hard publication gate ──────────────────
+ * `aspect="4/5"` (0.800) is the one rendered aspect for every portrait on the
+ * page — featured card and roster row alike — so the grid stays even. The
+ * canonical masters are NOT one aspect (Jae Hun's is 0.750, the rest 0.800);
+ * they are normalised to exactly 900×1125 on export and still ride
+ * `object-fit: cover`, so a future master at a third aspect degrades to a crop
+ * rather than a broken row.
+ *
+ * A seat renders a portrait only when `content/team.ts`'s `seatPortrait()` says
+ * so — the G8 subject-approval gate, evaluated in exactly one place. **William
+ * Betancourt's card renders WITHOUT a portrait** until C17 clears (he objected
+ * to his image having been AI-processed, team chat 2026-08-17). Do not route
+ * around it by reading `member.photo` directly.
+ *
+ * Ungated seats fall back to `GlyphPlate`: the same box `PhotoFrame` would
+ * occupy (so the grid row stays visually aligned), toned `surface-deep`,
+ * holding the north-star/compass motif ref 01's Motif system sanctions by name.
+ * Never initials-in-a-circle — that pattern IS the "grey avatar" AGENT-BRIEF
+ * names as banned for this exact section.
+ *
+ * ── Licence line: `licence`, never `dre` ───────────────────────────────────
+ * `content/team.ts` keeps `dre` as the CALIFORNIA DRE field because
+ * `components/seo/JsonLd.tsx` emits it under the label "California DRE
+ * license". The printed line comes from `licence` (+ `brokerageLicence` for
+ * Dino's brokerage of record), so William's Florida number can print here
+ * without being mislabelled in the structured data. A seat with no `licence`
+ * makes NO licence claim — that is a decision per seat (R8 for Razim, D9 for
+ * William), not an omission to be tidied up.
  *
  * ── Contact row (ref 07: "email copy-to-clipboard AND mailto") ──────────
  * `CopyButton` gives the "Copied" flash; a separate real
@@ -64,22 +82,20 @@
  * deliberately not reused for that reason.
  *
  * ── Empty email is "no contact channel," never an empty mailto ──────────
- * `content/team.ts`'s CONTRACT GAP note: `TeamMember.email` is typed
- * `string` (required) but three of four rows have no sourced address and
- * carry `""`. This file treats a falsy `email` as "no channel" and renders
- * nothing for that row — never `mailto:` with an empty address. Reported,
- * not fixed here (`lib/types.ts` is not an owned file).
+ * Only Dino has a published address; every other seat carries `email: ""`
+ * (`content/team.ts`'s CONTACT note, X25). This file treats a falsy `email` as
+ * "no channel" and renders nothing for that row — never `mailto:` with an empty
+ * address. The seats with no channel are covered by `TEAM_ROUTING`, rendered
+ * once by `TeamSection`, which names Dino Monteverde as the destination.
  *
  * ── Design Revisit 2 (2026-08-10, D9/D13/D20) — landscape at `lg:`, spatial
  *    only, nothing invented ──────────────────────────────────────────────
  * `TeamSection` moved off `container-hk` (1200px cap) onto `stage-shell`
  * (D9: full-width, fluid gutter, no max-width). Left unchanged, the OLD
  * portrait-on-top card would have taken that width literally: a 3-up grid
- * on a 2560px stage gives each column ~700–800px, and a full-bleed
- * `aspect-[3/4]` image at that width renders a >1000px-tall headshot —
- * grotesque, and it single-handedly blows the section past one usable
- * screen at 1440×900 (ref: docs/DESIGN-REVISIT-2.md §5.6 acceptance, "each
- * default/collapsed state fits one screen").
+ * on a 2560px stage gives each column ~700–800px, and a full-bleed image at
+ * that width renders a >1000px-tall headshot — grotesque, and it
+ * single-handedly blows the section past one usable screen at 1440×900.
  *
  * The fix is the same one `Ticket.tsx` already proved for the deal grids
  * (D13): flip to a landscape row at `lg:` — a FIXED-width portrait/glyph
@@ -90,16 +106,12 @@
  * breathe at a locally-constrained prose measure (D9: "constrain prose
  * locally," `max-w-[46ch]`, matching `DoorsSection`'s own body-copy
  * convention) and for the contact row to lay email + phone side by side
- * instead of wrapping. The portrait/glyph column's SIZE and CONTENT are
- * untouched — same `PhotoFrame`/`GlyphPlate`, same aspect, same "never an
- * avatar/initial-circle/illustrated face" contract — only its CSS box
- * changes shape. Below `lg:` (mobile/tablet) the card is byte-identical to
- * before: full-width image on top, content below.
+ * instead of wrapping. Below `lg:` the card is the original column.
  *
  * Mechanism, copied verbatim from `Ticket.tsx`'s own "Landscape image zone"
  * note (same problem, same fix, this file has no reason to reinvent it):
  * `aspect-ratio` only constrains a box when at least one of width/height is
- * `auto`. So rather than fight the child's own `aspect-[3/4]` (baked into
+ * `auto`. So rather than fight the child's own aspect utility (baked into
  * `PhotoFrame`'s frame div and into `GlyphPlate`'s own div — two different
  * components this file does not want to teach a new prop), a wrapper here
  * carries `lg:w-44 lg:shrink-0` (the fixed column) and reaches into
@@ -114,13 +126,13 @@
 
 import { Mail } from "lucide-react";
 
-import type { TeamMember } from "@/lib/types";
+import { seatPortrait, type TeamSeat } from "@/content/team";
 import { cn } from "@/lib/utils";
 import { PhotoFrame } from "@/components/atoms/PhotoFrame";
 import { CopyButton } from "@/components/motion/CopyButton";
 
 export type TeamCardProps = {
-  member: TeamMember;
+  member: TeamSeat;
   className?: string;
 };
 
@@ -140,7 +152,7 @@ function telHref(phone: string): string {
  * axes. Purely decorative — the adjacent name/role already carry the card's
  * identity, so this never needs a visible-text equivalent.
  */
-function NorthStarGlyph({ className }: { className?: string }) {
+export function NorthStarGlyph({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 48 48" aria-hidden="true" className={className}>
       <path
@@ -151,25 +163,32 @@ function NorthStarGlyph({ className }: { className?: string }) {
   );
 }
 
-/** No-portrait plate — the same box `PhotoFrame` would fill. Deliberate, not decorative. */
-function GlyphPlate() {
+/**
+ * No-portrait plate — the same `4/5` box `PhotoFrame` would fill, so a gated
+ * seat leaves the grid row untouched. Deliberate, not decorative.
+ *
+ * `text-fg-meta`, not `text-accent-text` (coherence audit 2026-08-08): this is
+ * a FILLED shape at 40–48px, and ref 03's colour rule is "accent =
+ * action/exclusivity only; never decorative fills". At meta tone on the
+ * `surface-deep` plate it reads as a quiet watermark, which is what an absent
+ * portrait should look like. Only one featured seat renders it today
+ * (William, gated) — it is scarce by construction, not by luck.
+ */
+export function GlyphPlate({ className }: { className?: string }) {
   return (
-    <div className="surface-deep relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-none">
-      {/* `text-fg-meta`, not `text-accent-text` (changed 2026-08-08, coherence
-          audit). This is a FILLED shape at 40–48px, and ref 03's colour rule is
-          "accent = action/exclusivity only; never decorative fills". Worse, it
-          is not scarce in practice: three of four rows in content/team.ts have
-          no portrait, so two of the three principal cards render this plate
-          side by side — two solid accent stars in one grid, out-accenting the
-          section's own CTAs and reading as a placeholder badge. At meta tone on
-          the `surface-deep` plate it reads as a quiet watermark, which is what
-          an absent portrait should look like. */}
+    <div
+      className={cn(
+        "surface-deep relative flex aspect-[4/5] items-center justify-center overflow-hidden rounded-none",
+        className,
+      )}
+    >
       <NorthStarGlyph className="size-10 text-fg-meta sm:size-12" />
     </div>
   );
 }
 
 export function TeamCard({ member, className }: TeamCardProps) {
+  const portrait = seatPortrait(member);
   const hasEmail = Boolean(member.email);
   const hasPhone = Boolean(member.phone);
   const hasContact = hasEmail || hasPhone;
@@ -204,11 +223,11 @@ export function TeamCard({ member, className }: TeamCardProps) {
           "lg:[&>:first-child]:aspect-auto lg:[&>:first-child]:h-full lg:[&>:first-child]:w-full",
         )}
       >
-        {member.photo ? (
+        {portrait ? (
           <PhotoFrame
-            src={member.photo}
+            src={portrait}
             alt={member.photoAlt ?? member.name}
-            aspect="3/4"
+            aspect="4/5"
             sizes="(min-width: 1024px) 176px, (min-width: 768px) 50vw, 100vw"
           />
         ) : (
@@ -217,8 +236,8 @@ export function TeamCard({ member, className }: TeamCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col p-6 lg:p-7">
-        {/* D8: Fraunces steps 300 → 500 here — the name is this card's one
-            firm moment, never 600+ (ref 03 type ramp). */}
+        {/* D8: the name is this card's one firm moment, never 600+ (ref 03
+            type ramp). */}
         <h3 className="font-display font-medium text-heading text-fg">{member.name}</h3>
 
         {/* D8 + D4 light-borrow: the role reads as the tiny-caps micro-voice
@@ -227,14 +246,23 @@ export function TeamCard({ member, className }: TeamCardProps) {
             second block of prose competing with the bio below. */}
         <p className="micro-label mt-2">{member.role}</p>
 
-        {member.dre ? <p className="data-line text-fg-meta mt-1">{member.dre}</p> : null}
+        {/* Licence line — `licence`, never `dre` (see file header). Absent is
+            a decision per seat, not an omission. */}
+        {member.licence ? (
+          <p className="data-line text-fg-meta mt-1">
+            {member.licence}
+            {member.brokerageLicence ? ` · brokerage ${member.brokerageLicence}` : ""}
+          </p>
+        ) : null}
 
         {/* D9: prose is constrained LOCALLY, not by the card's own width —
             the fluid content column earned by the landscape flip should
             widen the CARD's breathing room, not stretch the bio into a
             180-character line. `max-w-[46ch]` matches `DoorsSection`'s own
             body-copy measure. */}
-        <p className="mt-4 max-w-[46ch] text-body text-fg-muted">{member.bio}</p>
+        {member.bio ? (
+          <p className="mt-4 max-w-[46ch] text-body text-fg-muted">{member.bio}</p>
+        ) : null}
 
         {hasContact ? (
           <div className="mt-auto flex flex-wrap items-center gap-x-6 gap-y-3 pt-6">

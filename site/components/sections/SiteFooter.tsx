@@ -52,6 +52,46 @@
  * to read TickerBar.tsx before touching this spacing at all. See that file's
  * header for the flow-spacer mechanics this reserve is keeping in step with.
  *
+ * ── LAUNCH ADDITIONS (2026-08-17) — §3.11 / R15 / F35 / P16 ────────────────
+ * Two strings land in this footer and nowhere else on the site. Neither is
+ * authored here: both are imported constants, and both are grep-gated at §7.3
+ * to exactly one occurrence in `site/`.
+ *
+ *   1. `BRAND_TAGLINE` (R15) — a mono kicker directly beneath the lockup, in
+ *      the brand cluster. The brand cluster's row of [chipped lockup + hanko]
+ *      is unchanged; it is now the first row of a two-row column, with the
+ *      kicker as the second. Type tokens are composed by hand
+ *      (`font-mono text-micro uppercase tracking-micro`) rather than via the
+ *      `micro-label` utility, because that utility bundles its own
+ *      `color: var(--fg-meta)` and the cascade order between two
+ *      same-specificity utilities is undefined — the exact collision
+ *      `FaqSection.tsx` and `atoms/Badge.tsx` document and solve the same way.
+ *      Colour is `text-accent-text`, which resolves to `--accent-on-dark` here
+ *      because `surface-dark` rebinds it (globals.css) — §3.11 asks for
+ *      `--accent-ink` on light and `--accent-on-dark` on dark, and naming the
+ *      surface-scoped token is how a component gets both without knowing which
+ *      ground it is on. The source string is sentence case and the uppercase is
+ *      presentational, so AT reads words rather than shouted caps (the
+ *      convention `MicroLabel.tsx` documents). It is NOT rendered through
+ *      `MicroLabel`: that component composes the bracketed `[ … ]` section-index
+ *      device, and a brand line inside section brackets reads as a section
+ *      label.
+ *
+ *   2. `WHATSAPP_COMMUNITY` + `WHATSAPP_DISCLOSURE` (F35) — the public
+ *      investor-community invite in the legal block, with the phone-visibility
+ *      and vetting disclosure in the SAME sub-block immediately beneath it.
+ *      The pairing is the requirement, not a courtesy: §3.11 says "never a link
+ *      on its own", because the disclosure exists to be read before the tap,
+ *      not found afterwards somewhere else on the page. They are wrapped in one
+ *      `<div>` so that adjacency survives a future reflow of this stack rather
+ *      than depending on sibling order. The disclosure renders through
+ *      `DisclosureLine` — it is disclosure prose and holds the same 16px body
+ *      floor as the brokerage disclosure above it, never `text-data`.
+ *
+ * The single-KW-mark invariant below is untouched by both: neither addition
+ * renders a mark, and the chipped lockup is still the one KW-mark-bearing
+ * instance in this file.
+ *
  * ── D6 compaction (2026-08-09) ──────────────────────────────────────────────
  * Rebuilt from a two-block stack (brand cluster → nav grid → KW mark → hairline
  * → disclosure → legal row → sign-off, six `mt-12`/`mt-16`/`mt-8` gaps deep)
@@ -145,14 +185,20 @@ import type { ReactNode } from "react";
 
 import { StampPressIn } from "@/components/atoms/Stamp";
 import { MicroLabel } from "@/components/atoms/MicroLabel";
-import { BROKERAGE_DISCLOSURE, OUT_OF_STATE_QUALIFIER } from "@/content/compliance";
+import {
+  BROKERAGE_DISCLOSURE,
+  OUT_OF_STATE_QUALIFIER,
+  WHATSAPP_DISCLOSURE,
+} from "@/content/compliance";
 import { cn } from "@/lib/utils";
 import { THEME, themePresentation } from "@/lib/theme";
 import {
   BRAND_LINE,
+  BRAND_TAGLINE,
   copyrightLine,
   footerColumns,
   footerLegalLinks,
+  WHATSAPP_COMMUNITY,
   type FooterLink,
 } from "@/content/site";
 
@@ -225,25 +271,32 @@ export function SiteFooter() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
           {/* Brand cluster — lockup (chipped) + hanko, small. The one KW-mark
               instance in this file (see file header, "KW-mark duplication"). */}
-          <div className="flex shrink-0 items-center gap-3">
-            {/* Theme-matched, not hardcoded. This rendered the GOLD lockup on
-                Theme B too — a gold KW mark in the footer of the blue build,
-                found in the 2026-08-09 dual-theme audit. `themePresentation`
-                is the single place per-theme assets are chosen (lib/theme.ts);
-                the prepared crops are gold 669x501 and blue 971x811, so the
-                intrinsic size differs per theme and both are passed explicitly
-                to keep CLS at 0. alt="" is correct: the mark is decorative and
-                the real-text brand line below carries the name. */}
-            <span className={`${MARK_CHIP} px-2.5 py-1.5`}>
-              <Image
-                src={themePresentation.lockup}
-                alt=""
-                width={LOCKUP_INTRINSIC[THEME].w}
-                height={LOCKUP_INTRINSIC[THEME].h}
-                className="h-7 w-auto sm:h-8"
-              />
-            </span>
-            <StampPressIn placement="footer" size={28} />
+          <div className="flex shrink-0 flex-col gap-2">
+            <div className="flex items-center gap-3">
+              {/* Theme-matched, not hardcoded. This rendered the GOLD lockup on
+                  Theme B too — a gold KW mark in the footer of the blue build,
+                  found in the 2026-08-09 dual-theme audit. `themePresentation`
+                  is the single place per-theme assets are chosen (lib/theme.ts);
+                  the prepared crops are gold 669x501 and blue 971x811, so the
+                  intrinsic size differs per theme and both are passed explicitly
+                  to keep CLS at 0. alt="" is correct: the mark is decorative and
+                  the real-text brand line below carries the name. */}
+              <span className={`${MARK_CHIP} px-2.5 py-1.5`}>
+                <Image
+                  src={themePresentation.lockup}
+                  alt=""
+                  width={LOCKUP_INTRINSIC[THEME].w}
+                  height={LOCKUP_INTRINSIC[THEME].h}
+                  className="h-7 w-auto sm:h-8"
+                />
+              </span>
+              <StampPressIn placement="footer" size={28} />
+            </div>
+
+            {/* R15 — the tagline's ONE placement site-wide (see file header). */}
+            <p className="font-mono text-micro uppercase tracking-micro text-accent-text">
+              {BRAND_TAGLINE}
+            </p>
           </div>
 
           {/* Quick Links · For Owners · For Buyers — one row of columns, small type. */}
@@ -283,6 +336,14 @@ export function SiteFooter() {
               is the overclaim the qualifier exists to prevent. Wired by the main
               loop: the constant landed after this file was written. */}
           <DisclosureLine className="mt-2">{OUT_OF_STATE_QUALIFIER}</DisclosureLine>
+
+          {/* F35/P16 — the invite and its disclosure are ONE block, never a bare
+              link (§3.11). Public channel: never labelled as private access,
+              which is a100 Arms' lane. */}
+          <div className="mt-3">
+            <FooterNavLink {...WHATSAPP_COMMUNITY} external />
+            <DisclosureLine className="mt-1">{WHATSAPP_DISCLOSURE}</DisclosureLine>
+          </div>
 
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <nav aria-label="Policies">

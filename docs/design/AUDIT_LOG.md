@@ -377,3 +377,80 @@ Remedy, verified feasible against `node_modules` (not against a build): `domAnim
 2. Accessibility gate — **PENDING**
 3. Content-fidelity / compliance gate — **PENDING**
 4. Design / anti-slop gate — **PENDING**
+
+---
+
+## LAUNCH ROUND — brand-system retune + Dino's locked content (2026-08-17)
+
+**Not a gate verdict.** This is the round header and the documentation record for the launch run that executed
+`docs/LAUNCH-IMPLEMENTATION.md` (`approved`, Razim, 2026-08-17). It is appended by the run's documentation portion,
+whose scope was the docs and the design-skill references — **not** the `site/` tree. The gate verdicts for the shipped
+build (design audit, a11y, perf, content fidelity, compliance, anti-slop) are that gate's own responsibility and are
+not claimed here.
+
+**Why the design skill needed changing before the build could pass its own audit.** Two of the skill's stated
+non-negotiables — the `#B8902E` website gold and the Fraunces / IBM Plex Mono type program — were *contradicted by
+what Razim approved for launch*. Left as they were, the `audit` verb would have flagged the shipped palette and the
+shipped faces as P0 on a build that is correct, and the definition of done would have been unreachable. The
+supersessions below are what makes the audit gate meaningful again rather than a rubber stamp.
+
+**Rules superseded this round — each carries its date, its replacement, and the rule it replaced, in the file where
+that rule lived. Nothing was deleted:**
+
+| Rule | Was | Is | Written in |
+|---|---|---|---|
+| Website gold | `#B8902E` | **`#B08D3F`** (`--accent`), `--accent-dim` `#C8A552`; rasters keep baked `#B8943D` | `AGENTS.md` hard guardrails · `SKILL.md` non-negotiables · ref 01 → Palette |
+| Type program | Fraunces / Inter / IBM Plex Mono (approved 2026-08-10) | **Cormorant Garamond / Inter / JetBrains Mono** | `AGENTS.md` · `SKILL.md` · ref 01 → Typography · ref 03 → Type ramp |
+| Theme programme | two complete variants shipped for comparison | **Theme G production; Theme B parked** — unreachable, un-retuned, undeleted | `AGENTS.md` · ref 01 → Dual-theme program |
+| Listings pipeline | static modules now, a100 API "in later phases" (2026-08-07) | `content/listings.ts` still renders; **`/api/public-listings` is additive** with a three-ID allowlist | `AGENTS.md` · ref 04 → `#listings` · ref 06 → Seed content sources |
+| Section order | the 2026-08-10 canonical twelve | **Dino's order** — `#faq`/`#bov` up, `#team`/`#doors`/`#mandates` down | ref 04 → Section order · ref 07 P0 order gate |
+| Awards | five CoStar assets as one set | **4 + 1** — four individual awards, then 2025 Annual Top Firm in its own prior-firm/team block | ref 04 → `#stats` · ref 06 register · ref 07 |
+| Award artwork | email-signature banners (600×135), README-marked *"Not for website use"* | the Social Media Kit **Winner Badges** at native aspect | ref 06 register (the two 2026-08-08 rows are marked superseded) |
+| FAQ | "≥5 real diligence questions" | **only fully-answered questions render** — the five placeholder answers are cut, not deferred | ref 04 → `#faq` |
+| Form sink | Web3Forms (browser-only, key never provisioned) | server-side `POST /api/contact-intake` → monday.com | ref 04 → `#bov` · PLACEHOLDERS row 31 |
+| CTA / shadow / radius vocabulary | filled gold pill; ticket resting drop-shadow (D4); `r.pill` for CTAs | **hairline-outlined** primary CTA; ticket resting shadow → 1px hairline (**notch geometry stays**); radii ≤2px | ref 01 → Guide vocabulary · ref 03 → Surfaces & borders, Components |
+| Linear lockup on dark | "never use the linear lockup on dark" | the kit's purpose-built **on-charcoal** linear cut is the header mark — **verification pending on the deployed render** | ref 01 → Lockups & usage · PLACEHOLDERS row 65 |
+| Brand-master paths | `The_Hokuten_Group_Brand_Addon_2/` only | masters restored + `full-brand-toolkit/` gitignored + tracked `Ref/{awards,team,brand-kit,listings}/` | `AGENTS.md` workspace map · ref 01 |
+
+**Corrections of documentation that had simply gone stale** (the code was right; the references were wrong, in one
+case for seven days): skill refs 03 / 04 / 05 / 07 described D10's route-scoped **scroll snap as live** — it was
+removed the evening of 2026-08-10 by D22 and every one of those passages now says so while keeping the D10 text as
+the record of the experiment. `PLACEHOLDERS.md` rows 51 / 52 still claimed `Ref/hero/` was empty and the hero was an
+interim three-slide build; both were superseded the same evening by Razim's real triplets (D23). Ref 06 gained the
+`costarpowerbrokers.com` verification-link note it had been owed since D27.
+
+**New gates added to ref 07 this round** — each is greppable, and the greps are in the pre-deploy script: retired
+gold/paper hexes (`#B8902E`, `#F7F4ED`) surviving anywhere · retired faces (`Fraunces`, `IBM Plex`) surviving
+anywhere · **北天 standing in for the English name** (the guide's kanji rule — accent only, never a replacement) ·
+award-set compression (`5×`, `five-time`, `Annual 2026`, Top Firm merged into the individual strip) · forbidden copy
+(`12 closed hotel sales`, `hotel investment platform`, `from Asia to the Americas`, the confidential Cy-Fair and
+Yulee facts, `$200M+`/`12` rendered without the locked hedge) · tagline sprawl (exactly one "True north for hotel
+owners") · a listing rendering outside the three-ID allowlist, and any server token reachable from the client bundle.
+
+**Evidence-gate rows added to ref 06** (`verified-current` unless noted), because every one of them is a public claim
+this round ships: the four individual CoStar awards, each with its caption/alt string and its Winner-Badge artwork ·
+the 2025 Annual Top Firm **as prior-firm/team recognition only**, with the two `prohibited` framings named · the
+locked `$200M+` hedge, which *is* the claim (the figures may not render without it) · the three-tile stat row · each
+of the three allowlisted listings with its facts, its confidential exclusions and its currency basis · Dino's,
+William's, Razim's, Donna's, Jae Hun's and Marlon's titles and licence lines — including **Razim's card carrying no
+licence number by decision (R8)**, recorded so no later editor "completes" it · founding-team language · contact
+routing · headshot subject-approval as a per-seat gate · image rights for the six ported closing photographs · the
+tagline's single placement · the forbidden descriptor and the Japan/Asia framing.
+
+**Two claim-side items are deliberately `pending-verification`, not suppressed:** the Claims & Coverage Register v1.1
+was never delivered, so every caption, alt string, closing figure and listing fact ships from `V2` §2's approved
+wording as a documented fallback and is re-checked when the register arrives; and the frozen every-U.S.-state
+coverage sentence stays byte-exact but is flagged for Dino post-push.
+
+**Deviations recorded rather than resolved** — all four are visible in the references, not only in the plan: the
+paper-page/dark-hero chassis against the master directive's all-dark system for four routes (R1) · the dark nav bar
+with the on-charcoal linear lockup against its white-bar instruction (R14) · `#doors` carrying the marketplace intent
+instead of a marketplace route (R16) · all five CoStar assets consolidated in `#stats` rather than the team section
+(D16). Dino reviews each on the production deployment.
+
+**Verified by this entry's author:** the file edits above, and `npx tsc --noEmit` from `site/` (see the run's report).
+**Not verified by this entry's author, and not claimed:** any rendered output, the design/a11y/perf/content gates, the
+raster regeneration, the header lockup's legibility at render size, panel-fit after the type swap, or the state of any
+`site/` file — this portion wrote documentation only and touched nothing under `site/`.
+
+**Verdict:** not applicable — documentation round, no gate run.

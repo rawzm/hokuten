@@ -36,10 +36,15 @@
  * Chassis: `container-hk` → `stage-shell` (D9); `section-fit` → `page-panel`
  * (D10); `section-pad` → `section-pad-tight` (matches the sibling dark
  * chapter, `#method`, which made the same call this round for the same
- * reason — a denser rhythm buys back vertical budget). No `section-join`:
- * this section's neighbours in `page.tsx` (`#doors`, `#team`) are both
- * `.surface-paper` while this is `.surface-dark`, so every adjacent pair
- * alternates surface and none qualifies.
+ * reason — a denser rhythm buys back vertical budget). No `section-join` on
+ * this section: when this was written its neighbours in `page.tsx` (`#doors`,
+ * `#team`) were both `.surface-paper` while this is `.surface-dark`, so every
+ * adjacent pair alternated surface and none qualified. After the 2026-08-17
+ * reorder (docs/LAUNCH-IMPLEMENTATION.md §3.2, R5) this is screen 11: `#doors`
+ * (`.surface-paper`) above still alternates, so nothing changes HERE — but
+ * `SiteFooter` below is `.surface-dark` too, so that pair now shares a surface
+ * and the join, if it is wanted, belongs on the footer (the SECOND of the
+ * pair). Reported, not made: `SiteFooter.tsx` is not this portion's file.
  *
  * The grid itself: `sm:grid-cols-2` alone, inside a 1200px-capped container,
  * is what read as "sparse floating copy" — four modest cards with a lot of
@@ -103,7 +108,7 @@ export function MandatesSection() {
         <Reveal>
           <SectionHeader
             id="mandates-heading"
-            index="06"
+            index="09"
             label="Capital & mandates"
             headline="Four mandates we are already *working*."
             sub={mandatesDeck}

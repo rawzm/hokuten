@@ -10,7 +10,7 @@
  * ── Why a glyph table lives in this file ────────────────────────────────────
  * An <text> SVG is not a lockup: it re-renders against whatever font the viewer
  * (or librsvg, or a social crawler) happens to have, and sharp/librsvg has
- * neither Inter nor Fraunces. So all lettering here is REAL OUTLINES.
+ * neither Inter nor Cormorant Garamond. So all lettering here is REAL OUTLINES.
  *
  * GLYPHS below is Inter, wght 500 instance, uppercase + space, converted to SVG
  * paths at 1000 upem with the baseline at y=0 and y pointing DOWN (SVG space).
@@ -269,11 +269,15 @@ const THEMES: ThemeSpec[] = [
   {
     key: "gold",
     ground: "#000000", // --black, the cover panel
-    accent: "#B8902E", // --accent / --accent-on-dark   7.07:1 on black
-    subPrimary: "#F7F4ED", // --paper                      18.4:1 on black
-    subSecondary: "#B8902E",
+    accent: "#B08D3F", // --accent / --accent-on-dark   6.73:1 on black
+    // NOT --paper. This card's ground is #000000, so the high-contrast voice
+    // is the DARK-FIELD ink token (--ink-dark-field), which is what every
+    // other dark surface on the site uses. --paper (#FBF9F3) is the LIGHT
+    // page ground and has no business being ink anywhere.
+    subPrimary: "#F5F1E8", // --ink-dark-field             18.63:1 on black
+    subSecondary: "#B08D3F",
     frame: null,
-    grain: "#F7F4ED", // star-grain, dark sections only
+    grain: "#F5F1E8", // star-grain, dark sections only
   },
   {
     key: "blue",

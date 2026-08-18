@@ -8,32 +8,40 @@
  * docs/port/05-forms-and-ticker.md §A. Section spec: design-skill reference 04 →
  * `#bov`. Compliance strings: content/compliance.ts, which is frozen.
  *
+ * ── 2026-08-17, P10 / F28: WEB3FORMS IS GONE FROM THIS FORM ─────────────────
+ * The browser no longer posts anywhere but our own origin. `POST
+ * /api/contact-intake` (plan §3.7, docs/MONDAY-INTAKE-CONTRACT.md) does the
+ * delivery server-side with protected credentials, so:
+ *   • no access key, public-class or otherwise, is read here;
+ *   • the "sending is not connected yet" disabled state is deleted — the button
+ *     is always live, because the endpoint always exists;
+ *   • the `mailto:` route stays, promoted to a permanent SECONDARY action
+ *     rather than a substitute that only appears when something is broken.
+ *
  * THE FIELD NAMES ARE A CONTRACT
  * ------------------------------
- * `name`, `hotel_name`, `city`, `state`, `phone`, `email`, `sms_consent`,
- * `sms_consent_text`, `consent_timestamp` and `botcheck` are parsed by name at
- * the destination inbox. Renaming one does not error — the lead just arrives
- * blank. They are all produced by `buildBovPayload` in lib/web3forms.ts and are
- * not spelled out again here.
+ * `name`, `hotel_name`, `city`, `state`, `phone`, `email`, `sms_consent` and
+ * `botcheck` are parsed by name downstream. Renaming one does not error — the
+ * lead just arrives blank. NOTHING existing was renamed for the new route.
+ * `company`, `keys`, `brand`, `timeline`, `comments`, `state_code`, `page`,
+ * `referrer` and the five `utm_*` keys are ADDITIONS (`V2` §2 line 31, contract
+ * §3). The whole set is declared once in `lib/intake.ts`.
  *
  * TCPA / A2P 10DLC
  * ----------------
- * The consent label, its checkbox value, the hidden audit-trail string and the
- * ISO timestamp are imported from content/compliance.ts verbatim. The box ships
- * UNCHECKED and is never `required`; `consent_timestamp` is stamped on EVERY
- * submit whether or not it is ticked (port rule R4). Paraphrasing any of it is a
- * P0 compliance failure, so nothing in this file retypes it.
+ * The consent label, its checkbox value and the audit-trail string are imported
+ * from content/compliance.ts verbatim. The box ships UNCHECKED and is never
+ * `required`. What CHANGED with the server route (contract §6, plan §3.7): the
+ * browser now sends only the yes/no. The disclosure text and the consent
+ * timestamp are minted by the SERVER, so a tampered payload cannot manufacture
+ * a consent record — and a mobile number becomes required only when the box is
+ * ticked. (The `mailto:` fallback still stamps client-side, because on that
+ * path the resulting email is the only record there is.)
  *
- * WHEN THE ACCESS KEY IS MISSING
- * ------------------------------
- * `NEXT_PUBLIC_WEB3FORMS_KEY` is not provisioned yet. The form still renders in
- * full and stays completely keyboard- and screen-reader-operable — every label,
- * every validation message, the city picker and the phone control all work. Only
- * the send button is disabled, with a plain explanation of why and a mailto
- * fallback that carries the same information the POST would have carried, so
- * nothing typed is wasted. It never silently no-ops and never fakes a success.
- *
- * SUCCESS IS INLINE. The form never navigates away (ref 04 → `#bov`).
+ * SUCCESS IS INLINE, AND HONEST. The form never navigates away (ref 04 →
+ * `#bov`), and it reports success only when the route confirms a receipt — an
+ * item id from the CRM or a 2xx from the tested email webhook. A 502 is shown
+ * as a failure with the mailto beside it; it is never dressed up as a send.
  *
  * ── DESIGN REVISIT 2 (2026-08-10) — D9's "a form to its own field measure" ──
  * `BovSection.tsx` (this form's only call site) moved from `container-hk`
@@ -66,6 +74,7 @@ import { Button } from "@/components/ui/button";
 import { CheckboxField } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { CityPicker, type CitySelection } from "./CityPicker";
 import {
   EMPTY_PHONE,
@@ -74,27 +83,26 @@ import {
   toE164,
   type PhoneValue,
 } from "./PhoneField";
-import { SMS_CONSENT } from "@/content/compliance";
-import { CONTACT } from "@/content/site";
+import { AGENCY_RELATIONSHIP_NOTICE, SMS_CONSENT } from "@/content/compliance";
+import { CONTACT, siteDomain } from "@/content/site";
 import { bovPromise } from "@/content/methodology";
 import {
+  INTAKE_ENDPOINT,
+  LIMITS,
   bovMailtoHref,
-  buildBovPayload,
-  isWeb3FormsConfigured,
-  submitWeb3Forms,
-  web3formsKey,
-} from "@/lib/web3forms";
+  type IntakeResponse,
+} from "@/lib/intake";
 
 /* -------------------------------------------------------------------------- */
 /*  Copy deck                                                                  */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Ported strings carry their source line. The four marked NET-NEW have no
- * counterpart in the source (it leaned on native `required` bubbles for the two
- * text fields, and its unconfigured-key message was written for a developer, not
- * a hotel owner). This deck belongs in `site/content/bov.ts` — it lives here only
- * because this agent does not own `site/content/`. See the build report.
+ * Ported strings carry their source line. The NET-NEW entries have no
+ * counterpart in the source (it leaned on native `required` bubbles, and its
+ * failure messages were written for a developer, not a hotel owner). This deck
+ * belongs in `site/content/bov.ts` — it lives here only because this agent does
+ * not own `site/content/`. See the build report.
  */
 const COPY = {
   labels: {
@@ -103,6 +111,11 @@ const COPY = {
     city: "City, State",
     phone: "Phone",
     email: "Email",
+    company: "Company",
+    keys: "Keys",
+    brand: "Brand or flag",
+    timeline: "Timeline",
+    comments: "Notes",
   },
   placeholders: {
     /** index.html:1176 */
@@ -111,9 +124,19 @@ const COPY = {
     hotelName: "Property name",
     /** index.html:1195 */
     email: "name@company.com",
+    /** NET-NEW — the four optional fields added by `V2` §2 line 31. */
+    company: "Ownership or operating entity",
+    keys: "120",
+    brand: "Independent, Marriott, Hilton…",
+    timeline: "6–12 months",
   },
   hints: {
     phone: "Optional.",
+    /** NET-NEW — a mobile number is required only when the SMS box is ticked. */
+    phoneForSms: "Required while SMS consent is ticked.",
+    optional: "Optional.",
+    keys: "Optional. Room count.",
+    comments: "Optional. T-12, STR report, franchise or PIP detail helps.",
   },
   errors: {
     /** NET-NEW — the source used the browser's native required bubble. */
@@ -124,10 +147,16 @@ const COPY = {
     city: "Please pick a city from the list.",
     /** index.html:2205 — the branch that ran without the library's metadata. */
     phone: "Enter a valid phone number.",
+    /** NET-NEW — contract §6 / plan §3.7. */
+    phoneForSms: "A mobile number is required when you agree to receive SMS messages.",
     /** index.html:2208 */
     emailRequired: "Email is required.",
     /** index.html:2209 */
     emailInvalid: "Enter a valid email address.",
+    /** NET-NEW */
+    keys: "Room count must be a whole number.",
+    /** NET-NEW */
+    tooLong: "This is longer than we can accept.",
   },
   status: {
     /** index.html:2225 */
@@ -136,14 +165,13 @@ const COPY = {
     sending: "Sending…",
     /** index.html:2253, first sentence. The promise itself is imported. */
     successLead: "Thank you — your request is in.",
-    /** index.html:2258, team inbox substituted (docs/port/05 §A.6 VOICE). */
-    rejected: `Something went wrong. Please email ${CONTACT.email} directly.`,
-    /** index.html:2263, same substitution. */
+    /** NET-NEW — the route could not confirm a receipt. Never dressed up. */
+    undelivered: `We could not confirm delivery. Email ${CONTACT.email} with the same details and it reaches the same place.`,
+    /** index.html:2263, team inbox substituted (docs/port/05 §A.6 VOICE). */
     network: `Network error. Please email ${CONTACT.email} directly.`,
+    /** NET-NEW — the in-function backstop, or the edge rule, said no. */
+    rateLimited: "Too many submissions from this address. Try again shortly.",
   },
-  /** NET-NEW — visitor-facing replacement for index.html:2233. */
-  unconfigured:
-    "Sending from this page is not connected yet. Email the same details instead and it reaches the same place.",
   actions: {
     /** index.html:1206 */
     submit: "Send valuation request",
@@ -157,45 +185,178 @@ const COPY = {
 /** index.html:2209 — the source's own regex, unchanged. */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Abort a hung request rather than leaving a submit button spinning forever. */
+const INTAKE_TIMEOUT_MS = 20_000;
+
 /* -------------------------------------------------------------------------- */
 /*  Validation                                                                 */
 /* -------------------------------------------------------------------------- */
 
-type FieldKey = "name" | "hotelName" | "city" | "phone" | "email";
+type FieldKey =
+  | "name"
+  | "hotelName"
+  | "city"
+  | "phone"
+  | "email"
+  | "company"
+  | "keys"
+  | "brand"
+  | "timeline"
+  | "comments";
+
 type Errors = Partial<Record<FieldKey, string>>;
 
+/**
+ * The server keys its errors by WIRE name (`hotel_name`), the form by control
+ * name (`hotelName`). One table, read in both directions, so a server-side
+ * rejection lands on the right control instead of in the generic status line.
+ */
+const WIRE_NAME: Record<FieldKey, string> = {
+  name: "name",
+  hotelName: "hotel_name",
+  city: "city",
+  phone: "phone",
+  email: "email",
+  company: "company",
+  keys: "keys",
+  brand: "brand",
+  timeline: "timeline",
+  comments: "comments",
+};
+
+const FIELD_BY_WIRE_NAME: Record<string, FieldKey> = Object.fromEntries(
+  (Object.keys(WIRE_NAME) as FieldKey[]).map((key) => [WIRE_NAME[key], key]),
+);
+
 function validateName(value: string): string | undefined {
-  return value.trim() ? undefined : COPY.errors.name;
+  if (!value.trim()) return COPY.errors.name;
+  return value.trim().length > LIMITS.name ? COPY.errors.tooLong : undefined;
 }
 
 function validateHotelName(value: string): string | undefined {
-  return value.trim() ? undefined : COPY.errors.hotelName;
+  if (!value.trim()) return COPY.errors.hotelName;
+  return value.trim().length > LIMITS.hotelName ? COPY.errors.tooLong : undefined;
 }
 
 function validateCity(value: CitySelection | null): string | undefined {
   return value ? undefined : COPY.errors.city;
 }
 
-/** Optional field: blank is valid and clears the error (index.html:2199). */
-function validatePhone(value: PhoneValue): string | undefined {
-  if (!value.national.trim()) return undefined;
-  return isPlausibleE164(toE164(value.country, value.national)) ? undefined : COPY.errors.phone;
+/**
+ * Optional, EXCEPT while the SMS box is ticked (contract §6). Blank with the box
+ * unticked is valid and clears the error (index.html:2199).
+ */
+function validatePhone(value: PhoneValue, smsConsent: boolean): string | undefined {
+  const typed = value.national.trim();
+  if (!typed) return smsConsent ? COPY.errors.phoneForSms : undefined;
+  return isPlausibleE164(toE164(value.country, typed)) ? undefined : COPY.errors.phone;
 }
 
 function validateEmail(value: string): string | undefined {
   const trimmed = value.trim();
   if (!trimmed) return COPY.errors.emailRequired;
+  if (trimmed.length > LIMITS.email) return COPY.errors.tooLong;
   return EMAIL_PATTERN.test(trimmed) ? undefined : COPY.errors.emailInvalid;
 }
 
+/** Blank is valid. A non-integer is not — the CRM note prints `keys <n>`. */
+function validateKeys(value: string): string | undefined {
+  const trimmed = value.replace(/[,\s]/g, "");
+  if (!trimmed) return undefined;
+  const parsed = Number(trimmed);
+  const valid =
+    /^\d+$/.test(trimmed) && Number.isInteger(parsed) && parsed >= 1 && parsed <= LIMITS.keysMax;
+  return valid ? undefined : COPY.errors.keys;
+}
+
+function validateLength(value: string, max: number): string | undefined {
+  return value.trim().length > max ? COPY.errors.tooLong : undefined;
+}
+
 /** DOM order, so the summary reads in the order the fields appear. */
-const FIELD_ORDER: readonly FieldKey[] = ["name", "hotelName", "city", "phone", "email"];
+const FIELD_ORDER: readonly FieldKey[] = [
+  "name",
+  "hotelName",
+  "city",
+  "phone",
+  "email",
+  "company",
+  "keys",
+  "brand",
+  "timeline",
+  "comments",
+];
 
 type SubmitState =
   | { kind: "idle" }
   | { kind: "sending" }
   | { kind: "sent" }
   | { kind: "failed"; message: string };
+
+/* -------------------------------------------------------------------------- */
+/*  Silent capture — page, referrer, UTM                                       */
+/* -------------------------------------------------------------------------- */
+
+type CapturedContext = {
+  page: string;
+  referrer: string;
+  utm_source: string;
+  utm_medium: string;
+  utm_campaign: string;
+  utm_term: string;
+  utm_content: string;
+};
+
+const EMPTY_CONTEXT: CapturedContext = {
+  page: "",
+  referrer: "",
+  utm_source: "",
+  utm_medium: "",
+  utm_campaign: "",
+  utm_term: "",
+  utm_content: "",
+};
+
+/**
+ * Read once after mount, never rendered, never stored anywhere but this
+ * component's own memory, and sent only as part of a submission the visitor
+ * pressed send on. Reading it in an effect (not during render) keeps the server
+ * and client markup identical, so nothing here can cause a hydration mismatch.
+ *
+ * It lands in a REF, not in state. Nothing here is rendered — no label, no
+ * hidden input, no attribute reads it — so putting it in state would schedule a
+ * second render of the entire form to carry a value no pixel depends on. That
+ * is precisely the cascade `react-hooks/set-state-in-effect` names, and the
+ * cure is not to silence the rule but to stop making it state: a mutable box
+ * written after mount and read once, inside the submit handler, is what this
+ * actually is. The write happens on mount, long before anyone can finish typing
+ * a hotel name, so the value is always present by send time.
+ *
+ * The values come from the CURRENT url only. Campaign values that arrived on an
+ * earlier page in the session are deliberately not resurrected from storage:
+ * `lib/consent.ts` states, as an audited fact, that the only thing this site
+ * writes to browser storage is the visitor's own privacy answer, and that
+ * statement is load-bearing on the /privacy route.
+ */
+function useCapturedContext(): React.RefObject<CapturedContext> {
+  const captured = React.useRef<CapturedContext>(EMPTY_CONTEXT);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const read = (key: string) => (params.get(key) ?? "").slice(0, LIMITS.utm);
+    captured.current = {
+      page: `${window.location.pathname}${window.location.search}`.slice(0, LIMITS.context),
+      referrer: document.referrer.slice(0, LIMITS.context),
+      utm_source: read("utm_source"),
+      utm_medium: read("utm_medium"),
+      utm_campaign: read("utm_campaign"),
+      utm_term: read("utm_term"),
+      utm_content: read("utm_content"),
+    };
+  }, []);
+
+  return captured;
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Component                                                                  */
@@ -207,13 +368,18 @@ export interface BovFormProps {
 
 export function BovForm({ className }: BovFormProps) {
   const uid = React.useId();
-  const fieldId = (key: FieldKey | "sms" | "unconfigured") => `${uid}-${key}`;
+  const fieldId = (key: FieldKey | "sms" | "agency") => `${uid}-${key}`;
 
   const [name, setName] = React.useState("");
   const [hotelName, setHotelName] = React.useState("");
   const [city, setCity] = React.useState<CitySelection | null>(null);
   const [phone, setPhone] = React.useState<PhoneValue>(EMPTY_PHONE);
   const [email, setEmail] = React.useState("");
+  const [company, setCompany] = React.useState("");
+  const [keys, setKeys] = React.useState("");
+  const [brand, setBrand] = React.useState("");
+  const [timeline, setTimeline] = React.useState("");
+  const [comments, setComments] = React.useState("");
   const [smsConsent, setSmsConsent] = React.useState(false);
 
   const [errors, setErrors] = React.useState<Errors>({});
@@ -224,24 +390,19 @@ export function BovForm({ className }: BovFormProps) {
   const summaryRef = React.useRef<HTMLDivElement>(null);
   const successRef = React.useRef<HTMLDivElement>(null);
 
-  /* Inlined at build time by Next; identical on the server and in the browser,
-     so this is safe to read during render. */
-  const configured = isWeb3FormsConfigured();
+  const capturedContext = useCapturedContext();
 
   /** Re-validate a field only once it is already in error (index.html:2211). */
-  const revalidate = React.useCallback(
-    (key: FieldKey, error: string | undefined) => {
-      setErrors((current) => {
-        if (!current[key]) return current;
-        if (current[key] === error) return current;
-        const next = { ...current };
-        if (error) next[key] = error;
-        else delete next[key];
-        return next;
-      });
-    },
-    [],
-  );
+  const revalidate = React.useCallback((key: FieldKey, error: string | undefined) => {
+    setErrors((current) => {
+      if (!current[key]) return current;
+      if (current[key] === error) return current;
+      const next = { ...current };
+      if (error) next[key] = error;
+      else delete next[key];
+      return next;
+    });
+  }, []);
 
   const setError = React.useCallback((key: FieldKey, error: string | undefined) => {
     setErrors((current) => {
@@ -253,15 +414,38 @@ export function BovForm({ className }: BovFormProps) {
     });
   }, []);
 
-  const mailtoHref = bovMailtoHref({
-    name,
-    hotelName,
-    city: city?.city,
-    state: city?.state,
-    phone: toE164(phone.country, phone.national),
-    email,
-    smsConsent,
-  });
+  /* Ticking the consent box turns phone from optional into required, so the
+     phone row's error and hint must both react to it immediately rather than
+     waiting for a submit to surprise the visitor. That reaction belongs to the
+     tick — the event that caused it — not to an effect watching `smsConsent`
+     after the fact: an effect there re-renders the form a second time for
+     something the click already knew (`react-hooks/set-state-in-effect`), and
+     it can only ever run late. `toggleSmsConsent` sets the flag and re-runs the
+     phone rule under the NEW value in the same handler. It routes through
+     `revalidate`, so a phone row that is not already in error stays quiet — a
+     visitor ticking the box has not made a mistake yet. */
+  const toggleSmsConsent = (next: boolean) => {
+    setSmsConsent(next);
+    revalidate("phone", validatePhone(phone, next));
+  };
+
+  const mailtoHref = bovMailtoHref(
+    {
+      name,
+      hotelName,
+      city: city?.city,
+      state: city?.state,
+      phone: toE164(phone.country, phone.national),
+      email,
+      company,
+      keys,
+      brand,
+      timeline,
+      comments,
+      smsConsent,
+    },
+    siteDomain(),
+  );
 
   const focusField = (key: FieldKey) => {
     document.getElementById(fieldId(key))?.focus();
@@ -274,16 +458,19 @@ export function BovForm({ className }: BovFormProps) {
     /* Every validator runs — no short-circuit — so one pass paints every
        error, exactly as the source did (index.html:2214-2222). */
     const next: Errors = {};
-    const nameError = validateName(name);
-    const hotelError = validateHotelName(hotelName);
-    const cityError = validateCity(city);
-    const phoneError = validatePhone(phone);
-    const emailError = validateEmail(email);
-    if (nameError) next.name = nameError;
-    if (hotelError) next.hotelName = hotelError;
-    if (cityError) next.city = cityError;
-    if (phoneError) next.phone = phoneError;
-    if (emailError) next.email = emailError;
+    const assign = (key: FieldKey, error: string | undefined) => {
+      if (error) next[key] = error;
+    };
+    assign("name", validateName(name));
+    assign("hotelName", validateHotelName(hotelName));
+    assign("city", validateCity(city));
+    assign("phone", validatePhone(phone, smsConsent));
+    assign("email", validateEmail(email));
+    assign("company", validateLength(company, LIMITS.company));
+    assign("keys", validateKeys(keys));
+    assign("brand", validateLength(brand, LIMITS.brand));
+    assign("timeline", validateLength(timeline, LIMITS.timeline));
+    assign("comments", validateLength(comments, LIMITS.comments));
 
     setErrors(next);
 
@@ -297,31 +484,54 @@ export function BovForm({ className }: BovFormProps) {
     }
 
     setShowSummary(false);
-
-    const key = web3formsKey();
-    if (!key) {
-      // Unreachable while the button is disabled, but never fake a success.
-      setState({ kind: "failed", message: COPY.unconfigured });
-      return;
-    }
-
     setState({ kind: "sending" });
 
-    const payload = buildBovPayload(
-      {
-        name,
-        hotelName,
-        city: city ? city.city : "",
-        state: city ? city.state : "",
-        phone: toE164(phone.country, phone.national),
-        email,
-        smsConsent,
-        botcheck: honeypotRef.current?.checked ?? false,
-      },
-      key,
-    );
+    /* The wire payload. `sms_consent` is the ONLY consent key sent — the
+       disclosure text and the timestamp are the server's to write (contract §6),
+       and sending them from here would be exactly the tampering surface the
+       route is designed to ignore. */
+    const payload = {
+      name: name.trim(),
+      hotel_name: hotelName.trim(),
+      city: city ? city.city : "",
+      state: city ? city.state : "",
+      state_code: city ? city.stateCode : "",
+      phone: toE164(phone.country, phone.national),
+      email: email.trim(),
+      company: company.trim(),
+      keys: keys.replace(/[,\s]/g, ""),
+      brand: brand.trim(),
+      timeline: timeline.trim(),
+      comments: comments.trim(),
+      sms_consent: smsConsent,
+      botcheck: honeypotRef.current?.checked ?? false,
+      ...capturedContext.current,
+    };
 
-    const result = await submitWeb3Forms(payload);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), INTAKE_TIMEOUT_MS);
+
+    let result: IntakeResponse | null = null;
+    let transportFailed = false;
+
+    try {
+      const response = await fetch(INTAKE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      result = (await response.json()) as IntakeResponse;
+    } catch {
+      transportFailed = true;
+    } finally {
+      clearTimeout(timer);
+    }
+
+    if (transportFailed || result === null) {
+      setState({ kind: "failed", message: COPY.status.network });
+      return;
+    }
 
     if (result.ok) {
       setName("");
@@ -329,6 +539,11 @@ export function BovForm({ className }: BovFormProps) {
       setCity(null);
       setPhone(EMPTY_PHONE);
       setEmail("");
+      setCompany("");
+      setKeys("");
+      setBrand("");
+      setTimeline("");
+      setComments("");
       setSmsConsent(false);
       setErrors({});
       setShowSummary(false);
@@ -337,14 +552,27 @@ export function BovForm({ className }: BovFormProps) {
       return;
     }
 
+    if (result.error === "validation" && result.fields) {
+      const painted: Errors = {};
+      for (const [wire, message] of Object.entries(result.fields)) {
+        const key = FIELD_BY_WIRE_NAME[wire];
+        if (key) painted[key] = message;
+      }
+      setErrors(painted);
+      setShowSummary(Object.keys(painted).length > 0);
+      setState(
+        Object.keys(painted).length > 0
+          ? { kind: "idle" }
+          : { kind: "failed", message: COPY.status.undelivered },
+      );
+      window.requestAnimationFrame(() => summaryRef.current?.focus());
+      return;
+    }
+
     setState({
       kind: "failed",
       message:
-        result.reason === "network"
-          ? COPY.status.network
-          : result.reason === "unconfigured"
-            ? COPY.unconfigured
-            : COPY.status.rejected,
+        result.error === "rate_limited" ? COPY.status.rateLimited : COPY.status.undelivered,
     });
   };
 
@@ -362,10 +590,11 @@ export function BovForm({ className }: BovFormProps) {
       onSubmit={handleSubmit}
     >
       {/* Honeypot — hidden exactly as the source hides it (index.html:1172):
-          inline display:none, out of the tab order, autocomplete off. `botcheck`
-          is Web3Forms' own convention; renaming it breaks their server-side
-          rejection. A visually-hidden class would not do: the technique is the
-          point, since a bot reads the computed style. */}
+          inline display:none, out of the tab order, autocomplete off. The
+          `botcheck` name is kept from the Web3Forms era on purpose: bot toolkits
+          already fill it, and `/api/contact-intake` now reads it itself. A
+          visually-hidden class would not do: the technique is the point, since a
+          bot reads the computed style. */}
       <input
         ref={honeypotRef}
         type="checkbox"
@@ -425,17 +654,13 @@ export function BovForm({ className }: BovFormProps) {
         </div>
       ) : null}
 
-      <Field
-        id={fieldId("name")}
-        label={COPY.labels.name}
-        required
-        error={errors.name}
-      >
+      <Field id={fieldId("name")} label={COPY.labels.name} required error={errors.name}>
         {(control) => (
           <Input
             {...control}
             type="text"
             autoComplete="name"
+            maxLength={LIMITS.name}
             placeholder={COPY.placeholders.name}
             value={name}
             onChange={(event) => {
@@ -457,7 +682,8 @@ export function BovForm({ className }: BovFormProps) {
           <Input
             {...control}
             type="text"
-            autoComplete="organization"
+            autoComplete="off"
+            maxLength={LIMITS.hotelName}
             placeholder={COPY.placeholders.hotelName}
             value={hotelName}
             onChange={(event) => {
@@ -496,7 +722,7 @@ export function BovForm({ className }: BovFormProps) {
       <Field
         id={fieldId("phone")}
         label={COPY.labels.phone}
-        hint={COPY.hints.phone}
+        hint={smsConsent ? COPY.hints.phoneForSms : COPY.hints.phone}
         error={errors.phone}
       >
         {(control) => (
@@ -506,9 +732,9 @@ export function BovForm({ className }: BovFormProps) {
             onChange={(next) => {
               setPhone(next);
               // index.html:2185 — a country change clears the error and re-checks.
-              revalidate("phone", validatePhone(next));
+              revalidate("phone", validatePhone(next, smsConsent));
             }}
-            onBlur={() => setError("phone", validatePhone(phone))}
+            onBlur={() => setError("phone", validatePhone(phone, smsConsent))}
           />
         )}
       </Field>
@@ -520,6 +746,7 @@ export function BovForm({ className }: BovFormProps) {
             type="email"
             inputMode="email"
             autoComplete="email"
+            maxLength={LIMITS.email}
             placeholder={COPY.placeholders.email}
             value={email}
             onChange={(event) => {
@@ -531,13 +758,135 @@ export function BovForm({ className }: BovFormProps) {
         )}
       </Field>
 
+      {/* ── The five optional fields `V2` §2 line 31 asks for. Every one is
+          genuinely optional: none is `required`, none blocks a send, and a
+          blank one is simply omitted from the CRM note rather than written as
+          an empty segment. They sit after the required core so the shortest
+          honest path through the form is unchanged. ── */}
+
+      <Field
+        id={fieldId("company")}
+        label={COPY.labels.company}
+        hint={COPY.hints.optional}
+        error={errors.company}
+      >
+        {(control) => (
+          <Input
+            {...control}
+            type="text"
+            autoComplete="organization"
+            maxLength={LIMITS.company}
+            placeholder={COPY.placeholders.company}
+            value={company}
+            onChange={(event) => {
+              setCompany(event.target.value);
+              revalidate("company", validateLength(event.target.value, LIMITS.company));
+            }}
+            onBlur={() => setError("company", validateLength(company, LIMITS.company))}
+          />
+        )}
+      </Field>
+
+      <Field
+        id={fieldId("keys")}
+        label={COPY.labels.keys}
+        hint={COPY.hints.keys}
+        error={errors.keys}
+      >
+        {(control) => (
+          <Input
+            {...control}
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            maxLength={7}
+            placeholder={COPY.placeholders.keys}
+            value={keys}
+            onChange={(event) => {
+              setKeys(event.target.value);
+              revalidate("keys", validateKeys(event.target.value));
+            }}
+            onBlur={() => setError("keys", validateKeys(keys))}
+          />
+        )}
+      </Field>
+
+      <Field
+        id={fieldId("brand")}
+        label={COPY.labels.brand}
+        hint={COPY.hints.optional}
+        error={errors.brand}
+      >
+        {(control) => (
+          <Input
+            {...control}
+            type="text"
+            autoComplete="off"
+            maxLength={LIMITS.brand}
+            placeholder={COPY.placeholders.brand}
+            value={brand}
+            onChange={(event) => {
+              setBrand(event.target.value);
+              revalidate("brand", validateLength(event.target.value, LIMITS.brand));
+            }}
+            onBlur={() => setError("brand", validateLength(brand, LIMITS.brand))}
+          />
+        )}
+      </Field>
+
+      <Field
+        id={fieldId("timeline")}
+        label={COPY.labels.timeline}
+        hint={COPY.hints.optional}
+        error={errors.timeline}
+      >
+        {(control) => (
+          <Input
+            {...control}
+            type="text"
+            autoComplete="off"
+            maxLength={LIMITS.timeline}
+            placeholder={COPY.placeholders.timeline}
+            value={timeline}
+            onChange={(event) => {
+              setTimeline(event.target.value);
+              revalidate("timeline", validateLength(event.target.value, LIMITS.timeline));
+            }}
+            onBlur={() => setError("timeline", validateLength(timeline, LIMITS.timeline))}
+          />
+        )}
+      </Field>
+
+      <Field
+        id={fieldId("comments")}
+        label={COPY.labels.comments}
+        hint={COPY.hints.comments}
+        error={errors.comments}
+        className="sm:col-span-2"
+      >
+        {(control) => (
+          <Textarea
+            {...control}
+            maxLength={LIMITS.comments}
+            value={comments}
+            onChange={(event) => {
+              setComments(event.target.value);
+              revalidate("comments", validateLength(event.target.value, LIMITS.comments));
+            }}
+            onBlur={() => setError("comments", validateLength(comments, LIMITS.comments))}
+          />
+        )}
+      </Field>
+
       {/* SMS consent — byte-exact from content/compliance.ts. Unchecked, never
-          required, scoped to SMS only, separate from the request above. */}
+          required, scoped to SMS only, separate from the request above. Only the
+          yes/no crosses the wire; the disclosure text and the timestamp are
+          written by the server (contract §6). */}
       <div className="sm:col-span-2">
         <CheckboxField
           id={fieldId("sms")}
           checked={smsConsent}
-          onCheckedChange={(next) => setSmsConsent(next === true)}
+          onCheckedChange={(next) => toggleSmsConsent(next === true)}
           labelClassName="text-data"
         >
           {SMS_CONSENT.labelSegments.before}
@@ -568,15 +917,17 @@ export function BovForm({ className }: BovFormProps) {
         </p>
       </div>
 
-      {!configured ? (
-        <p
-          id={fieldId("unconfigured")}
-          className="sm:col-span-2 flex items-start gap-2 font-sans text-data text-fg-muted"
-        >
-          <AlertCircle aria-hidden="true" strokeWidth={1.5} className="mt-0.5 size-4 shrink-0" />
-          <span>{COPY.unconfigured}</span>
-        </p>
-      ) : null}
+      {/* Plain-language agency statement (plan §3.7, `V2` §2). It is wired to
+          the submit button with `aria-describedby`, so it is announced as part
+          of the act of sending rather than left as decoration, and the same
+          string is recorded server-side in the CRM Update — the record shows
+          what the visitor was actually shown. */}
+      <p
+        id={fieldId("agency")}
+        className="sm:col-span-2 font-sans text-data text-fg-meta"
+      >
+        {AGENCY_RELATIONSHIP_NOTICE}
+      </p>
 
       <div className="sm:col-span-2 flex flex-wrap items-center gap-4">
         <Button
@@ -584,19 +935,16 @@ export function BovForm({ className }: BovFormProps) {
           size="lg"
           loading={sending}
           loadingLabel={COPY.status.sending}
-          disabled={!configured}
-          aria-describedby={configured ? undefined : fieldId("unconfigured")}
+          aria-describedby={fieldId("agency")}
         >
           {COPY.actions.submit}
         </Button>
 
-        {/* Always available while sending is unavailable, and offered again after
-            a failure. Carries every value already typed. */}
-        {!configured || state.kind === "failed" ? (
-          <Button asChild variant="ghost" size="lg">
-            <a href={mailtoHref}>{COPY.actions.mailto}</a>
-          </Button>
-        ) : null}
+        {/* Permanent secondary action, not a broken-state substitute. Carries
+            every value already typed, so choosing it costs nothing. */}
+        <Button asChild variant="ghost" size="lg">
+          <a href={mailtoHref}>{COPY.actions.mailto}</a>
+        </Button>
       </div>
 
       {/* min-h reserves the line so an appearing message never shifts layout

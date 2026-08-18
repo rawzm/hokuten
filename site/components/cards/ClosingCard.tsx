@@ -81,6 +81,27 @@
  * denied any information by a hover-only-reachable reveal on a card with no
  * focusable target to begin with.
  *
+ * ── D-VOCAB / R2 (Razim, 2026-08-17) — checked, NO CHANGE REQUIRED ────────
+ * R2 removed `Ticket`'s resting `box-shadow` (both the ink-tinted drop shadow
+ * and D13's `4px 4px 0 0` offset backing plane) in favour of a single 1px
+ * hairline. Three things about THIS file were re-verified against that change
+ * rather than assumed:
+ *   • The forced `hover:border-accent-text/40` below still does its job. It
+ *     exists because closings are hrefless and `Ticket` only wires the hover
+ *     ring when `href` is set. Its target is unchanged — it still lands on
+ *     `Ticket`'s card-surface element — and the shift it produces is now
+ *     `--hairline` → accent/40 (a genuine colour move) instead of
+ *     transparent → accent/40 (an appearance). Strictly better, same class.
+ *   • The `overprint` "Sold" stamp and its `bg-paper` seat are untouched, so
+ *     the 2026-08-08 ship-gate contrast fix (colour-mix toward `--surface`,
+ *     never element `opacity`) is intact — see globals.css `@utility
+ *     overprint` and the seat note below.
+ *   • The perforation, punched notches and tear line are untouched. R2
+ *     explicitly preserves that geometry; only shadow and radius moved.
+ * The money slot also stays as-is: `price` goes to `Ticket`'s dedicated money
+ * moment, which renders `text-money` (semantic `--money`, mono, tabular-nums,
+ * 600). A price is a data moment, not decoration — do not restyle it.
+ *
  * ── Why `overprint` renders desaturated, not "accent-toned" ─────────────────
  * `Ticket`'s `retired` prop wraps the header photo in a `grayscale` filter
  * at rest (verified by reading Ticket.tsx directly). The "Sold" stamp sits

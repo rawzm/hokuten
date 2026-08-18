@@ -85,8 +85,26 @@ export const THEME_PRESENTATION = {
     ogImage: "/og/og-gold.png",
     /** Coronal registration marks are Theme B light chrome only */
     plateChrome: false,
-    themeColor: "#16181B",
+    /**
+     * Browser-chrome colour — `app/layout.tsx` feeds this straight into
+     * `viewport.themeColor`, so it is the one hex on this site that renders
+     * OUTSIDE the document and therefore outside `globals.css`.
+     *
+     * L2 (2026-08-17): `#16181B` → `#1A1C1F`. The old value is the retired
+     * Theme-G charcoal; had it stayed, every phone would have painted its
+     * address bar in a colour the page no longer contains. It tracks
+     * `--dark` in `globals.css` — change them together, always.
+     */
+    themeColor: "#1A1C1F",
   },
+  /**
+   * PARKED 2026-08-17 (L1). Unreachable — `DEFAULT_THEME` is gold and no
+   * switch exists. Not retuned to Brand Guide v1.3: the palette below and the
+   * `[data-theme="blue"]` block in `globals.css` are both left byte-identical,
+   * `themeColor: "#F7F8F5"` included. Reviving Theme B means re-deriving it
+   * through §2.1's procedure and `docs/design/CONTRAST.md` — not editing these
+   * values in place.
+   */
   blue: {
     label: "Hokuten Blue",
     /** @deprecated — see the gold entry. One shared hero chassis since D5/D6. */

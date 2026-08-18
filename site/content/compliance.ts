@@ -319,3 +319,54 @@ export const PRIVACY_NOTICE_LINK = {
   href: "/privacy",
   tail: ".",
 } as const;
+
+/* -------------------------------------------------------------------------- */
+/*  7 — WhatsApp community disclosure (footer, beside the invite link)         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Phone-visibility / vetting disclosure for the public investor-community
+ * invite. ADDED 2026-08-17 by the launch plan (docs/LAUNCH-IMPLEMENTATION.md
+ * §3.11 + Appendix B10, sourced to `V2` §9 line 126) — every other string in
+ * this file is a kwc port; this one is a verbatim extract of Dino's own
+ * delivered copy, held to the same frozen rule from the moment it lands.
+ *
+ * RENDERS: in the footer legal block, immediately adjacent to the invite link
+ * (`WHATSAPP_COMMUNITY` in content/site.ts) and never on its own — the whole
+ * point of the string is that a reader sees what joining exposes BEFORE they
+ * tap. A bare invite with the disclosure elsewhere on the page does not satisfy
+ * §3.11; same visual block, adjacent, both or neither.
+ *
+ * The invite URL deliberately does NOT live here: this file holds legal copy,
+ * external destinations live in content/site.ts beside the a100 Arms links.
+ */
+export const WHATSAPP_DISCLOSURE =
+  "WhatsApp may display your phone number and profile information to other community participants. Membership is vetted and subject to community rules.";
+
+/* -------------------------------------------------------------------------- */
+/*  8 — Agency-relationship notice (any form that takes an inquiry)            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The plain-language agency statement. ADDED 2026-08-17 by the launch plan
+ * (docs/LAUNCH-IMPLEMENTATION.md §3.7, sourced to `V2` §2 "Forms, privacy and
+ * accessibility") and MOVED here from `lib/intake.ts` the same day — it was
+ * written there only because the agent that built the intake route did not own
+ * this file. This is its canonical home; nothing anywhere retypes it.
+ *
+ * RENDERS in exactly two places, and both are load-bearing:
+ *   1. under the BOV form, wired to the submit button with `aria-describedby`
+ *      so it is announced as part of the act of sending; and
+ *   2. in the /privacy route's form-submission section, quoted as the notice
+ *      the visitor was shown.
+ * The SAME string is written server-side into the CRM Update line
+ * `Agency notice shown: "…"` (`buildUpdateBody`, lib/intake.ts), which is why it
+ * may not be paraphrased at either render site: a reworded notice would
+ * desynchronise the on-screen text from every record already written under the
+ * old wording, and the record's whole purpose is to show what was on screen.
+ *
+ * Frozen on the same footing as everything else in this file from the moment it
+ * landed. Changing it is a dated PROJECT-MEMORY.md decision.
+ */
+export const AGENCY_RELATIONSHIP_NOTICE =
+  "Sending this form does not create an agency or brokerage relationship. Any engagement is set out in a signed agreement.";

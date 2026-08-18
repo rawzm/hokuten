@@ -1,37 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Listing photo placeholder — 5:4, matching the listing-card photo frame.
+  Listing photo placeholder - 5:4, matching the listing-card photo frame.
 
   Used wherever a listing has no published photograph. The kwc source repo
   contains closing photos only, and a closing photo must never stand in for a
   listing (it would misrepresent the asset). This is the honest substitute:
   hairline frame, north-star glyph, mono label. No imagery, no gradient.
 
-  Palette is Theme G (--paper / --rule / --accent / --meta) with a dark-scheme
-  variant. Values are literal because a standalone asset cannot read the page's
-  CSS custom properties; they mirror site/app/globals.css and must be updated
-  with it. The site's data-theme toggle cannot reach inside this file, so the
-  dark variant keys off prefers-color-scheme only.
+  Palette is Theme G (paper / rule / accent / meta) with a dark-scheme variant.
+  Values are literal because a standalone asset cannot read the page's CSS
+  custom properties; they mirror site/app/globals.css and must be updated with
+  it. The site's data-theme toggle cannot reach inside this file, so the dark
+  variant keys off prefers-color-scheme only.
+
+  RETUNED 2026-08-17 (L2/L3, Brand Design Guide v1.3) against the new token
+  layer: paper, rule, accent and charcoal all moved, and the mono voice became
+  JetBrains Mono. The meta grey (#6E6862) is the one value that did not change.
+  The dark variant's translucent strokes and label are the dark-field ink
+  (#F5F1E8) at their existing alphas, which is the token every other dark
+  surface on the site uses for ink.
+
+  FIXED IN THE SAME PASS: every version of this file before today was INVALID
+  XML and therefore did not render at all in an <img> - the comment above used
+  to spell the CSS custom properties with their leading double hyphen, and XML
+  forbids a double hyphen inside a comment (XML 1.0 section 2.5). librsvg and
+  every browser treat that as a fatal parse error, so the three listing cards
+  that point here (content/listings.ts) were showing a broken image, not a
+  placeholder. Token names are written WITHOUT the leading dashes in this file
+  from now on. Verify with: python3 -c "import xml.dom.minidom as m;
+  m.parse('public/art/listing-placeholder.svg')"
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" width="500" height="400" role="img" aria-labelledby="placeholder-title">
   <title id="placeholder-title">Photo on request</title>
   <style>
-    .ground { fill: #f7f4ed; }
-    .hairline { fill: none; stroke: #e2dccc; stroke-width: 1; }
-    .glyph { fill: #b8902e; }
-    .ring { fill: none; stroke: #e2dccc; stroke-width: 1; }
+    .ground { fill: #fbf9f3; }
+    .hairline { fill: none; stroke: #ede7d8; stroke-width: 1; }
+    .glyph { fill: #b08d3f; }
+    .ring { fill: none; stroke: #ede7d8; stroke-width: 1; }
     .label {
       fill: #6e6862;
-      font-family: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
       font-size: 12.5px;
       letter-spacing: 2.6px;
       text-transform: uppercase;
     }
     @media (prefers-color-scheme: dark) {
-      .ground { fill: #16181b; }
-      .hairline { stroke: rgba(247, 244, 237, 0.14); }
-      .ring { stroke: rgba(247, 244, 237, 0.14); }
-      .label { fill: rgba(247, 244, 237, 0.52); }
+      .ground { fill: #1a1c1f; }
+      .hairline { stroke: rgba(245, 241, 232, 0.14); }
+      .ring { stroke: rgba(245, 241, 232, 0.14); }
+      .label { fill: rgba(245, 241, 232, 0.52); }
     }
   </style>
 

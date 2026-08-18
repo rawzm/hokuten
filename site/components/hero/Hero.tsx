@@ -138,10 +138,9 @@
  * here — that manifest belongs to a different agent this round.
  *
  * ── Preserved from the prior build, unchanged ────────────────────────────
- * The one `<h1>`, its one italic accent word, both CTAs routed through the
- * shared `<AnchorLink>` focus-handling island, `heroContent.ts`'s copy
- * verbatim (no new claim invented — see that file for why it did not need
- * an edit this round), and the Theme B `plate-frame` inset-into-the-row fix
+ * The one `<h1>`, both CTAs routed through the shared `<AnchorLink>`
+ * focus-handling island, `heroContent.ts`'s copy verbatim, and the Theme B
+ * `plate-frame` inset-into-the-row fix
  * (its own inline comment below explains why it cannot sit on the full-width
  * row itself).
  *
@@ -237,7 +236,7 @@ function resolveHeroSlideshowSlides(): HeroSlideshowSlide[] {
 }
 
 export function Hero() {
-  const { eyebrow, headline, sub, ctaPrimary, ctaGhost } = heroContent;
+  const { eyebrow, headline, sub, ctaSupport, ctaPrimary, ctaGhost } = heroContent;
   const slides = resolveHeroSlideshowSlides();
 
   return (
@@ -368,10 +367,18 @@ export function Hero() {
                 <div className="lg:flex-1">
                   <MicroLabel as="p">{eyebrow}</MicroLabel>
 
+                  {/* §2.2 / GUIDE v1.3 line 14 — the signature display move
+                      is the TAIL: the last phrase of the display line set in
+                      Cormorant italic and gold. `display-tail` (globals.css
+                      §6) carries both, binding `--accent-text` so the colour
+                      resolves per surface (gold ink on paper, the on-dark
+                      step on the themed hero field) instead of the raw
+                      `--accent` that would fail AA on light. `<em>` supplies
+                      the semantics; the utility supplies the italic, so no
+                      separate `italic` class is layered on top. */}
                   <h1 id="hero-heading" className="mt-4 font-display text-display0 font-light">
                     {headline.before}
-                    <em className="italic">{headline.accent}</em>
-                    {headline.after}
+                    <em className="display-tail">{headline.tail}</em>
                   </h1>
                 </div>
 
@@ -381,6 +388,27 @@ export function Hero() {
                     "supporting line + CTAs right"). */}
                 <div className="flex flex-col gap-4 lg:w-[26rem] lg:shrink-0">
                   <p className="max-w-[42ch] text-body-lg text-fg-muted">{sub}</p>
+                  {/* ── The CTA pair, post-R2 (D-VOCAB, 2026-08-17) ────────
+                      Guide v1.3 line 29 forbids filled buttons, so the primary
+                      is now a hairline-OUTLINED gold box: transparent ground,
+                      `--accent-text` border + label, gold ground only on
+                      hover/active. The whole treatment lives in
+                      `ui/button.tsx`'s `primary` variant — this markup carries
+                      NO colour, radius or ground class of its own, and must
+                      not acquire one. Do not "restore" a filled pill here.
+
+                      `tone` stays at its `auto` default on purpose. Row 3
+                      carries `themePresentation.heroSurface`, which is
+                      `.surface-black` in Theme G, so `--accent-text` resolves
+                      by inheritance to `--accent-on-dark` — the guide gold
+                      itself, 6.73:1 on `--black`. No pinned tone is needed and
+                      none should be added: pinning would silently break if the
+                      hero surface ever changes theme.
+
+                      The ghost stays the second action (ref 03: one primary
+                      per viewport). Both are now the same outlined box shape,
+                      differentiated by colour — gold vs. hairline — which is
+                      exactly the restraint the guide asks for. */}
                   <div className="flex flex-wrap items-center gap-4">
                     <Button asChild variant="primary" size="lg">
                       {/* Safe assertion — both hrefs are anchor() results, which
@@ -393,6 +421,16 @@ export function Hero() {
                       <AnchorLink href={ctaGhost.href as `#${string}`}>{ctaGhost.label}</AnchorLink>
                     </Button>
                   </div>
+                  {/* CTA support line (§3.1's hero slot table) — the BOV
+                      promise WITH its condition, imported through
+                      `heroContent.ctaSupport` from `content/methodology.ts`
+                      and never retyped. Mono voice per §3.1; rendered at
+                      `data-line` (mono, --text-data, letter-spacing 0)
+                      rather than `micro-label`, because that utility force-
+                      uppercases and applies 0.18em tracking — correct for a
+                      three-word label, unreadable across a 126-character
+                      sentence. See this agent's report for the flag. */}
+                  <p className="data-line max-w-[46ch] text-fg-muted">{ctaSupport}</p>
                 </div>
               </div>
             </div>

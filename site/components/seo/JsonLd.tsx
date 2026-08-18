@@ -49,7 +49,7 @@ import {
 } from "@/content/compliance";
 import { bovPromise } from "@/content/methodology";
 import { CONTACT, SITE_DESCRIPTION, SITE_NAME } from "@/content/site";
-import { team } from "@/content/team";
+import { seatPortrait, team } from "@/content/team";
 import { absoluteUrl, OG_IMAGE } from "@/lib/seo";
 import { themePresentation } from "@/lib/theme";
 
@@ -104,11 +104,11 @@ function slugify(name: string): string {
 type JsonLdNode = Record<string, unknown>;
 
 /**
- * `content/team.ts` carries Jae and Donna on ONE card ("Jae Hun Jeong & Donna
- * Grace Yangyang"), because design ref 06 lists them together under Operations.
- * A `Person` node describes one person, so a joint card expands into two nodes
- * that share the role and description recorded for the card. Nothing is invented:
- * both names, the role and the description are read verbatim from the card.
+ * A `Person` node describes one person. Since the 2026-08-17 six-seat rebuild
+ * (`content/team.ts`) every seat is one named individual, so this splitter is
+ * defensive only — it exists so a future joint card ("A & B") expands into two
+ * nodes instead of emitting one person with two names. Nothing is invented:
+ * every name, role and description is read verbatim from the seat.
  */
 function namesOf(member: (typeof team)[number]): string[] {
   return member.name.split(" & ").map((part) => part.trim());
@@ -122,15 +122,24 @@ function personNodes(): JsonLdNode[] {
         "@id": absoluteUrl(`/#person-${slugify(name)}`),
         name,
         jobTitle: member.role,
-        description: member.bio,
         worksFor: { "@id": ORGANIZATION_ID },
       };
+
+      // Roster seats can ship with no bio yet (`bio: ""` — B7 supplies text for
+      // the featured seats only). An empty `description` is a worse statement
+      // than no `description`, so the key is omitted rather than emitted blank.
+      if (member.bio) node.description = member.bio;
 
       // Empty string is the contract's "no contact channel" (content/team.ts) —
       // never emit an empty `email`, and never invent one.
       if (member.email) node.email = member.email;
       if (member.phone) node.telephone = member.phone;
-      if (member.photo) node.image = absoluteUrl(member.photo);
+      // Portraits go through the SAME G8 approval gate the cards use
+      // (`seatPortrait()`), never `member.photo` directly — otherwise a seat
+      // whose portrait is prepped but not yet approved would publish its URL in
+      // the structured data while the rendered card correctly withheld it.
+      const portrait = seatPortrait(member);
+      if (portrait) node.image = absoluteUrl(portrait);
 
       // Licence only where the roster records one. Everyone else appears with a
       // role and no credential — which is the accurate statement.

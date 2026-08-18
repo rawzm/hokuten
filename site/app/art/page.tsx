@@ -804,34 +804,45 @@ export default async function ArtDirectionPage() {
           ? "no _hold-amber-mark file found — resolved or renamed"
           : "public/logos/ is empty — nothing delivered yet either way",
     },
+    /* Listing photography — one row per ACTIVE listing, and the active list is
+       now exactly the three-property allowlist locked by
+       docs/LAUNCH-IMPLEMENTATION.md §3.5 / Appendix B12 (L8): The Florida
+       Gateway · Quality Suites Houston NW Cy-Fair · Pocono Mountain Hotel &
+       Spa. Until 2026-08-17 this block asked for photos of FIVE properties —
+       four of them dropped from content/listings.ts in the same run (that
+       file's own header names which four and why). Leaving those rows here
+       would have had this page assert an active listing that does not exist,
+       on a route that is reachable even while noindex, so they are gone and
+       the probes now point at the real gap. Nothing was lost with them: each
+       row was only a filename probe against public/hotels/, which holds the
+       six CLOSING photographs and nothing else, so every one of the five had
+       always read "[ NEEDED ] — not yet delivered". No artwork was deleted.
+       That gap is real and total: no unbranded photograph of any of the three
+       exists anywhere in the delivery (every supplied flyer carries prior-firm
+       branding and a legacy contact block, so none can ship — D12), and all
+       three cards ship on the glyph-art placeholder. Rows self-resolve the
+       moment a matching file lands in public/hotels/, same as every row above. */
     {
-      label: "Active-listing photo — The Lodge at Split Rock Resort",
-      resolved: hotelFiles.some((f) => includesAll(f.toLowerCase(), ["split"])),
-      note: hotelFiles.find((f) => includesAll(f.toLowerCase(), ["split"])) ?? "not yet delivered",
+      label: "Active-listing photo — The Florida Gateway (Yulee, FL)",
+      resolved: hotelFiles.some((f) => f.toLowerCase().includes("yulee") || includesAll(f.toLowerCase(), ["florida", "gateway"])),
+      note:
+        hotelFiles.find((f) => f.toLowerCase().includes("yulee") || includesAll(f.toLowerCase(), ["florida", "gateway"])) ??
+        "not yet delivered",
     },
     {
-      label: "Active-listing photo — Pocono Mountain Hotel and Spa",
+      label: "Active-listing photo — Quality Suites Houston NW Cy-Fair",
+      resolved: hotelFiles.some(
+        (f) => f.toLowerCase().includes("cy-fair") || f.toLowerCase().includes("cyfair") || includesAll(f.toLowerCase(), ["quality", "suites"]),
+      ),
+      note:
+        hotelFiles.find(
+          (f) => f.toLowerCase().includes("cy-fair") || f.toLowerCase().includes("cyfair") || includesAll(f.toLowerCase(), ["quality", "suites"]),
+        ) ?? "not yet delivered",
+    },
+    {
+      label: "Active-listing photo — Pocono Mountain Hotel & Spa",
       resolved: hotelFiles.some((f) => f.toLowerCase().includes("pocono")),
       note: hotelFiles.find((f) => f.toLowerCase().includes("pocono")) ?? "not yet delivered",
-    },
-    {
-      label: "Active-listing photo — Developer Inn Highway (Kissimmee)",
-      resolved: hotelFiles.some((f) => f.toLowerCase().includes("kissimmee") || includesAll(f.toLowerCase(), ["developer", "highway"])),
-      note:
-        hotelFiles.find((f) => f.toLowerCase().includes("kissimmee") || includesAll(f.toLowerCase(), ["developer", "highway"])) ??
-        "not yet delivered",
-    },
-    {
-      label: "Active-listing photo — Developer Inn Downtown Orlando",
-      resolved: hotelFiles.some((f) => includesAll(f.toLowerCase(), ["developer", "orlando"]) || includesAll(f.toLowerCase(), ["developer", "downtown"])),
-      note:
-        hotelFiles.find((f) => includesAll(f.toLowerCase(), ["developer", "orlando"]) || includesAll(f.toLowerCase(), ["developer", "downtown"])) ??
-        "not yet delivered",
-    },
-    {
-      label: "Active-listing photo — Baymont by Wyndham Jacksonville Airport",
-      resolved: hotelFiles.some((f) => f.toLowerCase().includes("jacksonville")),
-      note: hotelFiles.find((f) => f.toLowerCase().includes("jacksonville")) ?? "not yet delivered",
     },
     {
       label: "Portrait — Razim",

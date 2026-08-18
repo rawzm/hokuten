@@ -51,6 +51,34 @@
  * upscaling (blurring) past it, which would otherwise silently violate the
  * "never alter the artwork" badge-usage rule this file's header already
  * commits to.
+ *
+ * ── 2026-08-17 (LAUNCH-IMPLEMENTATION §2.4/§4 A2, R14, X16) — three changes
+ * ─────────────────────────────────────────────────────────────────────────
+ * 1. NEW PART 0: the sticky header's mark is now a LINEAR-proportioned
+ *    derivative of the kit's linear master (R14), not the stacked-proportion
+ *    crop of `Ref/site/logo-yellow.jpg` PART 1 makes. The linear master is
+ *    3.75:1; the stacked crop is 1.33:1, so what shipped before was a stacked
+ *    mark wedged into a linear slot. PART 1 still runs — the stacked crop is
+ *    what the footer brand cluster and the Trust identity anchor consume —
+ *    but it is no longer the header's asset.
+ *
+ * 2. X16, a real bug, fixed: `lockup-gold@2x.png` was 117x88 while
+ *    `lockup-gold.png` was 176x132 — the "retina" file was SMALLER than the
+ *    base, on both theme pairs. The cause was this file's own density scheme:
+ *    it baked the 3x and the 2x of ONE 44px CSS render and named the 3x with
+ *    no suffix and the 2x `@2x`, so anything that read the suffix literally
+ *    got a LOWER-resolution image for a HIGHER-DPR screen. The scheme is
+ *    replaced outright — see LOCKUP_SOURCE_DENSITY / RETINA_MULTIPLE.
+ *
+ * 3. PART 2 (badges) is PARKED, not deleted. Its five sources under
+ *    `Ref/site/` were deleted this round (F39/A29 — they are CoStar email
+ *    signatures, one of them a README-excluded prior-firm asset that must
+ *    never render), and the approved Winner Badge re-intake into
+ *    `public/awards/` is portion P15's, not this script's. A missing badge
+ *    source is therefore SKIPPED with a note instead of throwing, and this
+ *    script writes nothing into `public/awards/` when the sources are absent.
+ *    Re-pointing `BADGES` at `Ref/awards/` is P15's call to make, in P15's
+ *    own pass — do not do it here just because the files exist.
  */
 
 import fs from "node:fs";
@@ -65,6 +93,10 @@ const siteRoot = path.resolve(here, "..");
 const repoRoot = path.resolve(siteRoot, "..");
 
 const refSiteDir = path.join(repoRoot, "Ref", "site");
+/** R17/P17: the kit lockup masters the build consumes are copied into tracked
+ *  `Ref/brand-kit/`, so this script never reaches into the gitignored
+ *  `full-brand-toolkit/`. */
+const refBrandKitDir = path.join(repoRoot, "Ref", "brand-kit");
 const brandDir = path.join(siteRoot, "public", "brand");
 const awardsDir = path.join(siteRoot, "public", "awards");
 
@@ -72,13 +104,35 @@ const awardsDir = path.join(siteRoot, "public", "awards");
    CONFIG
    =========================================================================== */
 
-/** CSS render height for the header lockup (D1: "header render height ~44px"). */
+/** CSS render height for the stacked lockup (D1: "header render height ~44px").
+ *  This is now the FOOTER/Trust figure, not the header's — the header reads
+ *  the linear derivative PART 0 bakes. Left at 44 deliberately: raising it
+ *  would change `lockup-{gold,blue}.png`'s shipped dimensions, which
+ *  StatsSection.tsx's layout note reasons about by number. */
 const LOCKUP_RENDER_HEIGHT = 44;
-/** Densities shipped for the lockup. 3x is the primary/unsuffixed filename
- *  (`lockup-<key>.png`); 2x ships alongside as `lockup-<key>@2x.png`. Next's
- *  image optimizer downsamples from either at request time, so shipping 3x
- *  as the source of truth means a DPR-3 phone never upscales a soft 2x. */
-const LOCKUP_DENSITIES = [3, 2] as const;
+
+/* ── Density scheme — REPLACED 2026-08-17 (X16) ────────────────────────────
+ * The old scheme baked the 3x and the 2x of one CSS render and named the 3x
+ * with no suffix, so `lockup-gold@2x.png` (117x88) was SMALLER than
+ * `lockup-gold.png` (176x132). Two rules now, and they are the whole scheme:
+ *
+ *   <base>.png / .avif      The SOURCE next/image resizes from at request
+ *                           time. Baked at LOCKUP_SOURCE_DENSITY x the
+ *                           surface's CSS render height so a DPR-3 client
+ *                           never upscales it. This keeps the existing
+ *                           convention — every `themePresentation` path in
+ *                           lib/theme.ts points at an unsuffixed file, and
+ *                           that file is the high-resolution one.
+ *   <base>@2x.png / .avif   EXACTLY twice the base file's emitted pixel
+ *                           dimensions, for any consumer that reads the
+ *                           density suffix literally. Derived by doubling the
+ *                           base's own width AND height (renderExact), not by
+ *                           a second independent height computation — so
+ *                           "exactly 2x" is arithmetic, not a rounding
+ *                           coincidence that a future edit could break.
+ * ------------------------------------------------------------------------- */
+const LOCKUP_SOURCE_DENSITY = 3;
+const RETINA_MULTIPLE = 2;
 
 /**
  * D26 (DESIGN-REVISIT-3.md, Razim, 2026-08-10) — the menu overlay's brand panel
@@ -109,6 +163,83 @@ type LockupSpec = {
   trimThreshold: number;
   outBase: string;
 };
+
+/* ===========================================================================
+   PART 0 CONFIG — the sticky header's linear lockup (R14 / A2)
+   =========================================================================== */
+
+/** CSS render height of the header mark. SiteNav.tsx renders
+ *  `<Wordmark variant="brand" height={52} mobileHeight={48} />`, so 52 is the
+ *  ceiling and the raster is baked against it. Read from the component, not
+ *  from D1's older "~44px" figure, which D18 superseded. */
+const HEADER_LOCKUP_CSS_HEIGHT = 52;
+
+/**
+ * True artwork bounding box of the kit's LINEAR lockup, in the 3762x1184
+ * canvas the three `_on_*` exports share: [left, top, width, height].
+ *
+ * VERIFIED, not guessed, by a per-pixel scan of all three siblings against
+ * their own ground colour:
+ *   ..._on_White.png    ground #FFFFFF  -> x 137..3573, y 116..1031  (3437x916)
+ *   ..._on_Ivory.png    ground #E2DCCC  -> x 137..3573, y 116..1031  (3437x916)
+ *   ..._on_Charcoal.png ground #1A1C1F  -> x 146..2724, y 125..1031  (2579x907)
+ *
+ * The White and Ivory cuts agree to the pixel, and the transparent master's
+ * own alpha bbox is 3437x916 as well, so 3437x916 IS the artwork. The
+ * Charcoal cut disagrees for one reason only — see LINEAR_CHARCOAL_DEFECT.
+ * Using the shared rect (rather than a per-file trim heuristic) keeps every
+ * variant below at the identical 3.752 aspect and identical optical margins.
+ */
+const LINEAR_CROP: [number, number, number, number] = [137, 116, 3437, 916];
+
+/**
+ * ⚠ DEFECT IN THE KIT MASTER — READ BEFORE TRUSTING THE PRIMARY OUTPUT.
+ *
+ * `KW_Commercial_Linear_TheHokutenGroup_Gold_on_Charcoal.png` sets the word
+ * COMMERCIAL in #1A1C1F on a #1A1C1F ground. It is not dark-on-dark-and-hard-
+ * to-read; it is INVISIBLE — a 400x600px sample of that region returns 17,872
+ * pixels of exactly (26,28,31) and nothing else but sub-3-unit antialiasing.
+ * The dark-ground knockout that the STACKED on-charcoal cut applies (a white
+ * plaque behind COMMERCIAL) was not applied to the linear cut.
+ *
+ * Consequence: the R14-specified derivative renders as [KW box] + [empty
+ * charcoal] + [THE HOKUTEN GROUP], i.e. a KW COMMERCIAL lockup with the word
+ * "Commercial" missing. Recolouring it would be altering the KW mark, which
+ * the brand rules forbid outright, so this script does not.
+ *
+ * R14 is implemented as written — `lockup-linear-header.*` IS the on-charcoal
+ * cut — and the on-WHITE cut is baked alongside as `lockup-linear-header-
+ * onwhite.*` so the swap is a one-line path change in lib/theme.ts if Razim
+ * rules that a lockup missing a word cannot ship. Neither file is wired to
+ * anything by this script; wiring is lib/theme.ts's owner's call.
+ */
+const LINEAR_CHARCOAL_DEFECT = true;
+
+type HeaderLockupSpec = {
+  key: string;
+  src: string;
+  outBase: string;
+  /** Shared verified rect; see LINEAR_CROP. */
+  crop: [number, number, number, number];
+  note: string;
+};
+
+const HEADER_LOCKUPS: HeaderLockupSpec[] = [
+  {
+    key: "linear-header",
+    src: path.join(refBrandKitDir, "KW_Commercial_Linear_TheHokutenGroup_Gold_on_Charcoal.png"),
+    outBase: path.join(brandDir, "lockup-linear-header"),
+    crop: LINEAR_CROP,
+    note: "R14 primary — on-charcoal. Ground is #1A1C1F, identical to --dark, so it sits seamlessly on a .surface-dark bar. SEE LINEAR_CHARCOAL_DEFECT: COMMERCIAL does not render in this cut.",
+  },
+  {
+    key: "linear-header-onwhite",
+    src: path.join(refBrandKitDir, "KW_Commercial_Linear_TheHokutenGroup_Gold_on_White.png"),
+    outBase: path.join(brandDir, "lockup-linear-header-onwhite"),
+    crop: LINEAR_CROP,
+    note: "Swap-ready alternate — the same artwork at the same rect on the white ground, where all three words render. Needs a light plaque behind it in a dark bar (the footer already has that pattern in MARK_CHIP).",
+  },
+];
 
 /**
  * logo-blue.PNG: the navy panel + white "COMMERCIAL" / "THE HOKUTEN GROUP"
@@ -272,9 +403,9 @@ const CONTACT_SHEET_OUT = path.join(brandDir, "_identity-sheet.jpg");
  *  more room (computed in `buildContactSheet`, never hardcoded past this). */
 const SHEET_MIN_WIDTH = 1200;
 const SHEET_PAD = 48;
-const SHEET_LIGHT_GROUND = "#F7F4ED"; // --paper, gold theme (blue theme's is #F7F8F5 — close enough to stand in for "a light paper ground", singular, per the brief)
-const SHEET_DARK_GROUND = "#16181B"; // --dark, both themes
-const SHEET_SWATCH_GROUND = "#E4E1D8"; // neutral warm-gray for the badge row, distinct from both lockup panels so it reads as its own section
+const SHEET_LIGHT_GROUND = "#FBF9F3"; // --paper, gold theme (L2, 2026-08-17 retuned it off the retired Theme-G paper). Blue theme's is #F7F8F5 — close enough to stand in for "a light paper ground", singular, per the brief
+const SHEET_DARK_GROUND = "#1A1C1F"; // --dark, both themes (L2, 2026-08-17 retuned it off the retired Theme-G charcoal)
+const SHEET_SWATCH_GROUND = "#EDE7D8"; // --rule (guide cream) for the badge row, distinct from both lockup panels so it reads as its own section
 
 /* ===========================================================================
    helpers
@@ -336,6 +467,58 @@ async function renderAtHeight(
   return { png, avif, width: meta.width ?? 0, height: meta.height ?? targetHeight };
 }
 
+/**
+ * Resize a source buffer to an EXACT pixel box and encode PNG + AVIF.
+ *
+ * `fit: "fill"` is deliberate and is not a distortion risk at the only call
+ * site: the box passed in is the base render's own emitted width and height
+ * multiplied by the same integer, so the requested aspect is bit-for-bit the
+ * base's aspect. "fill" is what makes the output dimensions an assertion
+ * rather than a hope — `fit: "inside"` would let a rounding step land on
+ * 2x-minus-one-pixel, which is exactly the class of bug X16 was.
+ */
+async function renderExact(
+  source: Buffer,
+  width: number,
+  height: number,
+): Promise<{ png: Buffer; avif: Buffer; width: number; height: number }> {
+  const resized = sharp(source).resize({ width, height, fit: "fill" });
+  const png = await resized.clone().png({ compressionLevel: 9 }).toBuffer();
+  const meta = await sharp(png).metadata();
+  const avif = await resized.clone().avif({ quality: 68, effort: 6 }).toBuffer();
+  if (meta.width !== width || meta.height !== height) {
+    throw new Error(`renderExact produced ${meta.width}x${meta.height}, asked for ${width}x${height}`);
+  }
+  return { png, avif, width, height };
+}
+
+/** Write one PNG+AVIF pair and log both, returning their byte sizes. */
+function writePair(
+  outBase: string,
+  suffix: string,
+  render: { png: Buffer; avif: Buffer; width: number; height: number },
+): { pngBytes: number; avifBytes: number } {
+  const pngPath = `${outBase}${suffix}.png`;
+  const avifPath = `${outBase}${suffix}.avif`;
+  fs.writeFileSync(pngPath, render.png);
+  fs.writeFileSync(avifPath, render.avif);
+  for (const f of [pngPath, avifPath]) {
+    console.log(`  ${path.relative(siteRoot, f).padEnd(42)} ${render.width}x${render.height}  (${fmtKB(bytes(f))})`);
+  }
+  return { pngBytes: bytes(pngPath), avifBytes: bytes(avifPath) };
+}
+
+type HeaderLockupResult = {
+  key: string;
+  sourceWidth: number;
+  sourceHeight: number;
+  croppedWidth: number;
+  croppedHeight: number;
+  aspect: number;
+  base: { width: number; height: number; pngBytes: number; avifBytes: number };
+  retina: { width: number; height: number; pngBytes: number; avifBytes: number };
+};
+
 type LockupResult = {
   key: string;
   trimmedWidth: number;
@@ -361,6 +544,50 @@ type BadgeResult = {
 };
 
 /* ===========================================================================
+   PART 0 — the header's linear lockup (R14 / A2)
+   =========================================================================== */
+
+async function prepHeaderLockups(): Promise<HeaderLockupResult[]> {
+  ensureDir(brandDir);
+  const results: HeaderLockupResult[] = [];
+
+  for (const spec of HEADER_LOCKUPS) {
+    if (!fs.existsSync(spec.src)) {
+      throw new Error(`Missing header-lockup source: ${path.relative(repoRoot, spec.src)}`);
+    }
+    const meta = await sharp(spec.src).metadata();
+    const [left, top, width, height] = spec.crop;
+    if ((meta.width ?? 0) < left + width || (meta.height ?? 0) < top + height) {
+      throw new Error(
+        `LINEAR_CROP ${spec.crop.join(",")} does not fit ${meta.width}x${meta.height} in ${path.basename(spec.src)}`,
+      );
+    }
+    const cropped = await sharp(spec.src).extract({ left, top, width, height }).png().toBuffer();
+
+    const base = await renderAtHeight(cropped, HEADER_LOCKUP_CSS_HEIGHT, LOCKUP_SOURCE_DENSITY);
+    const baseBytes = writePair(spec.outBase, "", base);
+
+    const retina = await renderExact(cropped, base.width * RETINA_MULTIPLE, base.height * RETINA_MULTIPLE);
+    const retinaBytes = writePair(spec.outBase, `@${RETINA_MULTIPLE}x`, retina);
+
+    console.log(`     ${spec.note}`);
+
+    results.push({
+      key: spec.key,
+      sourceWidth: meta.width ?? 0,
+      sourceHeight: meta.height ?? 0,
+      croppedWidth: width,
+      croppedHeight: height,
+      aspect: width / height,
+      base: { width: base.width, height: base.height, ...baseBytes },
+      retina: { width: retina.width, height: retina.height, ...retinaBytes },
+    });
+  }
+
+  return results;
+}
+
+/* ===========================================================================
    PART 1 — lockups
    =========================================================================== */
 
@@ -375,22 +602,24 @@ async function prepLockups(): Promise<LockupResult[]> {
     const trimmed = await trimToBoundingBox(spec.src, spec.trimBackground, spec.trimThreshold);
     const aspect = trimmed.width / trimmed.height;
 
+    // X16: base first (the next/image source), then a genuine 2x of THAT file.
     const renders: LockupResult["renders"] = [];
-    for (const density of LOCKUP_DENSITIES) {
-      const { png, avif, width, height } = await renderAtHeight(trimmed.buffer, LOCKUP_RENDER_HEIGHT, density);
-      const suffix = density === 3 ? "" : `@${density}x`;
-      const pngPath = `${spec.outBase}${suffix}.png`;
-      const avifPath = `${spec.outBase}${suffix}.avif`;
-      fs.writeFileSync(pngPath, png);
-      fs.writeFileSync(avifPath, avif);
-      console.log(
-        `  ${path.relative(siteRoot, pngPath).padEnd(34)} ${width}x${height}  (${fmtKB(bytes(pngPath))})`,
-      );
-      console.log(
-        `  ${path.relative(siteRoot, avifPath).padEnd(34)} ${width}x${height}  (${fmtKB(bytes(avifPath))})`,
-      );
-      renders.push({ density, width, height, pngBytes: bytes(pngPath), avifBytes: bytes(avifPath) });
-    }
+    const base = await renderAtHeight(trimmed.buffer, LOCKUP_RENDER_HEIGHT, LOCKUP_SOURCE_DENSITY);
+    const baseBytes = writePair(spec.outBase, "", base);
+    renders.push({ density: LOCKUP_SOURCE_DENSITY, width: base.width, height: base.height, ...baseBytes });
+
+    const retina = await renderExact(
+      trimmed.buffer,
+      base.width * RETINA_MULTIPLE,
+      base.height * RETINA_MULTIPLE,
+    );
+    const retinaBytes = writePair(spec.outBase, `@${RETINA_MULTIPLE}x`, retina);
+    renders.push({
+      density: LOCKUP_SOURCE_DENSITY * RETINA_MULTIPLE,
+      width: retina.width,
+      height: retina.height,
+      ...retinaBytes,
+    });
 
     // D26 — the XL menu/Trust identity-anchor derivative. Same trimmed
     // source, same treatment, just a taller bake — see LOCKUP_XL_CSS_HEIGHT.
@@ -429,13 +658,25 @@ async function prepLockups(): Promise<LockupResult[]> {
    =========================================================================== */
 
 async function prepBadges(): Promise<BadgeResult[]> {
-  ensureDir(awardsDir);
   const results: BadgeResult[] = [];
 
-  for (const spec of BADGES) {
-    if (!fs.existsSync(spec.src)) {
-      throw new Error(`Missing badge source: ${path.relative(repoRoot, spec.src)}`);
-    }
+  // PARKED, not deleted — see the 2026-08-17 note in this file's header. The
+  // five `Ref/site/` sources were removed by F39/A29 and the approved Winner
+  // Badge re-intake belongs to portion P15. A missing source is a skip, not a
+  // crash, and `public/awards/` is not even created when nothing will be
+  // written into it: another agent owns that directory this round.
+  const present = BADGES.filter((spec) => fs.existsSync(spec.src));
+  const absent = BADGES.filter((spec) => !fs.existsSync(spec.src));
+  for (const spec of absent) {
+    console.log(`  SKIP ${spec.key.padEnd(28)} source absent: ${path.relative(repoRoot, spec.src)}`);
+  }
+  if (present.length === 0) {
+    console.log("  no badge sources on disk — PART 2 wrote nothing (P15 owns public/awards/ this round)");
+    return results;
+  }
+  ensureDir(awardsDir);
+
+  for (const spec of present) {
     const srcMeta = await sharp(spec.src).metadata();
     const sourceWidth = srcMeta.width ?? 0;
     const sourceHeight = srcMeta.height ?? 0;
@@ -510,7 +751,11 @@ function labelSvg(text: string, width: number, color: string, fontSize = 20): Bu
   return Buffer.from(svg);
 }
 
-async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[]): Promise<void> {
+async function buildContactSheet(
+  headers: HeaderLockupResult[],
+  lockups: LockupResult[],
+  badges: BadgeResult[],
+): Promise<void> {
   // Re-render each lockup at its literal 1x / 44px CSS height for the sheet —
   // this is what "real 44px render height" looks like with no DPR scaling.
   const lockupOnes: { key: string; png: Buffer; width: number; height: number }[] = [];
@@ -520,8 +765,20 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
     lockupOnes.push({ key: spec.key, png, width, height });
   }
 
+  // PART 0 — the header's linear derivatives, at their literal 1x CSS height,
+  // on the charcoal bar they actually sit in. This row is the whole point of
+  // the sheet this round: it is where the on-charcoal master's missing
+  // COMMERCIAL is visible at a glance (LINEAR_CHARCOAL_DEFECT).
+  const headerOnes: { key: string; png: Buffer; width: number; height: number }[] = [];
+  for (const spec of HEADER_LOCKUPS) {
+    const [left, top, width, height] = spec.crop;
+    const cropped = await sharp(spec.src).extract({ left, top, width, height }).png().toBuffer();
+    const r = await renderAtHeight(cropped, HEADER_LOCKUP_CSS_HEIGHT, 1);
+    headerOnes.push({ key: spec.key, png: r.png, width: r.width, height: r.height });
+  }
+
   const badgeOnes: { key: string; png: Buffer; width: number; height: number }[] = [];
-  for (const spec of BADGES) {
+  for (const spec of BADGES.filter((b) => fs.existsSync(b.src))) {
     let working = sharp(spec.src);
     if (spec.crop) {
       const [left, top, width, height] = spec.crop;
@@ -565,6 +822,11 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
     return { x, rowWidth: cursor - slotGap + SHEET_PAD };
   }
 
+  const headerCaptions = headerOnes.map((h) => `lockup-${h.key}  ${h.width}x${h.height}px`);
+  const headerLayout = layoutRow(
+    headerOnes.map((h, i) => ({ width: h.width, caption: headerCaptions[i] })),
+    16,
+  );
   const lockupCaptions = lockupOnes.map((l) => `lockup-${l.key}  ${l.width}x${l.height}px`);
   const badgeCaptions = badgeOnes.map((b) => `${b.key}  ${b.width}x${b.height}px`);
   const lockupXlCaptions = lockupXlOnes.map((l) => `lockup-${l.key}-xl  ${l.width}x${l.height}px`);
@@ -581,18 +843,33 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
     16,
   );
 
-  const sheetWidth = Math.max(SHEET_MIN_WIDTH, lockupLayout.rowWidth, badgeLayout.rowWidth, lockupXlLayout.rowWidth);
+  const sheetWidth = Math.max(
+    SHEET_MIN_WIDTH,
+    headerLayout.rowWidth,
+    lockupLayout.rowWidth,
+    badgeLayout.rowWidth,
+    lockupXlLayout.rowWidth,
+  );
 
-  const lockupRowH = Math.max(...lockupOnes.map((l) => l.height)) + captionH;
-  const badgeRowH = Math.max(...badgeOnes.map((b) => b.height)) + captionH;
-  const lockupXlRowH = Math.max(...lockupXlOnes.map((l) => l.height)) + captionH;
+  /** Tallest item in a row, or 0 for an empty row — `Math.max()` with no
+   *  arguments is -Infinity, which would poison every downstream height the
+   *  moment PART 2 is parked. */
+  const rowHeight = (items: { height: number }[]) =>
+    items.length === 0 ? 0 : Math.max(...items.map((i) => i.height)) + captionH;
 
+  const headerRowH = rowHeight(headerOnes);
+  const lockupRowH = rowHeight(lockupOnes);
+  const badgeRowH = rowHeight(badgeOnes);
+  const lockupXlRowH = rowHeight(lockupXlOnes);
+
+  const panel0H = SHEET_PAD * 2 + panelLabelH + headerRowH;
   const panel1H = SHEET_PAD * 2 + panelLabelH + lockupRowH;
   const panel2H = panel1H;
-  const panel3H = SHEET_PAD * 2 + panelLabelH + badgeRowH;
+  // Panel 3 collapses to nothing when the badge sources are absent.
+  const panel3H = badgeOnes.length === 0 ? 0 : SHEET_PAD * 2 + panelLabelH + badgeRowH;
   const panel4H = SHEET_PAD * 2 + panelLabelH + lockupXlRowH;
 
-  const totalH = panel1H + panel2H + panel3H + panel4H;
+  const totalH = panel0H + panel1H + panel2H + panel3H + panel4H;
 
   const composites: { input: Buffer; left: number; top: number }[] = [];
   let y = 0;
@@ -608,14 +885,36 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
     composites.push({ input: labelSvg(label, sheetWidth - SHEET_PAD * 2, labelColor, 22), left: SHEET_PAD, top: top + SHEET_PAD });
   }
 
+  // Panel 0 — the header bar. Charcoal ground, the two linear derivatives at
+  // their real 52px CSS render height.
+  await panel(
+    SHEET_DARK_GROUND,
+    `HEADER BAR — ${SHEET_DARK_GROUND}  ·  linear lockups @ real ${HEADER_LOCKUP_CSS_HEIGHT}px CSS height (1x)`,
+    "#F5F1E8",
+    panel0H,
+    y,
+  );
+  {
+    const rowY = y + SHEET_PAD + panelLabelH;
+    headerOnes.forEach((h, i) => {
+      composites.push({ input: h.png, left: headerLayout.x[i], top: rowY });
+      composites.push({
+        input: labelSvg(headerCaptions[i], 520, "#D0C9BC", 16),
+        left: headerLayout.x[i],
+        top: rowY + h.height + 4,
+      });
+    });
+  }
+  y += panel0H;
+
   // Panel 1 — light paper ground, both lockups.
-  await panel(SHEET_LIGHT_GROUND, "LIGHT GROUND — #F7F4ED  ·  header lockups @ real 44px CSS height (1x)", "#1A1C1F", panel1H, y);
+  await panel(SHEET_LIGHT_GROUND, `LIGHT GROUND — ${SHEET_LIGHT_GROUND}  ·  stacked lockups @ real ${LOCKUP_RENDER_HEIGHT}px CSS height (1x)`, "#1A1C1F", panel1H, y);
   {
     const rowY = y + SHEET_PAD + panelLabelH;
     lockupOnes.forEach((l, i) => {
       composites.push({ input: l.png, left: lockupLayout.x[i], top: rowY });
       composites.push({
-        input: labelSvg(lockupCaptions[i], 400, "#4A4A46", 16),
+        input: labelSvg(lockupCaptions[i], 400, "#4A4D52", 16),
         left: lockupLayout.x[i],
         top: rowY + l.height + 4,
       });
@@ -624,13 +923,13 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
   y += panel1H;
 
   // Panel 2 — dark ground, both lockups.
-  await panel(SHEET_DARK_GROUND, "DARK GROUND — #16181B  ·  header lockups @ real 44px CSS height (1x)", "#F7F4ED", panel2H, y);
+  await panel(SHEET_DARK_GROUND, `DARK GROUND — ${SHEET_DARK_GROUND}  ·  stacked lockups @ real ${LOCKUP_RENDER_HEIGHT}px CSS height (1x)`, "#F5F1E8", panel2H, y);
   {
     const rowY = y + SHEET_PAD + panelLabelH;
     lockupOnes.forEach((l, i) => {
       composites.push({ input: l.png, left: lockupLayout.x[i], top: rowY });
       composites.push({
-        input: labelSvg(lockupCaptions[i], 400, "#C9C4B5", 16),
+        input: labelSvg(lockupCaptions[i], 400, "#D0C9BC", 16),
         left: lockupLayout.x[i],
         top: rowY + l.height + 4,
       });
@@ -638,26 +937,26 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
   }
   y += panel2H;
 
-  // Panel 3 — badges row.
-  await panel(
-    SHEET_SWATCH_GROUND,
-    `AWARD BADGES  ·  D12 tier ceilings, 1x — annual ${ANNUAL_RENDER_HEIGHT}px / quarterly ${QUARTERLY_RENDER_HEIGHT}px`,
-    "#1A1C1F",
-    panel3H,
-    y,
-  );
-  {
+  // Panel 3 — badges row. Omitted entirely when PART 2 is parked.
+  if (badgeOnes.length > 0) {
+    await panel(
+      SHEET_SWATCH_GROUND,
+      `AWARD BADGES  ·  D12 tier ceilings, 1x — annual ${ANNUAL_RENDER_HEIGHT}px / quarterly ${QUARTERLY_RENDER_HEIGHT}px`,
+      "#1A1C1F",
+      panel3H,
+      y,
+    );
     const rowY = y + SHEET_PAD + panelLabelH;
     badgeOnes.forEach((b, i) => {
       composites.push({ input: b.png, left: badgeLayout.x[i], top: rowY });
       composites.push({
-        input: labelSvg(badgeCaptions[i], 400, "#4A4A46", 14),
+        input: labelSvg(badgeCaptions[i], 400, "#4A4D52", 14),
         left: badgeLayout.x[i],
         top: rowY + b.height + 4,
       });
     });
+    y += panel3H;
   }
-  y += panel3H;
 
   // Panel 4 — D26 XL lockup derivatives, light ground (the menu brand panel
   // and Trust's identity anchor both sit on a paper/theme-surface ground —
@@ -675,7 +974,7 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
     lockupXlOnes.forEach((l, i) => {
       composites.push({ input: l.png, left: lockupXlLayout.x[i], top: rowY });
       composites.push({
-        input: labelSvg(lockupXlCaptions[i], 400, "#4A4A46", 16),
+        input: labelSvg(lockupXlCaptions[i], 400, "#4A4D52", 16),
         left: lockupXlLayout.x[i],
         top: rowY + l.height + 4,
       });
@@ -704,10 +1003,18 @@ async function buildContactSheet(lockups: LockupResult[], badges: BadgeResult[])
 async function legibilityRenders(): Promise<{ key: string; path: string }[]> {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "identity-prep-legibility-"));
   const out: { key: string; path: string }[] = [];
+  for (const spec of HEADER_LOCKUPS) {
+    const [left, top, width, height] = spec.crop;
+    const cropped = await sharp(spec.src).extract({ left, top, width, height }).png().toBuffer();
+    const { png } = await renderAtHeight(cropped, HEADER_LOCKUP_CSS_HEIGHT, 1);
+    const p = path.join(outDir, `${spec.key}-${HEADER_LOCKUP_CSS_HEIGHT}px.png`);
+    fs.writeFileSync(p, png);
+    out.push({ key: spec.key, path: p });
+  }
   for (const spec of LOCKUPS) {
     const trimmed = await trimToBoundingBox(spec.src, spec.trimBackground, spec.trimThreshold);
     const { png } = await renderAtHeight(trimmed.buffer, LOCKUP_RENDER_HEIGHT, 1);
-    const p = path.join(outDir, `${spec.key}-44px.png`);
+    const p = path.join(outDir, `${spec.key}-${LOCKUP_RENDER_HEIGHT}px.png`);
     fs.writeFileSync(p, png);
     out.push({ key: spec.key, path: p });
   }
@@ -719,23 +1026,44 @@ async function legibilityRenders(): Promise<{ key: string; path: string }[]> {
    =========================================================================== */
 
 async function main(): Promise<void> {
-  console.log("PART 1 — header lockups (D1)");
+  console.log("PART 0 — header linear lockups (R14 / A2)");
+  const headers = await prepHeaderLockups();
+
+  console.log("\nPART 1 — stacked lockups (D1: footer brand cluster + Trust anchor)");
   const lockups = await prepLockups();
 
   console.log("\nPART 2 — CoStar award badges (D3)");
   const badges = await prepBadges();
 
-  console.log("\nlegibility-check renders (1x / 44px, for manual read — not shipped UI assets)");
+  console.log("\nlegibility-check renders (1x, for manual read — not shipped UI assets)");
   const legibility = await legibilityRenders();
-  for (const l of legibility) console.log(`  ${path.relative(siteRoot, l.path)}`);
+  for (const l of legibility) console.log(`  ${l.path}`);
 
   console.log("\nPART 3 — contact sheet");
-  await buildContactSheet(lockups, badges);
+  await buildContactSheet(headers, lockups, badges);
 
   console.log("\n── summary ──────────────────────────────────────────────────────────────");
-  for (const l of lockups) {
+  for (const h of headers) {
+    const exact =
+      h.retina.width === h.base.width * RETINA_MULTIPLE && h.retina.height === h.base.height * RETINA_MULTIPLE;
     console.log(
-      `  lockup-${l.key}: trimmed ${l.trimmedWidth}x${l.trimmedHeight}  aspect ${l.aspect.toFixed(4)}  → at 44px CSS height, width ≈ ${Math.round(44 * l.aspect)}px`,
+      `  lockup-${h.key}: source ${h.sourceWidth}x${h.sourceHeight} -> crop ${h.croppedWidth}x${h.croppedHeight} (aspect ${h.aspect.toFixed(4)}) -> base ${h.base.width}x${h.base.height} @${LOCKUP_SOURCE_DENSITY}x of ${HEADER_LOCKUP_CSS_HEIGHT}px CSS, @2x ${h.retina.width}x${h.retina.height} [${exact ? "exactly 2x base" : "** NOT 2x **"}]  png=${fmtKB(h.base.pngBytes)}/${fmtKB(h.retina.pngBytes)} avif=${fmtKB(h.base.avifBytes)}/${fmtKB(h.retina.avifBytes)}`,
+    );
+  }
+  if (LINEAR_CHARCOAL_DEFECT) {
+    console.log(
+      "  ** lockup-linear-header (the R14 primary) is cut from a master whose COMMERCIAL is #1A1C1F on #1A1C1F and therefore does not render. See LINEAR_CHARCOAL_DEFECT. **",
+    );
+  }
+  for (const l of lockups) {
+    const base = l.renders[0];
+    const retina = l.renders[1];
+    const exact = retina.width === base.width * RETINA_MULTIPLE && retina.height === base.height * RETINA_MULTIPLE;
+    console.log(
+      `  lockup-${l.key}: trimmed ${l.trimmedWidth}x${l.trimmedHeight}  aspect ${l.aspect.toFixed(4)}  → at ${LOCKUP_RENDER_HEIGHT}px CSS height, width ≈ ${Math.round(LOCKUP_RENDER_HEIGHT * l.aspect)}px`,
+    );
+    console.log(
+      `  lockup-${l.key}: base ${base.width}x${base.height} (@${LOCKUP_SOURCE_DENSITY}x), @2x ${retina.width}x${retina.height} [${exact ? "exactly 2x base" : "** NOT 2x **"}]`,
     );
     console.log(
       `  lockup-${l.key}-xl: ${l.xl.width}x${l.xl.height} (D26, ~${LOCKUP_XL_CSS_HEIGHT}px CSS height x${LOCKUP_XL_DENSITY})  png=${fmtKB(l.xl.pngBytes)} avif=${fmtKB(l.xl.avifBytes)}`,

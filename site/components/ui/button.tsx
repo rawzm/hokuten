@@ -2,16 +2,52 @@
  * Button — the site's single CTA primitive (pill / ghost / mono link).
  * Governed by hokuten-design-director reference 03 "Components" + 05 "Hovers".
  *
+ * ── D-VOCAB / R2 (Razim, 2026-08-17) — the primary CTA is OUTLINED ─────────
+ * Brand Design Guide v1.3 (line 29): "hairline rules and outlined boxes —
+ * never filled buttons, never rounded card grids, never drop shadows."
+ * `docs/LAUNCH-IMPLEMENTATION.md` §1.2 resolves the collision with the
+ * approved filled-gold pill as R2, adopted with one carve-out: the primary
+ * CTA becomes a hairline-OUTLINED gold box — 1px accent border, TRANSPARENT
+ * ground, accent label — and a gold GROUND appears only on `:hover`/`:active`.
+ * That is the guide's own outlined-box language, and the hover fill is the
+ * carve-out the decision names, not a relapse into a filled button.
+ * Two consequences worth stating out loud:
+ *   • The pill is gone. R2 also minimises radii toward 0, so `primary` and
+ *     `ghost` are square boxes on the `--radius-card` TOKEN — which the token
+ *     layer resolved to `0` in the same pass. This file names the token
+ *     (`rounded-card`), never a px value, so whatever the token layer sets
+ *     flows straight through. `--radius-pill` survives for CIRCULAR
+ *     primitives only (icon buttons, the LIVE dot, the loader rail); it is
+ *     explicitly NOT a licence to bring a pill CTA back.
+ *   • `primary` no longer needs a light-vs-dark compound at all. The resting
+ *     colours are `--accent-text` (surface-scoped: `--accent-ink` on light,
+ *     `--accent-on-dark` on dark), which CSS inheritance resolves against the
+ *     NEAREST `.surface-*` scope — unlike the old `[.surface-dark_&]`
+ *     descendant selectors, which matched ANY ancestor and are exactly what
+ *     the `tone` escape hatch existed to work around. `tone` is kept for
+ *     source compatibility and for the genuinely-pinned case, but `auto` is
+ *     now correct in every nesting, including a light island inside a dark
+ *     chapter.
+ * Contrast (docs/design/CONTRAST.md): the border and label are `--accent-text`
+ * — 5.27:1 on paper / 4.83 ivory / 5.55 card / 5.47 on --dark — NOT the raw
+ * `--accent`, which is 2.96:1 on paper and would put a sub-3:1 boundary on a
+ * light ground (WCAG 1.4.11). See this component's report for the deviation
+ * note. The hover pair is the already-documented `--accent` + `--on-accent`
+ * (5.47:1); no new colour pair is invented here, so nothing needs recomputing.
+ *
  * Design rules encoded here:
  * - One primary per viewport (ref 03). The COMPONENT cannot enforce that —
  *   the section that composes it must. If a viewport needs two actions, the
  *   second is `ghost`, the third is `link`.
- * - Hover shifts background/border only, at DUR.fast. Never a size change,
- *   never a transform (ref 05).
+ * - Hover shifts background/border/colour only, at DUR.fast. Never a size
+ *   change, never a transform (ref 05).
  * - Every size clears the 44px tap-target gate (ref 07 P0). `md` (44px) and
  *   `lg` (52px) clear it on box height alone; `sm` (36px visual) and `link`
  *   (tight mono type) reach it with a transparent `::before` hit expander,
- *   which is part of the button for hit-testing but paints nothing.
+ *   which is part of the button for hit-testing but paints nothing. The
+ *   outlined primary does not change any of this: Tailwind's preflight sets
+ *   `box-sizing: border-box`, so the new 1px border is drawn INSIDE the
+ *   min-height, and 44/52px stay 44/52px.
  * - Focus ring comes from the base layer in globals.css (2px var(--focus)).
  *   Never add `outline-none` here.
  * - Motion is CSS `transition-colors` only, so the global reduced-motion block
@@ -49,16 +85,16 @@ const buttonVariants = cva(
   {
     variants: {
       /**
-       * `primary` colours are resolved by the compound variants below so the
-       * caller never picks light-vs-dark. `ghost` and `link` need no compound:
-       * they consume surface-relative tokens (--fg, --hairline, --accent-text)
-       * which CSS inheritance already resolves against the NEAREST .surface-*
-       * scope.
+       * All three variants are now outlined boxes on surface-relative tokens
+       * (--fg, --hairline, --accent-text), which CSS inheritance resolves
+       * against the NEAREST .surface-* scope. `primary`'s compound below only
+       * exists to serve the `tone` escape hatch; `auto` is correct everywhere.
        */
       variant: {
-        primary: "rounded-pill",
+        // R2: outlined gold box. Ground stays transparent until hover/active.
+        primary: "rounded-card border bg-transparent",
         ghost:
-          "rounded-pill border border-hairline bg-transparent text-fg hover:border-accent-text",
+          "rounded-card border border-hairline bg-transparent text-fg hover:border-accent-text",
         link: [
           "rounded-none text-accent-text",
           // Underline draws in from the left on hover/focus: scaleX only, so
@@ -81,10 +117,14 @@ const buttonVariants = cva(
       },
       /**
        * ESCAPE HATCH ONLY. Leave this alone (`auto`) in normal use.
-       * Set it when a light island (.surface-card) is nested inside a dark
-       * chapter, or vice versa — the `[.surface-dark_&]` descendant selector
-       * matches any ancestor, not the nearest one, so `auto` guesses wrong in
-       * that one case.
+       * R2 removed the `[.surface-dark_&]` descendant selectors that used to
+       * make `auto` guess wrong inside a light island nested in a dark
+       * chapter: the outlined primary reads `--accent-text`, which inherits
+       * from the NEAREST `.surface-*` scope, so `auto` is now correct in
+       * every nesting. `light`/`dark` survive for the one remaining case —
+       * pinning a CTA's accent to a ground it does not actually sit on
+       * (e.g. a control rendered into a portal or a fixed overlay whose
+       * painted ground is not its DOM ancestor).
        */
       tone: {
         auto: "",
@@ -93,39 +133,46 @@ const buttonVariants = cva(
       },
     },
     compoundVariants: [
-      /* ---- primary, auto: ink pill on light, accent pill on dark --------- */
+      /* ---- primary, auto: outlined gold, gold ground on hover/active -----
+         The resting border and label are BOTH --accent-text, so the outline
+         and the word it frames are one colour — the guide's "outlined box".
+         --accent-text is surface-scoped, so this single class list is correct
+         on paper, ivory, card, --dark and --black without any descendant
+         selector. Hover/active fill with the documented --accent/--on-accent
+         pair (5.47:1); `active` repeats hover rather than inventing a third
+         colour pair that would need its own contrast row.                  */
       {
         variant: "primary",
         tone: "auto",
         class: [
-          "bg-ink text-paper hover:bg-ink-muted",
-          "[.surface-dark_&]:bg-accent [.surface-dark_&]:text-on-accent",
-          "[.surface-dark_&]:hover:bg-[color-mix(in_srgb,var(--accent)_88%,var(--fg))]",
-          "[.surface-black_&]:bg-accent [.surface-black_&]:text-on-accent",
-          "[.surface-black_&]:hover:bg-[color-mix(in_srgb,var(--accent)_88%,var(--fg))]",
+          "border-accent-text text-accent-text",
+          "hover:border-accent hover:bg-accent hover:text-on-accent",
+          "active:border-accent active:bg-accent active:text-on-accent",
         ],
       },
-      /* ---- primary, pinned light ---------------------------------------- */
+      /* ---- primary, pinned light -----------------------------------------
+         ESCAPE HATCH. Pins the light-ground accent (--accent-ink, 5.27:1 on
+         paper) regardless of the nearest surface scope.                    */
       {
         variant: "primary",
         tone: "light",
         class: [
-          "bg-ink text-paper hover:bg-ink-muted",
-          "[.surface-dark_&]:bg-ink [.surface-dark_&]:text-paper [.surface-dark_&]:hover:bg-ink-muted",
-          "[.surface-black_&]:bg-ink [.surface-black_&]:text-paper [.surface-black_&]:hover:bg-ink-muted",
+          "border-accent-ink text-accent-ink",
+          "hover:border-accent hover:bg-accent hover:text-on-accent",
+          "active:border-accent active:bg-accent active:text-on-accent",
         ],
       },
       /* ---- primary, pinned dark ------------------------------------------
-         Hover mixes the accent 12% toward the surface foreground rather than
-         hopping to --accent-dim: --accent-dim is a TEXT colour in Theme B and
-         drops the on-accent pair to 2.75:1 as a fill. The mix holds 6.89:1
-         (Theme G) / 5.33:1 (Theme B). Recomputed values belong in
-         docs/design/CONTRAST.md if this ever changes.                       */
+         ESCAPE HATCH. Pins the dark-ground accent (--accent-on-dark = the
+         guide gold itself, 5.47:1 on --dark / 6.73:1 on --black).          */
       {
         variant: "primary",
         tone: "dark",
-        class:
-          "bg-accent text-on-accent hover:bg-[color-mix(in_srgb,var(--accent)_88%,var(--fg))]",
+        class: [
+          "border-accent-on-dark text-accent-on-dark",
+          "hover:border-accent hover:bg-accent hover:text-on-accent",
+          "active:border-accent active:bg-accent active:text-on-accent",
+        ],
       },
       /* ---- link: tertiary mono micro, geometry independent of `size` ----- */
       {

@@ -8,7 +8,9 @@
  * forward hokuten-design-director ref 04 (`#closings`), ref 05 (Reveals →
  * stagger cap of 6), ref 06 (Voice, evidence gate). `#closings` is the
  * canonical section [ 01 ] in the numbered micro-label sequence `01
- * #closings … 09 #bov` — that index is load-bearing, not cosmetic; keep it.
+ * #closings … 09 #mandates` (re-sequenced 2026-08-17,
+ * docs/LAUNCH-IMPLEMENTATION.md §3.2) — that index is load-bearing, not
+ * cosmetic; keep it.
  *
  * Server Component — ships no client JS of its own; `Reveal` and
  * `ClosingCard`'s nested `PhotoFrame` are the only client boundaries in the
@@ -97,6 +99,23 @@
  * gone, this was already how the page scrolled — no separate `PagedMode`
  * `data-tall` measurement is involved; that mechanism is deleted.)
  *
+ * ── LAUNCH 2026-08-17 (docs/LAUNCH-IMPLEMENTATION.md §3.4, Appendix B4) ─────
+ * Two verbatim strings are added and NOTHING in the six records changes — no
+ * card is pulled (Renaissance Reno stays, D4), no figure is "corrected" (the
+ * register that would authorise a correction was never delivered, D17/X10).
+ *   • A deal-team credit renders beneath two of the six tickets, from
+ *     `content/closings.ts`'s `dealTeamCredits`. Beneath, not inside: the
+ *     card's own meta slot is `line-clamp-2`, and `ClosingCard`/`Ticket` are
+ *     not this agent's files to add a slot to (flagged in the build report).
+ *     Each `<li>` becomes a `flex flex-col` so the card still stretches to
+ *     the row height (`flex-1` replaces the old `h-full`, which would have
+ *     made the card full-height and pushed the caption out of the cell).
+ *   • The provenance fine print closes the section.
+ * Fit note: both additions cost height in a section whose own budget note
+ * below already runs slightly over §5.3's 784px at 1440x900. The degrade path
+ * is unchanged and correct (`page-panel` is `min-height`, never `height`), and
+ * neither string is a lever — both are mandated verbatim.
+ *
  * ── D8/D20 typography (unchanged reasoning) ─────────────────────────────────
  * No headline-size change — `SectionHeader`'s default `display2` step plus
  * its existing one-word italic accent ("*six*") already carries this
@@ -105,7 +124,7 @@
  * money price → compact mono facts.
  */
 
-import { closings } from "@/content/closings";
+import { closings, closingsProvenance, dealTeamCredits } from "@/content/closings";
 import ClosingCard from "@/components/cards/ClosingCard";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
 import { Reveal, RevealItem } from "@/components/motion/Reveal";
@@ -134,11 +153,40 @@ export function ClosingsSection() {
           stagger
           className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:mt-4 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-4 print:grid-cols-1 print:gap-6"
         >
-          {closings.map((closing) => (
-            <RevealItem key={closing.name} as="li" className="print:break-inside-avoid">
-              <ClosingCard closing={closing} className="h-full" />
-            </RevealItem>
-          ))}
+          {closings.map((closing) => {
+            const dealTeam = dealTeamCredits[closing.name];
+
+            return (
+              <RevealItem
+                key={closing.name}
+                as="li"
+                className="flex flex-col print:break-inside-avoid"
+              >
+                <ClosingCard closing={closing} className="flex-1" />
+                {/* Deal-team credit (Appendix B4), on the two cards PROFILE
+                    §6 attributes to William Betancourt. It sits BENEATH the
+                    ticket rather than inside it because `Ticket`'s meta slot
+                    is `line-clamp-2` — see content/closings.ts's own note on
+                    `dealTeamCredits` for why a truncated attribution was not
+                    an acceptable alternative. Rendered as ONE plain string on
+                    the `data-line` mono voice rather than through `DataLine`'s
+                    `parts` variant: that variant re-emits the separator as
+                    `&nbsp;·`, which would put a non-breaking space inside a
+                    string the plan requires verbatim. */}
+                {dealTeam ? <p className="data-line mt-2 text-fg-muted">{dealTeam}</p> : null}
+              </RevealItem>
+            );
+          })}
+        </Reveal>
+
+        {/* Provenance fine print (Appendix B4) — verbatim, at the bottom of
+            the section, qualifying all six cards at once: these are Dino
+            Monteverde's transactions, some completed at prior affiliations,
+            not closings of The Hokuten Group. */}
+        <Reveal>
+          <p className="mt-6 max-w-[92ch] font-sans text-data text-fg-muted lg:mt-5">
+            {closingsProvenance}
+          </p>
         </Reveal>
       </div>
     </section>

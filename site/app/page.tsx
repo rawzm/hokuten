@@ -6,8 +6,17 @@
  *
  *   1 hero (owns the brand rail)   2 trust metrics   3 01-track record
  *   4 02-hotels for sale           5 03-valuation    6 04-method
- *   7 05-doors                     8 06-mandates     9 07-team
- *  10 08-faq                      11 09-bov         12 footer
+ *   7 05-faq                       8 06-bov          9 07-team
+ *  10 08-doors                    11 09-mandates    12 footer
+ *
+ * Re-sequenced 2026-08-17 (docs/LAUNCH-IMPLEMENTATION.md §3.2, R5) to Dino's
+ * named order: `#faq` and `#bov` move up to sit directly after `#method`, and
+ * `#team` / `#doors` / `#mandates` follow the ask. The numbered chapter run was
+ * renumbered with it (01 #closings · 02 #listings · 03 #calculator · 04 #method
+ * · 05 #faq · 06 #bov · 07 #team · 08 #doors · 09 #mandates) — `content/nav.ts`
+ * carries the same run, and each section's own `MicroLabel index` is the other
+ * half of it. Renumbering one without the other is the double-numbering bug the
+ * 2026-08-08 audit fixed.
  *
  * `#brands` is NOT a separate screen — D2 moved the franchise rail inside the
  * hero panel, so `Hero` renders `<BrandsMarquee />` itself. Rendering the
@@ -72,11 +81,11 @@ export default function Home() {
         <ListingsSection />
         <CalculatorSection />
         <MethodSection />
-        <DoorsSection />
-        <MandatesSection />
-        <TeamSection />
         <FaqSection />
         <BovSection />
+        <TeamSection />
+        <DoorsSection />
+        <MandatesSection />
       </main>
 
       <SiteFooter />

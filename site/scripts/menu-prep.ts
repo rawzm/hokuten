@@ -348,13 +348,13 @@ async function buildContactSheet(
     const b64 = p.it.buf.toString("base64");
     images += `<image x="${p.x}" y="${p.y}" width="${p.it.w}" height="${p.it.h}" href="data:image/png;base64,${b64}" preserveAspectRatio="none"/>`;
     const ly = p.y + p.it.h + 20;
-    labels += `<text x="${p.x}" y="${ly}" font-family="monospace" font-size="13" font-weight="bold" fill="#1a1a1a">${escapeXml(p.it.label)}</text>`;
-    labels += `<text x="${p.x}" y="${ly + 17}" font-family="monospace" font-size="11" fill="#5a5a5a">${p.it.source} · crop=${escapeXml(describeCrop(p.it.cropMode))}</text>`;
+    labels += `<text x="${p.x}" y="${ly}" font-family="monospace" font-size="13" font-weight="bold" fill="#1A1C1F">${escapeXml(p.it.label)}</text>`;
+    labels += `<text x="${p.x}" y="${ly + 17}" font-family="monospace" font-size="11" fill="#6E6862">${p.it.source} · crop=${escapeXml(describeCrop(p.it.cropMode))}</text>`;
   }
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${sheetW}" height="${sheetH}">
-    <rect width="100%" height="100%" fill="#f4f1ea"/>
-    <text x="${PAD}" y="36" font-family="monospace" font-size="20" font-weight="bold" fill="#1a1a1a">HOKUTEN menu art panel — contact sheet</text>
+    <rect width="100%" height="100%" fill="#FBF9F3"/>
+    <text x="${PAD}" y="36" font-family="monospace" font-size="20" font-weight="bold" fill="#1A1C1F">HOKUTEN menu art panel — contact sheet</text>
     ${images}
     ${labels}
   </svg>`;

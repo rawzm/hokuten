@@ -57,9 +57,11 @@
  * on the landing page — `RecognitionStrip.tsx` is deleted (this agent's
  * file); `ClosingsSection.tsx`'s import of it must be removed by that file's
  * owner (out of this agent's assigned-files scope; reported in the return
- * value). `components/awards/QuarterlyBanners.tsx` (this agent's file) now
- * exports both `AnnualBadges` and `QuarterlyBanners` — see that file's own
- * header for the full sizing/asset rationale; this file just composes them.
+ * value). `components/awards/QuarterlyBanners.tsx` carries all five rasters —
+ * see that file's own header for the sizing/asset rationale; this file just
+ * composes them. (Its two exports were `AnnualBadges` + `QuarterlyBanners`
+ * when this note was written; the 2026-08-17 launch pass below re-cut them
+ * into `IndividualAwardBadges` + `PriorFirmAwardBadge`.)
  *
  * Chassis swap: `container-hk` (max-width 1200px) → `stage-shell` (D9: full-
  * width, fluid gutter, no cap) — the brief's own diagnosis of the prior
@@ -97,7 +99,9 @@
  * a real-text `BRAND_LINE` span, so "real-text brand string stays in the
  * DOM" (D12) is satisfied without anything extra here.
  *
- * Middle row: the four verified numerical facts, UNCHANGED in content and in
+ * Middle row: the verified numerical facts (FOUR when this note was written,
+ * THREE since the 2026-08-17 launch pass below removed the award numeral),
+ * UNCHANGED in content and in
  * their `font-medium` numeral weight — the historical reasoning below (why
  * weight, not size, originally carried the whole distinction from the
  * headline) still holds; the `stage-shell` swap gives each column more room,
@@ -106,10 +110,12 @@
  * for the numeral now stepping up partway toward `text-display1` once the
  * column has room to afford it.
  *
- * Evidence field: `AnnualBadges` (large, centered) directly above
- * `QuarterlyBanners` (smaller, immediately below) — two rows, each fronted by
- * its own `MicroLabel`, exactly the "two rows and micro-labels, never boxes"
- * device D12 asks for. A `hairline-t` marks the field off from the stat rail
+ * Evidence field: two rows, never boxes — exactly the "two rows and
+ * micro-labels" device D12 asks for. (The rows were the Annual PAIR above the
+ * Quarterly TRIO when this note was written; the 2026-08-17 launch pass below
+ * re-cut them by ATTRIBUTION instead, four individual wins above the
+ * prior-firm graphic, which is the same two-row device carrying a correct
+ * split.) A `hairline-t` marks the field off from the stat rail
  * above it, and the Annual/Quarterly groups sit inside their own vertical
  * rhythm below that rule — enough separation from the identity lockup two
  * rows up that the layout cannot read as CoStar affiliation/endorsement of
@@ -223,16 +229,68 @@
  * §2 step 4) is the authority on whether this actually lands inside one
  * screen at 1440×900 in both themes — this comment records the reasoning,
  * not a verified result.**
+ *
+ * ── LAUNCH 2026-08-17 (docs/LAUNCH-IMPLEMENTATION.md §3.3, R6/D16/D17) ──────
+ *
+ * **1. The `3x` CoStar tile is removed.** `V2` §3 forbids compressing the five
+ * source records into a personal award count, so the numeral is gone from
+ * `content/stats.ts` and the grid steps `lg:grid-cols-4` -> `lg:grid-cols-3`.
+ *
+ * **2. The regression that removal would have caused, and how it is closed.**
+ * This file used to do `stats.find(s => s.label === "CoStar Power Broker")`
+ * and render the whole lower evidence group as `costarStat ? (…) : null`.
+ * Deleting the row makes that lookup `undefined`, which would have SILENTLY
+ * removed the quarterly badges AND the costarpowerbrokers.com verification
+ * link — both of which §6.2 then requires to be present. The lookup and the
+ * conditional are both gone: the evidence field renders unconditionally, and
+ * the micro-label string the removed row used to supply now comes from
+ * `content/stats.ts`'s `costarEvidenceLabel` export. There is no longer any
+ * code path on which a `content/stats.ts` edit can delete evidence.
+ *
+ * **3. The locked hedge** (`statsHedge`, plan Appendix B2) renders verbatim
+ * directly beneath the stat rail, inside the same flex column, so it can
+ * never drift away from the two figures it qualifies.
+ *
+ * **4. The 4 + 1 award split.** `IndividualAwardBadges` (2025 Annual Top
+ * Broker + the three dated Quarterly Deals wins) renders as the strip, with
+ * `costarRecognitionCaption` beneath it; `PriorFirmAwardBadge` (2025 Annual
+ * Top Firm) renders AFTER it in its own hairline-separated block at a smaller
+ * size, with the COMPLETE `costarPriorFirmCaption` qualifier. The verify link
+ * moves below both groups so it footnotes the field, not one group's claim.
+ * Both groups now open with a micro-label — `costarEvidenceLabel` above the
+ * strip, `PRIOR_FIRM_EVIDENCE_LABEL` above the prior-firm graphic (added
+ * 2026-08-17; see its own note below for the wording source). The second one
+ * is not decoration: it is the wayfinding word that tells a scanner what the
+ * fifth graphic is before they reach the sentence that qualifies it.
+ *
+ * **5. Fit — an honest, unmeasured flag.** The three-tile grid gives back no
+ * height (the row is as tall as its tallest cell either way), while this pass
+ * ADDS the hedge (~4 lines at `text-data`), two caption sentences (~2 lines
+ * each) and a second evidence block. Against the D27 budget above that is
+ * roughly +150px on a section already estimated at ~745px of an ~784px
+ * screen, so `#stats` is expected to run PAST one screen at 1440x900 until
+ * the headless pass measures it. That degrades correctly rather than
+ * clipping — `page-panel` sets `min-height`, never `height` (D10 §3.2) — and
+ * the levers, in the order they should be pulled, are: the two caption
+ * measures, the `QUALIFIER_MEASURE` cap, and the badge clamp CEILINGS in
+ * `QuarterlyBanners.tsx` (112px/88px). The hedge and both captions are
+ * mandated verbatim and are never a lever. Reported to the orchestrator.
  */
 
-import { AnnualBadges, QuarterlyBanners } from "@/components/awards/QuarterlyBanners";
+import { IndividualAwardBadges, PriorFirmAwardBadge } from "@/components/awards/QuarterlyBanners";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { CountUp } from "@/components/motion/CountUp";
 import { Reveal, RevealItem } from "@/components/motion/Reveal";
 import { DataLine } from "@/components/atoms/DataLine";
 import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { SectionHeader } from "@/components/atoms/SectionHeader";
-import { stats } from "@/content/stats";
+import {
+  costarEvidenceLabel,
+  costarPriorFirmCaption,
+  costarRecognitionCaption,
+  stats,
+  statsHedge,
+} from "@/content/stats";
 import { cn } from "@/lib/utils";
 
 /** D12/D18: rendered height of the Trust identity lockup, px — see the file
@@ -255,11 +313,13 @@ const VERIFY_LINK_TAP_TARGET = "inline-flex min-h-11 items-center";
 
 /**
  * Renders a stat's `detail` line. `site/content/stats.ts` pre-joins multi-part
- * details with `" · "` (e.g. the CoStar quarters) — `DataLine`'s `parts`
- * variant re-splits on that separator and holds each group `whitespace-nowrap`
- * so a narrow cell never breaks mid-quarter, while the `"12"` stat's detail (a
- * single sentence, no `" · "` in it) falls through to `joined`, which wraps
- * normally instead of forcing one unbroken nowrap run.
+ * details with `" · "` — `DataLine`'s `parts` variant re-splits on that
+ * separator and holds each group `whitespace-nowrap` so a narrow cell never
+ * breaks mid-value. Since the award row's removal (§3.3/R6) the only detail
+ * left is the `"12"` decomposition, a single sentence with no `" · "` in it,
+ * so it falls through to `joined` and wraps normally; the `parts` branch is
+ * kept because the split is a property of the DATA CONTRACT, not of which
+ * rows happen to exist today.
  */
 function StatDetail({ detail }: { detail: string }) {
   const parts = detail.split(" · ");
@@ -273,14 +333,36 @@ function StatDetail({ detail }: { detail: string }) {
   );
 }
 
-/** The one stat whose registered win gets a visual evidence row beneath it.
- *  Matched by label rather than array position, so a future reorder of
- *  `content/stats.ts` can't silently misfire this. */
-const COSTAR_STAT_LABEL = "CoStar Power Broker";
+/** Prose measure for the two qualifying sentences and the locked hedge. They
+ *  are running text, not data — capped so they never set at the full
+ *  `stage-shell` width, where a 400-character sentence would run as one
+ *  unreadable line. */
+const QUALIFIER_MEASURE = "max-w-[92ch]";
+
+/**
+ * Micro-label for the prior-firm block (2026-08-17). Group 1 has carried
+ * `costarEvidenceLabel` since the `3x` row was removed; Group 2 shipped with a
+ * badge and a caption but NO wayfinding word, so the one graphic on the page
+ * that must never read as an individual award was also the only one with no
+ * label saying what it is.
+ *
+ * The words are drawn from the approved dated award sentence itself
+ * (`costarPriorFirmCaption` / plan Appendix B3 / `V2` line 23: "...is
+ * attributed separately to the prior firm/team — never counted as an
+ * individual award"), and from plan §3.3's own name for this block ("its own
+ * prior-firm/team recognition block"). Nothing is added to the claim: the
+ * label names the attribution, the caption underneath carries it in full and
+ * is the string that may never be shortened.
+ *
+ * `KIT` line 30's "Hokuten TEAM recognition" is NOT the source and may not be
+ * (Hokuten did not exist in 2025 — X21). If this label ever has to change, it
+ * changes to other words from that same sentence — never to new ones — and it
+ * belongs in `content/stats.ts` beside `costarEvidenceLabel` the next time
+ * that file is opened (it is outside this change's ownership fence today).
+ */
+const PRIOR_FIRM_EVIDENCE_LABEL = "Prior firm / team recognition";
 
 export function StatsSection() {
-  const costarStat = stats.find((stat) => stat.label === COSTAR_STAT_LABEL);
-
   return (
     <section
       id="stats"
@@ -303,62 +385,98 @@ export function StatsSection() {
           <Wordmark variant="brand" height={TRUST_LOCKUP_HEIGHT} className="shrink-0" />
         </Reveal>
 
-        {/* Middle row — the four verified facts, full-stage and evenly weighted.
+        {/* Middle row — the three verified facts (the award numeral is gone,
+            §3.3/R6 — see the LAUNCH note in this file's header), full-stage
+            and evenly weighted, with the locked hedge directly beneath them.
             D27: numeral steps up at `lg`+ via a composed intermediate clamp
             layered over text-display2 (see file header "D27" note for the
             full column-width math and why this stops short of the full
             text-display1 jump). `break-words` is the safety net if the
             hand-computed calibration runs long on a real render. */}
-        <Reveal
-          as="ul"
-          stagger
-          role="list"
-          className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-4 lg:gap-x-10"
-        >
-          {stats.map((stat) => (
-            <RevealItem as="li" key={stat.label} className="hairline-t pt-6">
-              <span className="block break-words font-display font-medium text-display2 tabular lg:text-[length:clamp(2.75rem,1.1rem+4vw,4.75rem)]">
-                <CountUp value={stat.value} />
-              </span>
-              <span className="micro-label mt-3 block">{stat.label}</span>
-              {stat.detail ? <StatDetail detail={stat.detail} /> : null}
-            </RevealItem>
-          ))}
-        </Reveal>
+        <div className="flex flex-col gap-8 lg:gap-6">
+          <Reveal
+            as="ul"
+            stagger
+            role="list"
+            className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-3 lg:gap-x-10"
+          >
+            {stats.map((stat) => (
+              <RevealItem as="li" key={stat.label} className="hairline-t pt-6">
+                <span className="block break-words font-display font-medium text-display2 tabular lg:text-[length:clamp(2.75rem,1.1rem+4vw,4.75rem)]">
+                  <CountUp value={stat.value} />
+                </span>
+                <span className="micro-label mt-3 block">{stat.label}</span>
+                {stat.detail ? <StatDetail detail={stat.detail} /> : null}
+              </RevealItem>
+            ))}
+          </Reveal>
 
-        {/* Evidence field — all five CoStar assets, two rows, micro-labels
-            only, no badge frames (D12); plus D27's plain-text CoStar
-            verification link, appended as the Quarterly group's own last
-            child (reuses that group's gap-3 — no new row/gap introduced).
-            See QuarterlyBanners.tsx's own D27 note for why the badge clamps
-            now sit at their ceiling by 1440×900 rather than near their
-            floor, and this file's header for the full row-budget math. */}
+          {/* The locked hedge (plan Appendix B2), verbatim, immediately
+              beneath the stat rail it qualifies — it is what keeps "$200M+"
+              and "12" from reading as personally-closed Hokuten production.
+              Never summarised, never moved away from the figures. */}
+          <Reveal>
+            <p className={cn(QUALIFIER_MEASURE, "font-sans text-data text-fg-muted")}>
+              {statsHedge}
+            </p>
+          </Reveal>
+        </div>
+
+        {/* Evidence field — all five CoStar assets, in the two ATTRIBUTION
+            groups §3.3 requires (four individual wins, then the prior-firm
+            graphic alone), no badge frames (D12), then D27's plain-text
+            verification link beneath both. Nothing here is conditional: the
+            group that used to hang off the now-deleted `3x` stat row renders
+            unconditionally, which is the whole point of the R6 rework. See
+            QuarterlyBanners.tsx for the medallion sizing. */}
         <Reveal className="hairline-t flex flex-col items-center gap-6 pt-6 lg:gap-8 lg:pt-8">
+          {/* Group 1 — the FOUR individual wins, with the approved dated
+              sentence as their caption. */}
           <div className="flex flex-col items-center gap-4">
-            <MicroLabel as="p">2025 Annual Awards</MicroLabel>
-            <AnnualBadges />
+            <MicroLabel as="p">{costarEvidenceLabel}</MicroLabel>
+            <IndividualAwardBadges />
+            <p
+              className={cn(QUALIFIER_MEASURE, "text-center font-sans text-data text-fg-muted")}
+            >
+              {costarRecognitionCaption}
+            </p>
           </div>
 
-          {costarStat ? (
-            <div className="flex flex-col items-center gap-3">
-              <MicroLabel as="p">{costarStat.label}</MicroLabel>
-              <QuarterlyBanners />
-              <a
-                href="https://www.costarpowerbrokers.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  VERIFY_LINK_TAP_TARGET,
-                  "gap-2 font-mono text-micro uppercase tracking-micro text-fg-muted",
-                  "transition-colors duration-fast ease-out hover:text-accent-text",
-                )}
-              >
-                Verify at costarpowerbrokers.com
-                <span aria-hidden="true">→</span>
-                <span className="visually-hidden"> (opens in a new tab)</span>
-              </a>
-            </div>
-          ) : null}
+          {/* Group 2 — the 2025 Annual Top Firm graphic, AFTER the strip, in
+              its own block, at its own smaller size, carrying the complete
+              attribution qualifier. Never merged into the strip above and
+              never counted as a fifth individual award (§3.3). Its own
+              `hairline-t` is the divider that does that work without a box
+              (D12: "two rows and micro-labels, never boxes"). */}
+          <div className="hairline-t flex w-full flex-col items-center gap-4 pt-6 lg:pt-8">
+            <MicroLabel as="p">{PRIOR_FIRM_EVIDENCE_LABEL}</MicroLabel>
+            <PriorFirmAwardBadge />
+            <p
+              className={cn(QUALIFIER_MEASURE, "text-center font-sans text-data text-fg-muted")}
+            >
+              {costarPriorFirmCaption}
+            </p>
+          </div>
+
+          {/* D27's verification link — beneath BOTH evidence groups, so it
+              reads as a footnote to the whole field rather than to either
+              group's claim. Unconditional: it used to hang off the removed
+              `3x` stat row's lookup, which would have deleted it silently
+              along with the badge strip (§3.3's named regression). */}
+          <a
+            href="https://www.costarpowerbrokers.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              VERIFY_LINK_TAP_TARGET,
+              "gap-2 font-mono text-micro uppercase tracking-micro text-fg-muted",
+              "transition-colors duration-fast ease-out hover:text-accent-text",
+            )}
+          >
+            Verify at costarpowerbrokers.com
+            <span aria-hidden="true">→</span>
+            <span className="visually-hidden"> (opens in a new tab)</span>
+          </a>
         </Reveal>
       </div>
     </section>

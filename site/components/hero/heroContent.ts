@@ -9,14 +9,35 @@
  * CTAs"). Content only — see `Hero.tsx`'s header for the IA/motion/a11y
  * reasoning.
  *
+ * ── LAUNCH 2026-08-17 — the copy this file now carries ─────────────────────
+ * docs/LAUNCH-IMPLEMENTATION.md §3.1 replaces the previously AUTHORED h1 and
+ * sub with Dino's approved positioning copy (decision R4/D1; strings pasted
+ * from that document's Appendix B1 copy bank, never retyped):
+ *   • h1  — `V2` §3 "Approved website positioning → Hero", line 47. The
+ *     precedence rule (L13) picks `V2` over `FINAL`, so NOTHING from `FINAL`
+ *     ships here: not "The signal underneath every hotel transaction", and not
+ *     the Asia-to-Americas coverage phrase §3.14 bans outright — the Japan
+ *     programme is pilot-only and has no approved public description, so that
+ *     phrase would fail the evidence gate. Its literal wording is deliberately
+ *     not written out here: §3.14's never-ship strings are QA-grep targets over
+ *     the whole of site/ and the sweep makes no exemption for comments.
+ *   • sub — `V2` §3 line 48, complete. It is ~40 words and renders at
+ *     `--text-body-lg` inside a prose measure, never at display size; §3.1's
+ *     build note makes the sub THE ROW THAT FLEXES if the hero ever measures
+ *     past one usable screen (D25) — the headline size is not the lever.
+ *   • ctaSupport — `content/methodology.ts`'s `bovPromise`, IMPORTED (§3.1
+ *     lists it as the hero's CTA support line; B5 carries the same frozen
+ *     string). The 48-hour promise may never appear without its condition, so
+ *     it is never retyped anywhere — this is the fifth import site.
+ *
  * ── Evidence gate ────────────────────────────────────────────────────────
- * Every string below is either literal wayfinding (no claim), the BOV promise
- * rendered WITH its condition (T-12/STR/PIP — the condition is part of the
- * claim, ref 06 "BOV promise" row, `verified-current`), or reuses an
- * already-verified sitewide constant (`navCta`, `anchor()`). No stat digit
- * ($200M+ / 12 / 836K+ / 3×) is restated here — `#stats` is the next content
- * section in `app/page.tsx`'s render order and owns those numbers; repeating
- * them in the hero would be duplication, not proof.
+ * Every string below is either literal wayfinding (no claim), a service
+ * description with no figure in it, or an already-verified sitewide constant
+ * (`navCta`, `bovPromise`, `anchor()`). No stat digit ($200M+ / 12 / 836K+)
+ * is restated here — `#stats` is the next content section in `app/page.tsx`'s
+ * render order and owns those numbers; repeating them in the hero would be
+ * duplication, not proof. The award count is deliberately absent sitewide
+ * (§3.3: never compress the five CoStar records into a personal multiplier).
  *
  * ── Casing convention ────────────────────────────────────────────────────
  * `eyebrow` is authored in SENTENCE case, matching every other micro-label-
@@ -47,22 +68,23 @@
  * `heroContent.rail` or `.scrollCue` (verified by grep before deleting them).
  */
 
+import { bovPromise } from "@/content/methodology";
 import { navCta } from "@/content/nav";
 import { anchor } from "@/content/site";
 
-/** A pre-split headline, mirroring `SectionHeader`'s `AccentHeadline` shape
- * (`components/atoms/SectionHeader.tsx`) so both files render the identical
- * "before / one italic word / after" pattern. Kept as its own type rather than
- * imported from there — `SectionHeader` is `h1`-agnostic by design (`as` prop
- * defaults to `h2`) and the hero's `h1` is hand-built in `Hero.tsx`, not
- * routed through `SectionHeader`. */
+/** A pre-split headline. The launch round changes the SHAPE of the site's
+ * signature display move: `GUIDE` v1.3 line 14 sets the LAST PHRASE of a
+ * display line in Cormorant italic + gold ("the tail"), where the pre-launch
+ * site italicised one accent word mid-sentence. §2.2's `.display-tail`
+ * utility carries that treatment, and this type carries the split it needs —
+ * `before` + `tail`, with nothing after the tail by construction, so a
+ * headline can never be authored with the accent stranded mid-clause. */
 export type HeroHeadline = {
   before: string;
-  /** Exactly one italic accent word (ref 03 typography law; D8 clarifies this
-   * count is unchanged). This is the ONE headline on the site permitted to
-   * render at `text-display0` — see `Hero.tsx`. */
-  accent: string;
-  after: string;
+  /** The trailing phrase, rendered with `.display-tail` (Cormorant italic,
+   * `--accent-text`). Exactly one per headline — see `Hero.tsx`. This is the
+   * ONE headline on the site permitted to render at `text-display0`. */
+  tail: string;
 };
 
 export type HeroCta = {
@@ -76,16 +98,20 @@ export type HeroCta = {
 
 export type HeroContent = {
   /** Micro-label eyebrow words — NO brackets; `MicroLabel`/the raw
-   * `micro-label` utility composes them. */
+   * `micro-label` utility composes them. §3.1: "nationwide" is a market
+   * statement only — nothing on the site may read as blanket brokerage
+   * authority in every jurisdiction (the coverage sentence in §3.11 is the
+   * canonical statement and lives in the footer). */
   eyebrow: string;
-  /** The manifesto, `text-display0`, one italic word (DESIGN-REVISIT §4.2 row
-   * 3 left column). */
+  /** The positioning line, `text-display0`, italic gold tail (§3.1). */
   headline: HeroHeadline;
-  /** One-line sub, row 3 right column. Carries the BOV promise WITH its
-   * condition. */
+  /** The ~40-word positioning sub, `text-body-lg`, prose measure. */
   sub: string;
-  /** Primary CTA — accent pill, row 3 right column. Reused verbatim from
-   * `content/nav.ts`. */
+  /** Mono micro support line beside the CTAs — the BOV promise WITH its
+   * condition, imported from `content/methodology.ts` and never retyped. */
+  ctaSupport: string;
+  /** Primary CTA — outlined gold per D-VOCAB/R2, row 3 right column. Reused
+   * verbatim from `content/nav.ts`. */
   ctaPrimary: HeroCta;
   /** Ghost CTA — hairline pill, row 3 right column. */
   ctaGhost: HeroCta;
@@ -94,11 +120,12 @@ export type HeroContent = {
 export const heroContent: HeroContent = {
   eyebrow: "Hospitality investment sales — nationwide",
   headline: {
-    before: "Every listing gets a number we can ",
-    accent: "defend",
-    after: ", not one we guess.",
+    before: "Hotel brokerage and advisory, coast to coast — ",
+    tail: "with systems in place.",
   },
-  sub: "A written BOV in 48 hours, on receipt of your T-12, STR, and PIP.",
+  sub:
+    "Human-led hotel brokerage supported by source-controlled underwriting, licensed comparable-sale research, structured buyer qualification, documented owner reporting, AI-assisted research, document review, and controlled workflow automation.",
+  ctaSupport: bovPromise,
   ctaPrimary: navCta,
   ctaGhost: { label: "See the track record", href: anchor("closings") },
 } satisfies HeroContent;

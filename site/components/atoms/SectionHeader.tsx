@@ -7,10 +7,25 @@
  * one evocative word). Server Component.
  *
  * The italic accent device (PHASE-1-EXECUTION §3): exactly ONE italic word per
- * headline, Fraunces Italic at the SAME size and weight as its line — which is
- * why the accent word inherits every type property and only adds `italic`.
- * More than one marker is a P2 gate breach, so it warns in development and only
- * the first marker is honoured.
+ * headline, Cormorant Garamond Italic at the SAME size and weight as its line —
+ * which is why the accent word inherits every type property and only adds
+ * `italic`. More than one marker is a P2 gate breach, so it warns in development
+ * and only the first marker is honoured.
+ *
+ * ── D-VOCAB / R2 (2026-08-17) — the guide's section opener ────────────────
+ * Brand Design Guide v1.3 line 27 specifies the opener as a gold JetBrains Mono
+ * kicker over a thin gold rule, above the Cormorant headline. This component IS
+ * the site's kicker slot, so it turns `MicroLabel`'s `tone="accent"` + `rule` on
+ * for every section rather than leaving each section to remember. The rule
+ * inherits the header's own alignment so a centred closing line keeps its axis.
+ *
+ * `tail` opts the accent phrase into `.display-tail` (guide line 14: the last
+ * phrase of a display line set in Cormorant italic AND in gold). It is OFF by
+ * default and deliberately not inferred from "the accent happens to be last":
+ * the utility's own note is that a headline whose accent genuinely sits
+ * mid-clause keeps the plain italic, and manufacturing a tail where the
+ * sentence has none is a copy decision, not a layout one. Content owners flip
+ * it per headline.
  *
  * The headline always renders with an id so the owning section can carry
  * `aria-labelledby`. Scroll offset for that id is global (`:where([id])` in
@@ -53,6 +68,12 @@ export type SectionHeaderProps = {
   as?: "h1" | "h2" | "h3";
   /** Display step. Default `display2`; `display1` is hero-scale. */
   size?: "display1" | "display2";
+  /**
+   * Set the accent phrase as the guide's gold italic TAIL (`.display-tail`)
+   * instead of a plain italic accent word. Only correct when the accent phrase
+   * actually closes the line.
+   */
+  tail?: boolean;
   align?: "start" | "center";
   className?: string;
 };
@@ -102,6 +123,7 @@ export function SectionHeader({
   sub,
   as: Heading = "h2",
   size = "display2",
+  tail = false,
   align = "start",
   className,
 }: SectionHeaderProps) {
@@ -112,7 +134,14 @@ export function SectionHeader({
   return (
     <div className={cn(centered ? "text-center" : "text-start", className)}>
       {hasMicroLabel ? (
-        <MicroLabel as="p" index={index} className="mb-4">
+        <MicroLabel
+          as="p"
+          index={index}
+          tone="accent"
+          rule
+          ruleAlign={centered ? "center" : "start"}
+          className="mb-4"
+        >
           {label}
         </MicroLabel>
       ) : null}
@@ -125,7 +154,7 @@ export function SectionHeader({
         )}
       >
         {before}
-        {accent ? <em className="italic">{accent}</em> : null}
+        {accent ? <em className={tail ? "display-tail" : "italic"}>{accent}</em> : null}
         {after}
       </Heading>
 

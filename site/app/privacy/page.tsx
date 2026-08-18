@@ -11,8 +11,10 @@
  * Do not re-wrap a sentence, do not smarten a quote, do not turn an em dash into
  * a hyphen, do not renumber a section, do not convert the source's singular
  * voice to "we" inside legal copy. Sections 1–9 are the shipped kwc policy;
- * sections 10–12 are appended (never inserted) so the source numbering can
- * never shift. See docs/port/06-legal-pages.md §6 for the frozen-string register
+ * sections 10–14 are appended (never inserted) so the source numbering can
+ * never shift. Sections 13–14 were appended on 2026-08-17 when the browser-only
+ * form service was replaced by the server-side CRM intake — see the note above
+ * section 13. See docs/port/06-legal-pages.md §6 for the frozen-string register
  * and §8 for the marker table.
  * ─────────────────────────────────────────────────────────────────────────────
  *
@@ -41,6 +43,7 @@ import {
   LegalSection,
 } from "@/components/legal/LegalPage";
 import {
+  AGENCY_RELATIONSHIP_NOTICE,
   BROKERAGE_OF_RECORD,
   DRE_BROKERAGE,
   SMS_CONSENT,
@@ -183,16 +186,86 @@ const S11_BODY =
  * Appended to satisfy the CalOPPA third-party-disclosure item. The source policy
  * names no processor at all — §5 only says "apart from the messaging service
  * providers described above" — so this section is new copy, not a port.
+ *
+ * REWRITTEN 2026-08-17. The list previously named a browser-side form service as
+ * the recipient of every submission. That path was retired the same day: the BOV
+ * form now posts to this site's own server route, which delivers to the team's
+ * CRM and falls back to a monitored email webhook (docs/MONDAY-INTAKE-CONTRACT.md).
+ * Naming a processor that no longer receives anything is a false statement about
+ * where personal data goes, so the entry is gone rather than reworded. Every row
+ * below is checked against what the deployed build actually loads or calls:
+ * `lib/monday.ts` (CRM + fallback webhook), `content/site.ts` CALENDLY_URL
+ * (provisioned, so Calendly is live), `app/layout.tsx` (Vercel Analytics +
+ * Speed Insights), `app/api/ticker-data` (FRED, server-side only).
  */
 const S12_LEAD =
-  "We use a small number of third-party providers to operate this site:";
+  "We use a small number of outside providers to operate this site:";
 
 const S12_ITEMS = [
-  "Web3Forms, which delivers form submissions to us by email.",
-  "Calendly, for consultation scheduling.",
-  "Vercel, which hosts the site and provides its analytics.",
+  "monday.com, the customer-relationship system our team works from. A request sent through the valuation form is recorded there so a broker can answer it.",
+  "A message-delivery service, which handles the same submissions in two ways: it emails one to a monitored address whenever the customer-relationship record is not confirmed, so an inquiry is never silently lost, and it tells our team that a new inquiry has arrived. Both go to us and to nobody else.",
+  "Calendly, which runs the scheduling page our call-booking links open. Its script is fetched from Calendly only at the moment you choose to open that page, never before. If you open it from the valuation calculator, one line summarising the estimate you just produced — the range, the property type, the number of rooms, the ZIP code you entered, and the figures behind it — is passed into the booking form as a prefilled answer, so the call starts from what you were looking at. Anything you enter on that page is handled under Calendly's own policy and its own consent prompt.",
+  "Vercel, which hosts the site and provides the cookieless, aggregate measurement described in section 14.",
   "The Federal Reserve Bank of St. Louis (FRED), which supplies public economic data. That data is requested by our own server. No information about you is sent to FRED.",
 ] as const;
+
+/* -------------------------------------------------------------------------- */
+/*  13-14 — appended 2026-08-17 with the server-side intake. Also PROVISIONAL. */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Section 13 exists because sections 1-9 are a frozen port of a policy written
+ * for a different delivery path, and `V2` §2 requires the privacy copy to match
+ * the workflow that is actually deployed. It is appended, never inserted, and it
+ * adds no promise the code does not keep: no retention period is invented (the
+ * honest statement is that no fixed schedule is set), no vendor relationship is
+ * asserted beyond the two the route actually calls, and the agency sentence is
+ * the frozen `AGENCY_RELATIONSHIP_NOTICE` constant — the same bytes the visitor
+ * sees under the send button and the same bytes recorded with the submission.
+ */
+const S13_ROUTE =
+  "When you send the valuation form, it posts to this website's own server — not to a third-party form service. From there it reaches us one of two ways: as a record in monday.com, the customer-relationship system our team works from, or, whenever that record is not confirmed, as an email to a monitored address. Both paths end with the same people. You are shown a confirmation only after one of the two has actually accepted your message; if neither does, the form tells you so and gives you an email address instead.";
+
+const S13_STORED =
+  "Stored with a submission are the details you typed — your name, hotel or property name, city and state, email address, and any phone number, company, room count, brand, timeline or comments you chose to add — together with what our server observes as it receives them: the page you sent it from, the referring page, any campaign tags in the link you arrived through, a shortened description of your browser, a reference number for the submission, and the date and time. If you tick the SMS box, we also record that you ticked it, the exact wording you were shown, and the time our server recorded it. Our server also writes a short line to its own operational log for each submission, so a delivery that fails can be traced rather than lost; what you typed is redacted before it reaches that log, which records the reference number and the outcome, not your details. A notification goes to our team as well, so a new inquiry is seen the same day. Nothing is added from any other source, and none of it is used to build an advertising profile.";
+
+const S13_RETENTION =
+  "We have not set a fixed deletion schedule for these records. An inquiry is kept as a business record for as long as it may be needed to answer you, to keep proof of any consent you gave, and to meet the record-keeping obligations that apply to a brokerage — the general rule already stated in section 6. If you would rather your record was deleted, ask using the contact details in section 8.";
+
+const S13_AGENCY_LEAD =
+  "Sending the form is an inquiry, not an engagement. The notice printed beside the send button reads:";
+
+/** Quoted, never paraphrased: the same constant the form renders. */
+const S13_AGENCY_QUOTE = `"${AGENCY_RELATIONSHIP_NOTICE}"`;
+
+const S13_AGENCY_TAIL =
+  "The same sentence is stored with your submission, so our record shows what you were shown at the moment you sent it.";
+
+const S13_IN_BROWSER =
+  'Two other parts of the site send us nothing at all. The valuation calculator runs entirely in your browser: the figures you enter are not transmitted to us and no result is recorded. The city picker searches a list served from this site and calls no outside service. The one thing that does leave your browser from the calculator is the booking link in the result panel — opening it hands a one-line summary of that estimate to Calendly as a prefilled answer, as described in section 12. The calculator\'s "email me this estimate" field is not connected to any delivery service in this build — sending from it returns a notice asking you to email us directly, and the address you typed is not transmitted anywhere.';
+
+/**
+ * Section 14 is the policy-side statement of what the consent bar says, and the
+ * two must not drift: the bar's copy deck (`CONSENT_COPY`, lib/consent.ts) is
+ * written against a standing audit of what the build loads, and this section
+ * repeats that audit rather than restating it more generously. In particular it
+ * claims NO first-party collection and NO vendor reporting, because the launch
+ * ships with every advertising and analytics vendor slot unset — nothing is sent
+ * to any of them and nothing is reported back. If an identifier is ever
+ * installed, this section, `CONSENT_COPY`, the category list and CONSENT_VERSION
+ * all change together.
+ */
+const S14_COOKIES =
+  "This site sets no cookies — not one, first-party or third-party. There is no advertising tag, no cross-site pixel, no consent-management vendor and no session cookie. The only thing we store in your browser is the answer you give to the privacy notice, held in that browser's local storage so the notice does not return on every visit. It never leaves your device.";
+
+const S14_NO_VENDORS =
+  "No Google Analytics, Google Ads, Meta or LinkedIn tag is installed on this site. No account identifier for any of them is configured, none of their scripts is loaded, and nothing about your visit is transmitted to them or reported by them to us.";
+
+const S14_MEASUREMENT =
+  'The only measurement is Vercel\'s cookieless page-visit and page-speed counts (Vercel Analytics and Speed Insights). They are aggregate: no cookie, no cross-site profile, no advertising use, nothing sold and nothing shared. They run unless you decline — choosing "Reject all", or turning measurement off under "Customise", stops them in that browser from that point on.';
+
+const S14_CHANGE =
+  "Your answer is held only in the browser you gave it in, so it does not follow you to another device. Clearing this site's stored data in your browser settings removes it, and the notice asks again on your next visit.";
 
 export default function PrivacyPage() {
   return (
@@ -217,7 +290,7 @@ export default function PrivacyPage() {
       </LegalSection>
 
       {/* PLACEHOLDER:counsel — 10DLC: brand string "Dino Monteverde (KW Commercial)" is the registered campaign brand. Any Hokuten rebrand of this copy requires a new TCR campaign registration first. Do not edit. */}
-      {/* PLACEHOLDER:counsel — the valuation calculator's "email me this estimate" capture POSTs name and email to Web3Forms with no privacy notice shown at the point of collection (kwc index.html:1071-1079). Decide whether a notice must appear beside that field and whether this section or section 12 must describe that collection. */}
+      {/* PLACEHOLDER:counsel — the valuation calculator's "email me this estimate" capture takes an email address behind nothing but the PRIVACY_NOTICE_LINK row (kwc index.html:1071-1079 had not even that). The field is INERT in this build — no delivery service is configured for it — and section 13 says so in as many words. If a delivery path is ever wired to it, sections 12 and 13 must name the recipient BEFORE the field goes live, and counsel should decide whether a notice must also appear beside the field itself. */}
       <LegalSection id="sms" heading="3. SMS / Text Messaging">
         <LegalP>
           {S3_BEFORE_LINK}
@@ -232,7 +305,7 @@ export default function PrivacyPage() {
         <LegalP>{S4_BODY}</LegalP>
       </LegalSection>
 
-      {/* PLACEHOLDER:counsel — CalOPPA: name the third parties that receive data — Web3Forms (form delivery), Calendly (scheduling), Vercel (hosting + Analytics), FRED (server-side proxy, no user data transmitted). Confirm each processor's role and whether any qualifies as a "sale"/"share" under CPRA. Section 12 below is the provisional list. */}
+      {/* PLACEHOLDER:counsel — CalOPPA: name the third parties that receive data — monday.com (the CRM record of a form submission), the fallback email-delivery webhook (the same submission, when the CRM record is not confirmed), Calendly (scheduling), Vercel (hosting + cookieless aggregate measurement), FRED (server-side proxy, no user data transmitted). Confirm each processor's role and whether any qualifies as a "sale"/"share" under CPRA. Sections 12-14 below are the provisional list. */}
       <LegalSection id="share" heading="5. How We Share Information">
         <LegalP>{S5_BODY}</LegalP>
       </LegalSection>
@@ -283,11 +356,32 @@ export default function PrivacyPage() {
         <LegalP>{S11_BODY}</LegalP>
       </LegalSection>
 
-      {/* PLACEHOLDER:counsel — confirm each provider below is actually in use at launch and remove any that is not: Calendly is not yet provisioned (CALENDLY_URL is null in content/site.ts) and Web3Forms has no access key yet. Confirm whether any of them is a "sale" or "share" under CPRA, and whether a processor agreement must be named. */}
+      {/* PLACEHOLDER:counsel — confirm each provider below is actually in use at launch and remove any that is not. State as of 2026-08-17: Calendly IS provisioned (CALENDLY_URL, content/site.ts); monday.com is the configured write target but the intake route ships with INTAKE_DRY_RUN on by default, so until that is explicitly turned off the fallback email webhook is the delivery path in practice — which is why section 13 describes the two paths as alternatives rather than promising the CRM one. Confirm whether any of them is a "sale" or "share" under CPRA, and whether a processor agreement must be named. */}
       {/* PLACEHOLDER:counsel — the kwc source suppresses Calendly's own consent prompt with hide_gdpr_banner=1 (index.html:1922). If the Hokuten site keeps that parameter, decide what this policy must disclose about Calendly's own data collection in place of the banner Calendly would otherwise show. */}
       <LegalSection id="providers" heading="12. Service Providers">
         <LegalP>{S12_LEAD}</LegalP>
         <LegalList items={S12_ITEMS} />
+      </LegalSection>
+
+      {/* PLACEHOLDER:counsel — sections 13-14 are appended (never inserted) and describe the workflow the build actually ships, per `V2` §2. Two things counsel must settle rather than this file: (a) a retention period — section 13 states honestly that no fixed schedule is set, which is the true position, not a drafting choice; (b) whether the operational-log sentence needs a defined log-retention window once the CRM connection is live and the route stops logging the submission body. */}
+      <LegalSection id="forms" heading="13. Form Submissions">
+        <LegalP>{S13_ROUTE}</LegalP>
+        <LegalP>{S13_STORED}</LegalP>
+        <LegalP>{S13_RETENTION}</LegalP>
+        <LegalP>{S13_AGENCY_LEAD}</LegalP>
+        {/* The agency notice is quoted from the frozen constant so this page and
+            the form can never show two different sentences. */}
+        <LegalP>{S13_AGENCY_QUOTE}</LegalP>
+        <LegalP>{S13_AGENCY_TAIL}</LegalP>
+        <LegalP>{S13_IN_BROWSER}</LegalP>
+      </LegalSection>
+
+      {/* PLACEHOLDER:counsel — this section and the consent bar's copy deck (CONSENT_COPY, lib/consent.ts) make the same factual claims and must be edited together; CONSENT_VERSION is bumped when they change, which re-prompts everyone who already answered. The claim "no vendor identifier is configured" is true only while the launch measurement decision stands (docs/LAUNCH-IMPLEMENTATION.md §5.2, measurement deferred). Installing any ID makes this section false the same day. */}
+      <LegalSection id="cookies" heading="14. Cookies, Measurement and Your Privacy Choices">
+        <LegalP>{S14_COOKIES}</LegalP>
+        <LegalP>{S14_NO_VENDORS}</LegalP>
+        <LegalP>{S14_MEASUREMENT}</LegalP>
+        <LegalP>{S14_CHANGE}</LegalP>
       </LegalSection>
     </LegalPage>
   );

@@ -12,18 +12,23 @@
  * the imported atoms (`Reveal`, `Stamp`, `PhotoFrame`) — this file adds zero
  * client JS of its own.
  *
- * ── Micro-label index: `04` (sitewide registry, fixed 2026-08-08) ──────────
+ * ── Micro-label index: `04` (sitewide registry, fixed 2026-08-08,
+ *    re-sequenced 2026-08-17) ───────────────────────────────────────────────
  * The concurrent section agents each guessed, so the page shipped with a
  * broken run (01, 02, 03, unindexed, 01, unindexed…). The coherence audit
- * assembled the definitive sequence and it is now the single source of truth:
+ * assembled the definitive sequence; the 2026-08-17 launch reorder
+ * (docs/LAUNCH-IMPLEMENTATION.md §3.2, R5) moved `#faq` and `#bov` up and
+ * `#team` / `#doors` / `#mandates` down, and the run was renumbered with the
+ * order. This section keeps `04`. The current run is the single source of
+ * truth:
  *
  *   masthead band — unindexed word-only labels:
  *     #hero `[ HOSPITALITY INVESTMENT SALES — NATIONWIDE ]`
  *     #stats `[ TRUST METRICS ]` · #brands `[ FLAGS WE TRANSACT ACROSS ]`
  *   numbered chapter run (ref 04 pins #closings to `01`, so nothing above it
  *   may take a number):
- *     01 #closings · 02 #listings · 03 #calculator · 04 #method · 05 #doors ·
- *     06 #mandates · 07 #team · 08 #faq · 09 #bov
+ *     01 #closings · 02 #listings · 03 #calculator · 04 #method · 05 #faq ·
+ *     06 #bov · 07 #team · 08 #doors · 09 #mandates
  *
  * `content/methodology.ts`'s header comment proposing `[ 03 — METHOD ]` is
  * stale — 03 belongs to `#calculator`. Do not renumber a section without
@@ -53,9 +58,11 @@
  * `section-pad-tight` (this is a content-dense chapter — paragraph, five
  * steps, four reach stats, now plus art — the tighter rhythm buys back some
  * of the vertical budget the new art object spends). No `section-join`: this
- * section's neighbours in `page.tsx` are `#calculator` (`.surface-paper`) and
- * `#doors` (`.surface-paper`) — both different from this section's
- * `.surface-dark`, so the alternating-surface pair never qualifies.
+ * section's neighbours in `page.tsx` are `#calculator` (`.surface-paper`) and,
+ * since the 2026-08-17 reorder, `#faq` (`.surface-paper`) — both different from
+ * this section's `.surface-dark`, so the alternating-surface pair never
+ * qualifies here. `#faq` below now carries a `section-join` it no longer earns
+ * against this dark surface; see FaqSection.tsx's header note.
  *
  * Composition — "balance the artwork and the process steps across the full
  * width" (the brief's literal instruction), not stack one on top of the
@@ -85,6 +92,27 @@
  * hanko `<Stamp>` stays exactly where it was, beside the micro-label — both
  * required by the fixed-placement scarcity rules in their own component
  * headers.
+ *
+ * ── 2026-08-17 · the operating-model intro (D10, plan §3.15 / Appendix B6) ─
+ * `V2` §3 line 51's operating-model paragraph is APPROVED VERBATIM copy that
+ * had no surface anywhere on the site; D10 lands it here, as this chapter's
+ * intro, because it describes exactly what this chapter then shows. It sits
+ * directly under the headline, above the art/stepper row, as `METHOD_INTRO`
+ * below.
+ *
+ * Two rules on that string. **It is verbatim** — pasted from the plan's paste
+ * bank, never paraphrased, never trimmed to fit a height budget. And **its
+ * last sentence is the compliance half of the paragraph**: it is what keeps
+ * the AI/automation sentence in front of it from reading as machine-made
+ * valuation or advice. The first two sentences never ship without it. The
+ * two-tone pass below renders that sentence at full `text-fg` for exactly
+ * that reason — emphasis is colour only, the string is untouched.
+ *
+ * Fit: this chapter was already the worst offender against the D28 budget
+ * (1.57 screens at 1440x900) and the intro adds ~3 lines. `page-panel` sets
+ * `min-height`, never `height`, so it grows and scrolls rather than clips.
+ * The levers, if one is needed, are spatial (the intro's measure, the art
+ * box, `section-pad-tight`) — never this paragraph's words.
  */
 
 import type { ReactNode } from "react";
@@ -104,9 +132,10 @@ import { methodFraming, methodSteps, reachStats } from "@/content/methodology";
  * Weight never changes — colour alone carries the emphasis, per the on-dark
  * law ("never invent an opacity; the on-dark tokens are contrast-proven").
  *
- * This only wraps substrings of `methodFraming` in spans for styling — the
- * text itself is never altered, so the verbatim listing-term paragraph stays
- * byte-identical to `content/methodology.ts`.
+ * This only wraps substrings of its input in spans for styling — the text
+ * itself is never altered, so both verbatim paragraphs it serves (the
+ * listing-term framing from `content/methodology.ts` and the approved
+ * operating-model intro below) stay byte-identical to their sources.
  */
 const FRAMING_EMPHASIS = [
   "180 days",
@@ -116,17 +145,42 @@ const FRAMING_EMPHASIS = [
   "second 90-day cycle",
 ] as const;
 
-function renderFramingParagraph(text: string): ReactNode[] {
+/**
+ * The `#method` intro — `V2` §3 line 51's operating-model paragraph, APPROVED
+ * VERBATIM (plan Appendix B6, surfaced here by D10 / plan §3.15). Pasted from
+ * the paste bank, never retyped and never edited: no trim, no reorder, no
+ * "tightening". See this file's header note for why the final sentence is
+ * non-severable.
+ *
+ * It lives here rather than in `content/methodology.ts` only because that file
+ * is outside this change's ownership fence; it is ordinary content copy and
+ * belongs beside `methodFraming` whenever that module is next opened.
+ */
+const METHOD_INTRO =
+  "The Hokuten model combines an owner-operator lens, direct relationship work, evidence-based valuation, disciplined prospecting, source verification, and modern systems. AI assists research and document review, while controlled automation supports routing, follow-up, reporting, and quality control. Licensed professionals retain responsibility for valuation, pricing, advice, communications, and client decisions.";
+
+/**
+ * Two-tone emphasis for the intro: the compliance sentence renders at full
+ * `text-fg` against the muted operating-model sentences in front of it, so the
+ * clause that assigns valuation, pricing, advice and client decisions to
+ * LICENSED PROFESSIONALS is the one that reads first — colour only, weight
+ * unchanged, string untouched.
+ */
+const INTRO_EMPHASIS = [
+  "Licensed professionals retain responsibility for valuation, pricing, advice, communications, and client decisions.",
+] as const;
+
+function renderTwoTone(text: string, phrases: readonly string[], source: string): ReactNode[] {
   const nodes: ReactNode[] = [];
   let cursor = 0;
 
-  FRAMING_EMPHASIS.forEach((phrase, i) => {
+  phrases.forEach((phrase, i) => {
     const idx = text.indexOf(phrase, cursor);
     if (idx === -1) {
       if (process.env.NODE_ENV !== "production") {
         console.warn(
           `MethodSection: two-tone emphasis phrase "${phrase}" not found in ` +
-            `methodFraming — the source paragraph may have changed.`,
+            `${source} — the source paragraph may have changed.`,
         );
       }
       return;
@@ -202,6 +256,14 @@ export function MethodSection() {
             <Stamp placement="method" onDark size={20} />
           </div>
           <SectionHeader id="method-heading" headline="How we run a *sale*." />
+          {/* D10 / plan §3.15 — the approved operating-model paragraph as this
+              chapter's intro. Same measure and rhythm as `SectionHeader`'s own
+              `sub` slot, but rendered as its own paragraph so the compliance
+              sentence can take the two-tone step (`sub` wraps everything in one
+              muted span). Verbatim: see METHOD_INTRO. */}
+          <p className="mt-6 max-w-[62ch] text-body-lg leading-relaxed">
+            {renderTwoTone(METHOD_INTRO, INTRO_EMPHASIS, "METHOD_INTRO")}
+          </p>
         </Reveal>
 
         <div className="grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-x-14">
@@ -217,7 +279,7 @@ export function MethodSection() {
               />
             ) : null}
             <p className="max-w-[52ch] text-body-lg leading-relaxed">
-              {renderFramingParagraph(methodFraming)}
+              {renderTwoTone(methodFraming, FRAMING_EMPHASIS, "methodFraming")}
             </p>
           </Reveal>
 

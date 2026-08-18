@@ -17,12 +17,33 @@
    1. Static design tokens (fonts, ramp, rhythm, motion)
    --------------------------------------------------------------------------- */
 @theme {
-  /* — Type voices. Three, no more. — */
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  /* — Type voices. Three, no more. —
+
+     L3 (2026-08-17): Cormorant Garamond (display) + Inter (body) + JetBrains
+     Mono (data/labels), per Dino's Brand Design Guide v1.3. Supersedes the
+     2026-08-10 Fraunces / IBM Plex Mono decision. The `--font-cormorant`,
+     `--font-inter` and `--font-jetbrains` variables are emitted by next/font
+     in app/layout.tsx; the three SEMANTIC names below are what components
+     consume, and they do not change when a face does.
+
+     Georgia is declared first in the display fallback ON PURPOSE — the guide
+     justifies its Word-document substitution by that declaration, so it must
+     never be dropped. "Courier New" is the mono equivalent for the same
+     reason, after the platform mono faces that actually look right on screen. */
+  --font-display: var(--font-cormorant), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-inter), Arial, Helvetica, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, "Courier New", monospace;
 
   /* — Type ramp (ref 03). Max 4 sizes per section. Body floor 16px. — */
+
+  /* CORMORANT RETUNE (L3, 2026-08-17 · LAUNCH-IMPLEMENTATION §2.2).
+     Cormorant Garamond has a smaller x-height, a narrower set-width and a
+     lighter colour than Fraunces. Two consequences govern every display step
+     below: the sizes go UP, the leading LOOSENS (Cormorant Light at display
+     size wants air, not the tight optical set Fraunces took), and Cormorant
+     never carries body copy — the guide is explicit that it "goes thin and
+     disappears" at small sizes. Body/data/micro stay Inter and JetBrains and
+     are deliberately unchanged. */
 
   /* D8 (2026-08-08): a display step ABOVE display1, for the hero manifesto only.
      The page read too uniform; hierarchy is amplified from the top down. One
@@ -36,21 +57,34 @@
      4.75rem (76px) sets that headline in two lines at full container width,
      which is what the runcycle anatomy actually wants. Anyone raising this
      again must re-measure the hero's height, not just the type scale: this
-     value is bound to the length of the headline in heroContent.ts. */
-  --text-display0: clamp(2.75rem, 1.4rem + 4.6vw, 4.75rem);
-  --text-display0--line-height: 0.98;
-  --text-display0--letter-spacing: -0.03em;
+     value is bound to the length of the headline in heroContent.ts.
 
-  --text-display1: clamp(2.5rem, 1.2rem + 5.6vw, 6rem);
-  --text-display1--line-height: 1.02;
-  --text-display1--letter-spacing: -0.02em;
+     RE-RAISED 2026-08-17 to 5.5rem for Cormorant, per §2.2. That 4.75rem was
+     measured against FRAUNCES and a 60-character headline; both change in this
+     round (the new h1 is 69 characters and Cormorant sets ~15% narrower per
+     character, which roughly cancels). THE D8 WARNING STILL STANDS AND IS NOW
+     OWED A MEASUREMENT: the hero must land on exactly one usable screen
+     (100svh − nav − ticker) at 1440×900 and 1920×1080 per D25. If the headline
+     wraps past two lines, drop this CEILING — 5rem, then 4.75rem — and NEVER
+     the leading; if the panel overflows but the headline is still two lines,
+     the ~40-word sub is the row that flexes (§3.1 build note), not this. */
+  --text-display0: clamp(3rem, 1.5rem + 5vw, 5.5rem);
+  --text-display0--line-height: 1.05;
+  --text-display0--letter-spacing: -0.015em;
 
-  --text-display2: clamp(2rem, 1.25rem + 3.2vw, 3.5rem);
-  --text-display2--line-height: 1.06;
-  --text-display2--letter-spacing: -0.015em;
+  --text-display1: clamp(2.75rem, 1.3rem + 5.6vw, 6rem);
+  --text-display1--line-height: 1.08;
+  --text-display1--letter-spacing: -0.01em;
 
-  --text-heading: clamp(1.375rem, 1.2rem + 0.75vw, 1.75rem);
-  --text-heading--line-height: 1.2;
+  --text-display2: clamp(2.125rem, 1.3rem + 3.3vw, 3.75rem);
+  --text-display2--line-height: 1.12;
+  --text-display2--letter-spacing: -0.01em;
+
+  /* Raised a step: at the old 1.375–1.75rem Cormorant 300 went thin and grey.
+     The base heading rule (§5) sets weight 400 from this step DOWN, and 300
+     only on display0–display2. */
+  --text-heading: clamp(1.5rem, 1.25rem + 0.9vw, 1.9rem);
+  --text-heading--line-height: 1.25;
   --text-heading--letter-spacing: -0.01em;
 
   --text-body-lg: clamp(1.125rem, 1.05rem + 0.25vw, 1.25rem);
@@ -62,32 +96,87 @@
   --text-data: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
   --text-data--line-height: 1.45;
 
+  /* Size unchanged; tracking raised to the guide's floor. */
   --text-micro: 0.6875rem;
   --text-micro--line-height: 1.4;
-  --text-micro--letter-spacing: 0.14em;
+  --text-micro--letter-spacing: 0.18em;
 
-  /* Tracked-caps brand line — headers/footers only */
+  /* MONO LAW (guide v1.3, L3). Every letterspaced label on this site —
+     kickers, eyebrows, stat labels, footer labels, compliance microtype, chip
+     text, deal-data lines — is JetBrains Mono, ALWAYS uppercase, ALWAYS
+     tracked between 0.18em and 0.32em. The guide names substituting a spaced
+     sans here as "the single most common way a deliverable drifts off-brand",
+     so `--font-sans` on an uppercase tracked label is an audit finding.
+     Three steps inside the legal range, plus the wordmark: */
+  --tracking-micro: 0.18em; /* guide floor — micro labels, data lines */
+  --tracking-label: 0.24em; /* kickers / eyebrows — the common value */
+  --tracking-wide: 0.32em; /* guide ceiling — compliance microtype, footer labels */
+
+  /* Tracked-caps brand line — headers/footers only. ABOVE the guide's label
+     range by design: it is a wordmark, not a label. */
   --tracking-brand: 0.35em;
-  --tracking-micro: 0.14em;
 
-  /* — Radii (ref 03): 0 for art, 2px for cards/inputs, pill for CTAs/badges — */
+  /* — Radii. D-VOCAB / R2 (Razim, 2026-08-17) —
+
+     Brand Design Guide v1.3 line 29: "hairline rules and outlined boxes —
+     never filled buttons, never rounded card grids, never drop shadows."
+     R2 adopts it with ONE floor: the ≤2px the deal-ticket chassis is allowed
+     to keep. Everything else collapses to 0.
+
+       --radius-none   0     art plates, rasters, the hanko. Unchanged.
+       --radius-card   0     WAS 2px. Cards, inputs, chips, the focus ring and
+                             every `rounded-card` call site now render SQUARE.
+                             This is the "never rounded card grids" clause; do
+                             not raise it back without a dated decision.
+       --radius-notch  2px   R2's reserved floor, and the only value above zero
+                             a card-shaped thing may claim. It exists for the D4
+                             ticket body, whose punched notch sits on its edges.
+                             MEASURED NOTE (2026-08-17): `@utility ticket-notch`
+                             draws the notch with radial-gradient MASKS, not
+                             border-radius, so the geometry renders cleanly at 0
+                             and nothing consumes this token today. It is kept
+                             named and reserved so R2's allowance stays
+                             auditable rather than silently dropped.
+       --radius-pill   999px CIRCULAR PRIMITIVES ONLY — the ticker's D19 LIVE
+                             dot, PlateChrome's 9px corner dots, 44px icon
+                             buttons, the loader rail. Zeroing it would square
+                             those. It is NOT a licence for a pill CTA or a
+                             pill badge: "never filled buttons" is enforced at
+                             the component, and a rounded button is an audit
+                             finding whatever this token says. */
   --radius-none: 0px;
-  --radius-card: 2px;
+  --radius-card: 0px;
+  --radius-notch: 2px;
   --radius-pill: 999px;
 
-  /* — Shadows: floating elements only, ink-tinted, never gray halos — */
+  /* — Elevation. D-VOCAB / R2: "never drop shadows." —
+
+     Nothing AT REST carries a blur. Structure is the 1px hairline
+     (`@utility hairline`), and hover/focus elevation is a hairline COLOUR
+     shift, never a lift. The two tokens that survive as real shadows are both
+     FLOATING chrome — an overlay that has to separate from the page it covers,
+     and the two fixed bars — not resting objects. Ink-tinted, never gray
+     halos. Do not reach for either from a card, a tile or a button. */
   --shadow-overlay: 0 24px 64px -24px rgb(26 28 31 / 0.28), 0 2px 8px -2px rgb(26 28 31 / 0.12);
   --shadow-bar: 0 -1px 0 0 var(--hairline), 0 -8px 24px -12px rgb(26 28 31 / 0.18);
 
-  /* D4 (2026-08-08): deal tickets are dimensional objects, so they carry a
-     RESTING shadow — the one documented exception to "1px borders over
-     shadows" (ref 03). Ink-tinted, never a gray blur halo, and it does not
-     change on hover: the dimension is at rest, so nothing lifts. */
-  --shadow-ticket: 0 10px 28px -14px rgb(26 28 31 / 0.26), 0 2px 6px -3px rgb(26 28 31 / 0.14);
-  --shadow-ticket-dark: 0 12px 32px -16px rgb(0 0 0 / 0.55), 0 2px 6px -3px rgb(0 0 0 / 0.4);
-  /* Brand chips already carry a rendered gloss + shadow inside the raster; this
-     is only the seat they sit on when a chip needs a surface behind it. */
-  --shadow-chip: 0 4px 12px -6px rgb(26 28 31 / 0.2);
+  /* DEPRECATED 2026-08-17 (R2) — retired resting shadows, kept as no-ops.
+
+     D4 (2026-08-08) made the deal ticket the one documented exception to
+     "1px borders over shadows": it carried a resting, ink-tinted drop shadow.
+     R2 removes the exception — the perforation/notch geometry is what makes a
+     ticket read as a ticket, not the shadow, and the geometry stays.
+
+     The two NAMES survive because `@utility ticket` / `@utility ticket-dark`
+     below still declare `box-shadow: var(--shadow-ticket…)`, and that block is
+     not this portion's to edit. `none` is the honest value and leaves no
+     dangling var(): `.ticket` (live on TeamCard.tsx) resolves to no shadow and
+     keeps its own `border border-hairline`. Once those two @utility rules drop
+     their `box-shadow` line, delete these two tokens with them.
+     `--shadow-chip` was removed outright in the same pass — it had no consumer
+     left (QuarterlyBanners.tsx names it only as the defect NOT to reintroduce). */
+  --shadow-ticket: none;
+  --shadow-ticket-dark: none;
 
   /* — Motion (ref 05). Exactly two easings sitewide. No bounce, ever. — */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -173,7 +262,20 @@
   --meta-soft: #8b8680; /* brand ivory-gray — DECORATIVE ONLY, never text (3.29:1) */
   --card: #ffffff;
   --black: #000000;
-  --brick: #a33b2c; /* form errors only */
+  --brick: #a33b2c; /* form errors only — 6.20:1 on paper. Guide v1.3: "red
+                       appears only to mark an unverified or failing status
+                       item". Form errors qualify; no other red anywhere. */
+
+  /* DARK-FIELD INK (new, L3/L2 2026-08-17 · §2.1).
+     NAMING COLLISION, deliberately resolved this way: the guide calls its
+     dark-field ink `--ink`; this sheet's `--ink` is the LIGHT-field ink and
+     already equals the guide's "ink on light" value exactly. Renaming would
+     break every light surface, so the guide's dark-field pair lands as two new
+     tokens instead, bound in the dark scopes in §3. Before this, `.surface-dark`
+     derived its foreground from `--paper` by color-mix — a paper-tinted
+     approximation of a value the guide states outright. */
+  --ink-dark-field: #f5f1e8; /* 15.15:1 on --dark · 18.63:1 on --black */
+  --ink-dark-muted: #d0c9bc; /* 10.38:1 on --dark · 12.76:1 on --black */
 
   /* Financial / status green (D13 + D19, approved by Razim 2026-08-10; the
      values are recorded in skill reference 01 alongside every other hex).
@@ -234,35 +336,68 @@
   --stagger: 70ms;
 }
 
-/* ── Theme G — Kit Gold ─────────────────────────────────────────────────── */
+/* ── Theme G — Kit Gold ───────────────────────────────────────────────────
+   L2 (Razim, 2026-08-17, R3 Option 1): every value below is Dino's Brand
+   Design Guide v1.3, with the two derived tokens recomputed to AA and recorded
+   in docs/design/CONTRAST.md. This SUPERSEDES the "website gold #B8902E"
+   guardrail in CLAUDE.md and PROJECT-MEMORY §3 — the supersession is written
+   up in P13, not assumed here.
+
+   Kit gold #B8943D stays baked inside the rasters (the eight lockup PNGs
+   pixel-sample to it). That is a deliberate ~2-unit delta against the #B08D3F
+   below, accepted under L2/D14 and logged as X4; Dino eyeballs it on the
+   production deployment. Do not "fix" it by recolouring a raster.
+
+   Charcoal #1A1C1F is PIXEL-SAMPLED from both KW_Commercial_*_on_Charcoal.png
+   masters, so the dark chapter ground and the ground the lockups are cut
+   against are now the same value — which is why an on-charcoal lockup sits
+   seamlessly on a .surface-dark band. (MANUAL §13 prints #2B2B2B; the sampled
+   value wins over the printed one. X4.) It is also identical to --ink: the
+   guide's light-field ink and the sampled lockup charcoal are one colour. */
 :root,
 [data-theme="gold"] {
-  --paper: #f7f4ed;
-  --surface-deep: #efe9da;
-  --rule: #e2dccc;
-  --dark: #16181b;
+  --paper: #fbf9f3; /* guide: paper  — page ground */
+  --surface-deep: #f4efe3; /* guide: ivory  — the deep band */
+  --rule: #ede7d8; /* guide: cream  — hairlines, non-text */
+  --dark: #1a1c1f; /* sampled charcoal — the dark chapter ground */
 
   /* Brand gold. --accent is the decorative/brand accent (rules, fills, art,
-     focus on dark). It FAILS AA as text on light — use --accent-ink there. */
-  --accent: #b8902e; /* website gold — README mandate */
-  --accent-dim: #c9a04a; /* hover / secondary on dark        7.29:1 on --dark */
-  --accent-deep: #816520; /* dense art strokes, pressed states */
-  --accent-ink: #816520; /* ACCENT AS TEXT ON LIGHT  5.01 paper / 4.54 deep / 5.50 card */
-  --accent-on-dark: #b8902e; /* ACCENT AS TEXT ON DARK   5.99:1 on --dark, 7.07:1 on --black */
-  --accent-wash: #e2dccc;
-  --accent-chip: #efe9da;
-  --on-accent: #16181b; /* text on an --accent fill          5.99:1 */
+     focus on dark). It FAILS AA as text on light (2.96:1 on paper) — that is
+     what --accent-ink exists for, and it is why nothing may put --accent
+     directly on a light surface as text. */
+  --accent: #b08d3f; /* guide gold        5.47:1 on --dark · 6.73 on --black */
+  --accent-dim: #c8a552; /* guide gold-dim    7.29:1 on --dark · 8.96 on --black */
+  --accent-deep: #675325; /* DERIVED: #B08D3F hue+sat held, lightness dropped to
+                             7.02:1 on paper. Dense art strokes, pressed states. */
+  --accent-ink: #7e652d; /* DERIVED: #B08D3F hue+sat held, darkened to the AA
+                            floor on the worst LIGHT ground that actually ships.
+                            ACCENT AS TEXT ON LIGHT — 5.27 paper / 4.83 ivory /
+                            5.55 card. NOTE: 4.50 on cream (#EDE7D8) is 4.4957
+                            unrounded, i.e. BELOW the floor — cream is a rule and
+                            wash colour, never a text ground. See CONTRAST.md. */
+  --accent-on-dark: #b08d3f; /* = --accent. ACCENT AS TEXT ON DARK  5.47:1 on
+                                --dark · 6.73:1 on --black. No lightened cut needed. */
+  --accent-wash: #ede7d8; /* guide cream — decorative fill */
+  --accent-chip: #f4efe3; /* guide ivory — decorative fill */
+  --on-accent: #1a1c1f; /* = --dark. Text on an --accent fill   5.47:1.
+                           Paper on gold is 2.96 — NEVER light text on gold. */
 
-  --art-ink: #b8902e; /* ASCII/dither art: dense end of ramp */
-  --art-mid: #c9a04a;
-  --art-light: #f7f4ed; /* ivory characters */
+  --art-ink: #b08d3f; /* ASCII/dither art: dense end of ramp */
+  --art-mid: #c8a552;
+  --art-light: #fbf9f3; /* paper characters */
   --art-ground: #000000; /* Theme G art sits on the cover panel */
 
   --hero-ground: #000000;
-  --hero-fg: #f7f4ed;
+  --hero-fg: #f5f1e8; /* = --ink-dark-field   18.63:1 on --hero-ground */
 }
 
-/* ── Theme B — Hokuten Blue ─────────────────────────────────────────────── */
+/* ── Theme B — Hokuten Blue ───────────────────────────────────────────────
+   PARKED 2026-08-17 (L1). Unreachable — DEFAULT_THEME is gold and no switch
+   exists. Not retuned to Brand Guide v1.3. Every value below is left BYTE-
+   IDENTICAL on purpose: retuning a theme nothing can select would be untested
+   surface area, and the block is cheaper to keep than to re-derive later.
+   If Theme B is ever revived, it re-enters through §2.1's derivation procedure
+   and docs/design/CONTRAST.md, not by editing these lines in place. */
 [data-theme="blue"] {
   --paper: #f7f8f5; /* canvas cools */
   --surface-deep: #eceef4;
@@ -329,27 +464,31 @@
   --money: var(--money-on-light);
 }
 
+/* L2 (2026-08-17): the two dark scopes no longer derive their foreground from
+   --paper. The guide states its dark-field ink outright, so --fg and --fg-muted
+   read the new --ink-dark-* tokens directly and only the tertiary/hairline/field
+   steps stay color-mix — now mixed FROM the dark-field ink, not from paper. */
 .surface-dark {
   --surface: var(--dark);
-  --fg: var(--paper);
-  --fg-muted: color-mix(in srgb, var(--paper) 64%, var(--dark)); /* 7.2:1 both themes */
-  --fg-meta: color-mix(in srgb, var(--paper) 52%, var(--dark)); /* 5.2:1 both themes */
-  --hairline: color-mix(in srgb, var(--paper) 14%, transparent);
+  --fg: var(--ink-dark-field); /* 15.15:1 */
+  --fg-muted: var(--ink-dark-muted); /* 10.38:1 */
+  --fg-meta: color-mix(in srgb, var(--ink-dark-field) 52%, var(--dark)); /* #8c8b88 — 5.01:1 */
+  --hairline: color-mix(in srgb, var(--ink-dark-field) 14%, transparent);
   --accent-text: var(--accent-on-dark);
   --focus: var(--accent-on-dark);
-  --field: color-mix(in srgb, var(--paper) 7%, var(--dark));
+  --field: color-mix(in srgb, var(--ink-dark-field) 7%, var(--dark)); /* #292b2d */
   --money: var(--money-on-dark);
 }
 
 .surface-black {
   --surface: var(--black);
-  --fg: var(--paper);
-  --fg-muted: color-mix(in srgb, var(--paper) 64%, var(--black));
-  --fg-meta: color-mix(in srgb, var(--paper) 52%, var(--black));
-  --hairline: color-mix(in srgb, var(--paper) 14%, transparent);
+  --fg: var(--ink-dark-field); /* 18.63:1 */
+  --fg-muted: var(--ink-dark-muted); /* 12.76:1 */
+  --fg-meta: color-mix(in srgb, var(--ink-dark-field) 52%, var(--black)); /* #7f7d79 — 5.11:1 */
+  --hairline: color-mix(in srgb, var(--ink-dark-field) 14%, transparent);
   --accent-text: var(--accent-on-dark);
   --focus: var(--accent-on-dark);
-  --field: color-mix(in srgb, var(--paper) 7%, var(--black));
+  --field: color-mix(in srgb, var(--ink-dark-field) 7%, var(--black)); /* #111110 */
   --money: var(--money-on-dark);
 }
 
@@ -452,13 +591,31 @@
     scroll-margin-top: var(--nav-h);
   }
 
+  /* HEADING WEIGHT SPLIT (L3, 2026-08-17 · §2.2 F8 part 2).
+     Was a flat `font-weight: 300` for h1–h4. Fraunces Light held its colour at
+     --text-heading; Cormorant Light does not — at 1.5–1.9rem it goes thin and
+     grey. So the base weight is now 400, and 300 applies ONLY at the three
+     display steps, where the size carries the stroke.
+
+     Why keyed off the SIZE class rather than the tag: an h3 can be set at
+     display2 and an h2 at heading, so the tag has never been the right signal.
+     The class rule is a real class selector (0,1,0) so it beats the element
+     rule (0,0,1) inside this layer, and it sits in @layer base so any explicit
+     Tailwind weight utility (font-light / font-normal / font-medium — D8 lets
+     a display step firm to 500) still wins from @layer utilities. */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 300;
+    font-weight: 400;
     text-wrap: balance;
+  }
+
+  .text-display0,
+  .text-display1,
+  .text-display2 {
+    font-weight: 300;
   }
 
   /* Deal data is always mono + tabular (P1 gate) */
@@ -508,6 +665,25 @@
   text-transform: uppercase;
   color: var(--fg-meta);
   font-variant-numeric: tabular-nums;
+}
+
+/* THE SIGNATURE DISPLAY MOVE (guide v1.3 line 14, L3 2026-08-17).
+   "The last phrase of a display line set in Cormorant ITALIC and in gold."
+   One per headline, on the TRAILING phrase — never mid-clause, never twice in
+   the same line. Colour comes from --accent-text, which resolves per surface
+   (--accent-ink on light, --accent-on-dark on dark); binding raw --accent here
+   would fail AA the moment the headline sat on paper.
+
+   The site's existing move italicises ONE accent word mid-sentence. Headlines
+   whose accent genuinely sits mid-clause keep that treatment — this utility is
+   not a licence to manufacture a tail where the sentence has none.
+
+   Declared as a Tailwind @utility rather than the plain `.display-tail` class
+   the plan sketches, so it lands in @layer utilities with every other
+   signature device in this file and a caller can still override the colour. */
+@utility display-tail {
+  font-style: italic;
+  color: var(--accent-text);
 }
 
 /* Tracked-caps brand line — headers/footers only */
@@ -913,6 +1089,13 @@
    8. Print — owners print listings and closings (ref 07 gate)
    --------------------------------------------------------------------------- */
 @media print {
+  /* These six hexes are PALETTE-INDEPENDENT on purpose and did not move with
+     the v1.3 swap (§2.1 flags them as one of the three places raw hex lives
+     outside the theme blocks, so the swap has to look at them — looking, and
+     deciding they are already right, is the outcome). Paper is white because
+     paper IS white; ink is black because toner is cheapest and most legible
+     that way. Tinting either toward --paper/#FBF9F3 would print a grey wash
+     across every sheet. */
   :root {
     --paper: #ffffff;
     --surface-deep: #ffffff;
@@ -922,10 +1105,27 @@
     --fg-meta: #444444;
   }
 
+  /* The :root overrides above are NOT enough for the dark chapters: .surface-dark
+     and .surface-black re-declare --fg/--fg-muted/--fg-meta/--field in their own
+     scope, so a descendant reading `text-fg` inside a dark band resolved to the
+     dark-field ink (#F5F1E8) and printed near-white on white. `color: #000` alone
+     only fixes elements that inherit — anything setting its own colour from the
+     token did not. Found while rebinding the dark scopes to --ink-dark-* (L2);
+     the same hole existed before, when those scopes derived from --paper.
+     Printing listings and closings is an explicit gate (ref 07). */
   .surface-dark,
   .surface-black {
     background: #fff !important;
     color: #000 !important;
+    --surface: #ffffff;
+    --fg: #000000;
+    --fg-muted: #333333;
+    --fg-meta: #444444;
+    --field: #ffffff;
+    --hairline: #cccccc;
+    --accent-text: var(--accent-ink);
+    --focus: var(--accent-ink);
+    --money: var(--money-on-light);
   }
 
   [data-print-hide],

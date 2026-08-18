@@ -25,6 +25,19 @@
  * on this element), and the card's hairline shifts to the accent at 40%.
  * The card NEVER translates, never lifts a shadow, never springs.
  *
+ * ── D-VOCAB / R2 (Razim, 2026-08-17) — checked, ALREADY COMPLIANT ──────────
+ * Brand Design Guide v1.3 line 29 ("hairline rules and outlined boxes — never
+ * filled buttons, never rounded card grids, never drop shadows") was audited
+ * against this file and needed no code change: the chassis has always been
+ * `rounded-card border border-hairline` with a `transition-colors`-only hover,
+ * and there is no `box-shadow` here at rest or on any state. The radius names
+ * the `--radius-card` TOKEN, never a px, so whatever floor the token layer
+ * sets flows straight through — do not hard-code one here.
+ * `Ticket` was brought onto this exact rest/hover law in the same pass (its
+ * resting two-layer shadow became `border border-hairline`), so the site's two
+ * card families now read as ONE system. If you change the hover value here,
+ * change it in `Ticket.tsx` too, or they diverge on the same page.
+ *
  * ── One link target ────────────────────────────────────────────────────────
  * When `href` is given, a real `<a>` wraps the title and stretches over the card
  * via `::after`. Screen readers get one link named by the hotel; pointers get

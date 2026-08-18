@@ -2,8 +2,9 @@
  * components/atoms/DataLine.tsx — the mono deal-data line
  * ("Lake Harmony, PA · Full-Service · 450 keys").
  *
- * Governed by design-skill references 03 (Type ramp → Data row: IBM Plex Mono,
- * tabular-nums — a P1 gate), 06 (Copy patterns → data lines) and
+ * Governed by design-skill references 03 (Type ramp → Data row: JetBrains Mono,
+ * tabular-nums — a P1 gate; the face changed under L3 on 2026-08-17, the rule
+ * did not), 06 (Copy patterns → data lines) and
  * PHASE-1-EXECUTION §9 (the separator vocabulary is shared verbatim with the
  * a100 feed so a Phase 2 data swap renders without re-formatting).
  * Server Component.

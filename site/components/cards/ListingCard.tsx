@@ -36,12 +36,17 @@
  * ── The 5-second gate ───────────────────────────────────────────────────────
  * Price always renders (real value or the "Price on Request" fallback — it
  * is never blank). Keys and cap rate join the facts grid only when the seed
- * data supplies them; the Phase 1 seed currently carries neither for any of
- * the five active listings (content/listings.ts), so today every ticket's
- * facts grid is empty and `Ticket`'s `reserveMetrics` default still holds
- * the row's height steady across the grid. Nothing here is invented when the
- * source hasn't supplied it — `keys` and `cap rate` are genuinely omitted
- * rows, never "N/A" (content/listings.ts header comment).
+ * data supplies them, and under the three-property allowlist that is now a
+ * MIXED grid rather than a uniformly empty one: The Florida Gateway and
+ * Quality Suites Cy-Fair each carry a real key count and a real price, while
+ * Pocono carries neither (no source states them), so its ticket renders the
+ * "Price on Request" fallback and an empty facts grid. `Ticket`'s
+ * `reserveMetrics`/`reservePrice` defaults are what keep those three tickets
+ * level with each other despite the difference — do not "fix" the gap by
+ * filling it. No source states a cap rate for ANY of the three, so no cap
+ * chip renders anywhere today. Nothing here is invented when the source
+ * hasn't supplied it — `keys` and `cap rate` are genuinely omitted rows,
+ * never "N/A" (content/listings.ts header comment).
  *
  * ── D4: what moved where (carried forward from the pre-Ticket CardShell era,
  *    unchanged this wave) ────────────────────────────────────────────────────
@@ -60,6 +65,26 @@
  * mismatched link — it degrades to a non-linking tile with a real `mailto:`
  * contact route in the stub instead.
  *
+ * That degrade is now the MAJORITY state, by decision rather than by accident:
+ * of the three allowlisted listings only Pocono has a Crexi URL that any
+ * source confirms. Quality Suites Cy-Fair has none anywhere (D7's default:
+ * ship the card without a link), and The Florida Gateway's candidate URL is
+ * unconfirmed and deliberately not wired. See content/listings.ts's "CREXI
+ * LINKS" header note. Two mailto tickets beside one Crexi ticket is the
+ * designed, honest outcome — not a rendering bug to route around.
+ *
+ * ── Street address: rendered only behind the publish gate (D18) ────────────
+ * `locationLabel()` below composes the meta line's location. It prepends a
+ * street ONLY when the row carries one AND marks it `streetStatus:
+ * "verified"`; anything else — no street, or a street still marked
+ * `provisional` — renders city/state exactly as before. That is the code half
+ * of decision D18 (docs/LAUNCH-IMPLEMENTATION.md §3.5): The Florida Gateway's
+ * street number is flagged in its own source as a possible digit-
+ * concatenation typo, and the plan's default is that an unverified street
+ * number is not published on a $3.75M offering. No row is `verified` today,
+ * so no card renders a street; clearing D18 is a one-token data flip in
+ * content/listings.ts and needs no change here.
+ *
  * ── Photo: the listing-media adapter, not inline resolution ────────────────
  * THIS WAVE: photo/placeholder resolution moved OUT of this file and into
  * the new `lib/listingMedia.ts` adapter (`getListingMedia()`) — read that
@@ -73,10 +98,12 @@
  * NOTHING; `getListingMedia()`'s first branch already renders it.
  *
  * KNOWN GAP, not something this component can fix (docs/PLACEHOLDERS.md row
- * 41, `provisional`): none of the five active listings has real photography
- * yet — every one resolves the approved 「北天」 glyph-mosaic placeholder via
- * the adapter's second branch. This is the designed, tracked interim state,
- * not a bug.
+ * 41, `provisional`): none of the three allowlisted listings has real
+ * photography yet — every one resolves the approved 「北天」 glyph-mosaic
+ * placeholder via the adapter's second branch. The 2026-08-17 delivery's
+ * listing flyers cannot close it either: they carry prior-firm branding and a
+ * legacy contact block, so they are unusable (D12). This is the designed,
+ * tracked interim state, not a bug.
  *
  * ── `focalPoint`: consumed here, not yet populated anywhere (see the adapter's
  *    header for the full gap note) ──────────────────────────────────────────
@@ -98,10 +125,9 @@
 
 import { ArrowUpRight } from "lucide-react";
 
-import type { Listing } from "@/lib/types";
 import { displayCapRate, displayPrice, metaLine } from "@/lib/utils";
 import { getListingMedia, isRawSvgFallback, type ListingMediaFocalPoint } from "@/lib/listingMedia";
-import { isTrustedCrexiUrl } from "@/content/listings";
+import { isTrustedCrexiUrl, type SeedListing } from "@/content/listings";
 import { CONTACT } from "@/content/site";
 import Ticket, { type TicketMetric } from "@/components/cards/Ticket";
 import PhotoFrame from "@/components/atoms/PhotoFrame";
@@ -109,7 +135,13 @@ import { Badge } from "@/components/atoms/Badge";
 import { Button } from "@/components/ui/button";
 
 export type ListingCardProps = {
-  listing: Listing;
+  /**
+   * `SeedListing` = `lib/types.ts`'s `Listing` plus the optional street
+   * publish-gate fields the static seed owns (content/listings.ts). Both
+   * extras are optional, so a plain `Listing` — a future feed row, a preview
+   * fixture — is still accepted unchanged; it simply never renders a street.
+   */
+  listing: SeedListing;
   /**
    * The listing's REAL, already-rendered position in the grid array (0-based
    * — this file adds 1 for display). `ListingsSection` passes its own
@@ -137,9 +169,19 @@ const FOCAL_IMAGE_CLASS: Record<ListingMediaFocalPoint, string> = {
   right: "object-right",
 };
 
-/** "City, ST" when a city is on file, "ST" alone otherwise — never an invented municipality. */
-function locationLabel(listing: Listing): string {
-  return listing.city ? `${listing.city}, ${listing.stateCode}` : listing.stateCode;
+/**
+ * "<street>, City, ST" once a row's street is VERIFIED; "City, ST" when only
+ * a city is on file; "ST" alone otherwise. Never an invented municipality,
+ * and never an unverified street number — see the file header's D18 note for
+ * why the gate exists, and `content/listings.ts` for the data behind it (the
+ * one provisional street value lives there and nowhere else, so it cannot be
+ * copied out of a component comment by mistake).
+ */
+function locationLabel(listing: SeedListing): string {
+  const place = listing.city ? `${listing.city}, ${listing.stateCode}` : listing.stateCode;
+  return listing.street && listing.streetStatus === "verified"
+    ? `${listing.street}, ${place}`
+    : place;
 }
 
 export function ListingCard({ listing, index, className }: ListingCardProps) {

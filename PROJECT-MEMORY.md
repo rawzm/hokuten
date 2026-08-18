@@ -24,6 +24,7 @@
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-08-17 | **Theme G (gold) is the production theme; the site is retuned to Dino's Brand Design Guide v1.3** — faces Cormorant Garamond / Inter / JetBrains Mono, the guide's gold + paper/ivory/cream/charcoal palette, its logo rule and vocabulary. Theme B is parked, not deleted. Exact hex resolution (guide `#B08D3F` vs raster/kwc `#B8943D`) and the dark-field question are R3 / R1 in docs/LAUNCH-IMPLEMENTATION.md §8 — the `#B8902E` guardrail is superseded only when Razim signs R3. | Razim's direction 2026-08-17 ("going forward with the yellow theme… match the design kit Dino sent — colour, font style, everything"); Dino sent the guide as the brand register (team chat 2026-08-17) and rejected the earlier yellow as not the specific gold |
 | 2026-08-07 | Brand spelling is **Hokuten**, not Hakuten | Matches all brand assets, README, and purchased domain (Razim confirmed) |
 | 2026-08-07 | **Hokuten-first branding** on the site; KW Commercial as small compliance mark in footer/legal only | Name isn't fully papered yet; easy to swap affiliation; William wants own control |
 | 2026-08-07 | Phase 1 listings/closed/content = **static, seeded from Dino's kwc site**. No CMS. Later phases integrate the **a100arms.com API** (where all deals/data live, already wired into the kwc site) + Monday CRM | Deals already live in Monday CRM + a100arms; don't build a parallel static content pipeline for dynamic data |
@@ -42,6 +43,162 @@
 - Assets: transparent PNG masters (2400w stacked / 3600w linear), SVG placement wrappers, LinkedIn/Facebook/Zoom covers
 
 ## 4. Log
+
+### 2026-08-17 — Dino's launch package received; Theme G locked to the brand kit; launch implementation doc written (provisional)
+
+Dino delivered the full pre-launch package on 2026-08-16/17 (Brand Design Guide v1.3, Website & Launch
+Master v2, Deployment Settings v2, CoStar Badge Review v2, outreach profile/signature/deal-card kit REV6,
+Media zip with canonical headshots + CoStar Social Media Kit + social posts, Work Manual / Playbook /
+Handbook / Role Guides / CRM guide, agreements, the 50-mile sweep workbook) and asked Razim to take the
+site live. Everything sits under `full-brand-toolkit/` (untracked; the old `The_Hokuten_Group_Brand_Addon_2/`
+tree was moved inside it — 17 tracked files show as deleted; resolution is P17 in the plan).
+
+**Razim's decisions this session (recorded verbatim in intent):** go forward with the yellow (Theme G)
+theme only; the site's colour must match Dino's design kit; the font style and the rest of the kit's system
+too. Theme B is parked in place.
+
+**What was produced** — a 17-agent research pass (12 readers over every delivered file incl. pixel-sampling
+the lockup golds and transcribing the WhatsApp screenshot; Opus synthesis; three adversarial critics —
+completeness / correctness / policy — 45 findings, all applied):
+- [docs/LAUNCH-IMPLEMENTATION.md](docs/LAUNCH-IMPLEMENTATION.md) — status `provisional`. Token table
+  current→new with recomputed AA ratios; typography swap Fraunces/IBM Plex Mono → Cormorant Garamond /
+  JetBrains Mono (Inter stays); vocabulary→component mapping; logo usage per surface; Dino's locked copy
+  and section order; awards per Claims Register v1.1 (4 individual + Top Firm as prior-firm/team, never
+  "5×"); deals scrub + provenance line; three-listing allowlist + a100 proxy; six-seat roster; Monday
+  intake + consent-aware measurement per Deployment Settings v2; go-live gates + runbook; 17 portions for
+  `/implement-plan` (Sonnet builds / Opus reviews) with gates; 17 decisions for Razim (§8), 21 asks for
+  Dino (§8.1), 29-row discrepancy register (§9).
+- [docs/WHATS-LEFT.md](docs/WHATS-LEFT.md) — everything left from the team chat: website items,
+  non-website deliverables Razim owes (deal-card KW mark + outreach kit on the brand register, signatures
+  on Mac+iPhone for six seats, business-card proof fixes before print, LinkedIn/directories, headshot prep,
+  agreements to sign — Japan ones excluded), items owed to Razim (bios/headshots already sent by Donna,
+  KW's ruling on the gold mark, licence numbers / gate G3, the undelivered Claims Register v1.1 and Launch
+  Decision Checklist), and items explicitly out of Razim's lane.
+
+**Facts that change the plan (all sourced in the doc):**
+- The Brand Design Guide v1.3 fixes the site's faces (Cormorant Garamond / Inter / JetBrains Mono — also
+  what Dino's live kwc source declares) and palette (`--gold #B08D3F`, `--gold-dim #C8A552`, ink
+  `#F5F1E8`/`#D0C9BC` on dark, `#1A1C1F` on light, paper `#FBF9F3`, ivory `#F4EFE3`, cream `#EDE7D8`).
+  Every lockup raster and the kwc CSS run `#B8943D` — R3 offers both, defaults to the guide.
+- The Launch Master v2 says the kwc site is the production base and Razim's build is "reference only" —
+  contradicted by Dino's chat ask to take Razim's site live. **D15 — Razim settles with Dino before any
+  build wave.** The plan is written for `site/` shipping.
+- The five CoStar files in `site/public/awards/` are resized email-signature banners, not the Winner
+  Badges, and the Top Firm one is byte-identical to the file CoStar's README excludes as prior-firm
+  reference-only → re-intake (P15).
+- No WhatsApp invite, no analytics, no Calendly URL, no Monday intake exist in the site yet — all are
+  directives in v2 and are scheduled as real portions, not "already done".
+- Two go-live gates may be unsatisfiable as written (G3 asks for DRE numbers; the disclosed licences are
+  FL/IL) — D9 to Dino; Razim's own licence status is R8.
+
+**Guardrail changes pending Razim's signature (not applied yet):** website gold `#B8902E` → guide value
+(R3); typography non-negotiable Fraunces/IBM Plex Mono → guide faces (R13); Phase-1 static listings →
+a100 proxy (L8); the "Hokuten-first / KW footer-only" wording is already superseded by D1 (2026-08-08).
+CLAUDE.md and skill ref 01 are updated in P13 after the signatures, not before.
+
+**Round 2 (same evening) — Razim's decisions, plan status → `approved`:**
+- **Precedence rule:** Dino's newest document supersedes older ones. Verified order for the website:
+  V2 START HERE / Deployment Settings v2 / Badge Review v2 (sent 2026-08-16 23:44) > FINAL_HANDOFF.md
+  (23:15) > RAZIM_HOKUTEN_EDITS (Aug 5) > Brand-Addon README (Aug 5); PRE-LAUNCH KIT (later, Aug 17)
+  governs the non-website finish list and gates and defers to V2 for the site; the Brand Design Guide
+  v1.3 governs design over all. Where V2 is silent the next-newest speaks (section order = FINAL).
+- **Which build ships — resolved by the build owner:** `site/` (Next.js, Theme G) is production. V2 §1
+  lines 7/9 ("kwc site is the base, Razim's build is reference only") are superseded 2026-08-17.
+- **No pre-build questions to Dino.** Every open item takes the recommended default (recorded in
+  docs/LAUNCH-IMPLEMENTATION.md §8/§8.1); the site is built and pushed to the Vercel production URL
+  (still noindex); Dino reviews there and changes are iterated. **The public cutover (remove noindex,
+  point thehokutengroup.com, 301 from kwc-dinomonteverde.com) stays gated on the paperwork gates** —
+  the CLAUDE.md guardrail is not lifted.
+- **All §8 recommendations adopted:** keep the paper/dark-hero chassis and retune tokens (recorded
+  deviation from V2 §1 line 8); vocabulary carve-outs; gold `#B08D3F`/`#C8A552` (rasters stay
+  `#B8943D`) — the `#B8902E` guardrail supersession is now approved and lands in P13; V2 headline;
+  Dino's section order; remove the `3×` tile; 3 featured + 3 roster seats; "Founding Team Member |
+  Director"; keep 836K+ SF; keep the preview reachable; park Theme B; guide faces (Fraunces/IBM Plex
+  Mono supersession approved); dark nav + on-charcoal linear lockup; "True north for hotel owners" as
+  the footer brand line; `#doors` carries the marketplace intent; restore the brand-master tree and
+  gitignore `full-brand-toolkit/` + `.tmp/` (done this session).
+- **R8 resolved (Razim, same evening):** currently licensed in Illinois (#475.213653) but pausing that
+  membership soon; no licensed acts under his own name (lead qualification, LOI/PSA work run under Dino's
+  licence). Site renders **title only, no licence number** for Razim from day one; agreements use the
+  non-licensed services framing; Broker-of-Record Schedule A drops him. Donna's bio received and banked
+  (plan Appendix B13); Razim's draft bio (B14) awaits his word.
+- **Delegated build is Opus 5 only** (builders and reviewers; the main loop will run as Opus 5). No
+  Sonnet, no Haiku, no Fable subagents. Launch-manifest approval per wave, no main-loop fallback, and
+  usage telemetry stay in force.
+- **New portion P18** — non-website deliverables Dino handed to Razim: deal-card KW mark → stacked
+  lockup + re-export; Dino's business-card proof (title → Managing Director, domain →
+  thehokutengroup.com) before printing. Profile cards / signatures / vCards ship as delivered; the
+  Mac + iPhone install for six seats is a manual per-device task.
+- **Agreements:** Razim reviewed 01/02/03/07 (notes + rewording asks + compensation proposal in the
+  private, gitignored `.tmp/private/AGREEMENTS-REVIEW-AND-DINO-MESSAGE-2026-08-17.md`). Key finding:
+  the Team Commission Agreement (solo 80/20 · team 50/30/10/10 · double-ended 80/10/10) has no line
+  for Razim's technology function (he built a100 Arms entirely and built/maintains the kwc, Japan and
+  Hokuten sites, unpaid so far); the ask is a 2–3% Technology share from the Team overhead line plus a
+  deal-support credit, structured as non-licensed services compensation.
+
+- **Monday intake — contract written (2026-08-17 evening):** Deployment Settings v2 ("defaults to Contacts") conflicts
+  with the CRM Guide ("nothing unverified sits in Contacts"; email is the primary key; graduating to Contacts is a
+  licensed-broker move) and names fields the Contacts board has no columns for. Resolution in
+  [docs/MONDAY-INTAKE-CONTRACT.md](docs/MONDAY-INTAKE-CONTRACT.md): the website creates only in **Unverified
+  Leads / New-Unverified**, reads Contacts for dedupe (Update-only on an existing item), never writes Buyer
+  Leads/Deals, never invents boards/groups/columns/labels, ships in dry-run until Dino's agents return the
+  existing schema (board/group/column IDs, label sets, automations). Schema request for Dino (with the exact
+  IDs) is private under `.tmp/private/`. `provisional` until Dino rules on the write target.
+
+**EXECUTED the same evening (2026-08-17, 21:41–23:00) — Opus-5-only delegated run, 8 workflows / ~40 agents.**
+
+Shipped to the working tree and pushed to the Vercel PRODUCTION deployment with `noindex, nofollow`
+still in force. Public cutover (remove noindex, point thehokutengroup.com, 301 from
+kwc-dinomonteverde.com) remains gated on the paperwork gates — untouched by this run.
+
+**Landed:** P17 repo hygiene + baseline · P1/P2 token layer (Cormorant Garamond / Inter / JetBrains
+Mono; `--accent #B08D3F`, `--accent-dim #C8A552`, derived `--accent-ink #7E652D` / `--accent-deep
+#675325`, paper `#FBF9F3` / ivory `#F4EFE3` / cream `#EDE7D8` / dark `#1A1C1F`, new `--ink-dark-*`
+dark-field bindings) · P5 section order + renumber to Dino's sequence · P16 footer WhatsApp invite +
+disclosure, "True north for hotel owners" footer line, Calendly · P15 the five CoStar **Winner
+Badges** re-intaken at native aspect (the shipped files had been resized email-signature banners, one
+of them the README-excluded prior-firm asset) · P6 hero/stats/awards/closings copy · P7a three-listing
+allowlist · P8 six-seat roster · P9 five unanswered FAQs cut · P10 server-side Monday intake
+(dry-run default) · P11 a100 public-listings proxy · P3 raster regeneration · P7b/P14 metadata,
+single noindex source of truth, consent-aware measurement with null vendor IDs · P13 dated guardrail
+supersessions · P4 guide vocabulary (outlined CTAs, hairline tickets, minimised radii) · P18
+non-website deliverables.
+
+**Verification at commit:** `pnpm build` PASS (11 routes) · `tsc --noEmit` exit 0 · vitest **228/228**
+(the frozen 128-test valuation port byte-identical to HEAD, +100 new intake/proxy tests) ·
+`contrast.mjs` **0 FAIL / 51 PASS** (baseline had 5 FAIL; the script also now exits non-zero on
+failure — it previously always exited 0, which is how the failures went unnoticed) · QA greps clean
+(Hakuten 0 · CyEa 0 · one WhatsApp invite · Sarhan/Mheni/Schulman only in guardrail comments · zero
+`PLACEHOLDER:confirm` in `content/`).
+
+**Defects the adversarial reviewers caught before they shipped** (the reason the run used them):
+five real intake vulnerabilities — a dedupe silent-miss that would have duplicated CRM people, CRM
+record forgery + HTML injection via newline-bearing form fields, email header injection through the
+hotel name, PII posted to unvalidated plaintext webhooks, and a rate-limit bypass on a spoofable
+header; a forbidden "$200M+ closed across 12 hospitality transactions" compression in the root/OG
+description; the banned "Asia to the Americas" phrase surviving in a comment the release grep sweeps;
+JSON-LD emitting empty descriptions and bypassing the headshot-approval gate; `SECTION_IDS` still
+holding the pre-reorder sequence that the nav scroll-spy derives from.
+
+**Decisions taken during execution (new law, recorded here):**
+- **The 2025 Annual Top Firm badge ships** as prior-firm/team recognition in its own block with the
+  full qualifier. The CoStar README reads as excluding it from the website package; Dino's later chat
+  instruction asked for it explicitly, and newest instruction wins under the precedence rule.
+- **The EXCLUSIVE badge came off the two new listings** — both were found publicly listed on LoopNet
+  showing other brokers' contacts, so the claim has no `verified-current` evidence. One line to
+  restore if Dino confirms exclusivity.
+- **Theme B's dark chapter shifts** as a side effect of the shared `.surface-dark` rebinding
+  (measured 15.75 / 10.79 / 5.03 — all still AA). Accepted deliberately; Theme B is parked.
+- `pnpm build` does **not** type-check `site/scripts/**` under Next 16 — a hard TS error sat there
+  while the build reported success. `tsc --noEmit` stays in the gate set permanently.
+
+**Not done — next session:** the horizontal-overflow gate at 375/768/1440/1920/2560, screenshots,
+Core Web Vitals and the design-director `audit` verb (all headless work, none run) · the last four
+agents' reviewer passes were still finishing at commit time · `lib/web3forms.ts` is dead but not
+deleted · `Doors`/`Footer` double gutters after the reorder · `public/art/listing-placeholder.svg`
+still carries retired tokens · `identity-prep.ts` PART 2 would throw on re-run (its badge specs point
+at `Ref/site/` files P15 deleted) · the hero's one-screen re-measure.
+
 
 ### 2026-08-10 — Design revisit 2 approved (execution brief; implementation pending)
 

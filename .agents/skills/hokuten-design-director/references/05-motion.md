@@ -1,7 +1,7 @@
 # 05 — Motion
 
 ## Table Of Contents
-Doctrine · Tokens · Reveals · ASCII hero (retired) · Hero slideshow · Loader · Ticker · Hovers · Smooth scroll / scroll snap · Performance gates
+Doctrine · Tokens · Reveals · ASCII hero (retired) · Hero slideshow · Loader · Ticker · Hovers · Smooth scroll (scroll snap retired) · Performance gates
 
 ## Doctrine
 
@@ -14,7 +14,9 @@ One signature effect per viewport; the supplied 「北天」 glyph-mosaic artwor
 
 **D11 (2026-08-10) — the signature is now a small slideshow, still one system.** The hero art rotating through 3–5 slides with one mosaic-tile transition (§Hero slideshow below) still counts as the page's *one* signature effect, not two — the transition is the single motion system; the slides themselves are static content, same as the retired rule's single frame was. Do not read D11 as licence to add a second effect to the hero viewport.
 
-**D10 (2026-08-10) clarification — native scroll snap is not exempted from, nor does it violate, the no-scroll-jacking law.** It is the browser's own `scroll-snap-type` mechanism: no wheel/touch listener, no delta threshold, no `preventDefault`, no synthetic jump, no custom scroll queue. Full mechanism: [03-visual-system.md](03-visual-system.md) → "Native paging supersedes free scroll on qualifying desktop."
+**Retired 2026-08-10 evening (D22) — corrected here 2026-08-17.** The D10 clarification below argued (correctly) that native `scroll-snap-type` is not scroll-jacking. **It is moot: snap is gone from the codebase**, removed on Razim's live-render verdict, and scrolling is natural at every width on every route. The reasoning is kept because the underlying law it defends is unchanged and still binding — **no wheel/touch listener, no delta threshold, no `preventDefault`, no synthetic jump, no custom scroll queue, anywhere.** Under D22 the site simply satisfies it by having no paging mechanism at all.
+
+**D10 (2026-08-10) clarification — superseded, kept for the record — native scroll snap is not exempted from, nor does it violate, the no-scroll-jacking law.** It is the browser's own `scroll-snap-type` mechanism: no wheel/touch listener, no delta threshold, no `preventDefault`, no synthetic jump, no custom scroll queue. Full mechanism: [03-visual-system.md](03-visual-system.md) → "Native paging supersedes free scroll on qualifying desktop."
 
 ## Tokens (implementation of record: `site/lib/motion.ts`)
 
@@ -106,11 +108,13 @@ Touch: hover states replaced by the `tapped` toggle class (kwc pattern); no info
 
 ## Smooth scroll / scroll snap
 
-**Superseded 2026-08-10 (D10, Design Revisit 2).** "Lenis on desktop pointer devices only" below is retired specifically **on the landing route** while its route-scoped paged mode is qualifying (ref 03 → "Native paging supersedes free scroll on qualifying desktop"). Lenis is removed or gated off on that route so it cannot fight the browser's own `scroll-snap-type: y mandatory` — the two systems drive the same scroll position and must not both try to own it. Lenis's prior job (a fine-pointer easing feel on desktop) is superseded by the native snap's own settle behavior wherever paged mode qualifies; outside the qualifying tier (touch, <1024×760, reduced motion, zoomed reflow) the page is native scroll exactly as it always was — nothing to gate there, since Lenis never ran on those devices anyway. Legal/editorial routes are untouched by any of this — Lenis's original scope on those pages is unchanged.
+> **Current law, 2026-08-10 evening (D22, Design Revisit 3) — read this first.** **Scroll snap is removed.** The route-scoped snap CSS, the `PagedMode` measurement island and the Lenis paged-mode refusal are all deleted; Lenis returns to its original behaviour (desktop fine-pointer smoothing, all its existing gates) on every route, including the landing route. `data-page="home"` survives as an unused route hook. The twelve `page-panel` compositions stay — the page reads as twelve screens and scrolls freely between them. The D10 paragraph below is retained as the record of the one-day experiment; **do not rebuild it.** (Corrected 2026-08-17 — this file described snap as live for seven days after it was removed.)
+
+**Superseded 2026-08-10 evening (D22). Prior text, 2026-08-10 (D10, Design Revisit 2):** "Lenis on desktop pointer devices only" below is retired specifically **on the landing route** while its route-scoped paged mode is qualifying (ref 03 → "Native paging supersedes free scroll on qualifying desktop"). Lenis is removed or gated off on that route so it cannot fight the browser's own `scroll-snap-type: y mandatory` — the two systems drive the same scroll position and must not both try to own it. Lenis's prior job (a fine-pointer easing feel on desktop) is superseded by the native snap's own settle behavior wherever paged mode qualifies; outside the qualifying tier (touch, <1024×760, reduced motion, zoomed reflow) the page is native scroll exactly as it always was — nothing to gate there, since Lenis never ran on those devices anyway. Legal/editorial routes are untouched by any of this — Lenis's original scope on those pages is unchanged.
 
 Anchor navigation respects `scroll-margin-top: var(--nav-h)` (**D18, 2026-08-10: 72px desktop / 64px mobile**, was 68px/60px under D6, which was itself down from 88px); focus moves to the target section heading (a11y). Explicit anchor movement (a nav link, a CTA routed through `<AnchorLink>`) may still animate smoothly, but only when `prefers-reduced-motion: no-preference` — this is unchanged.
 
-No scroll-jacking, no scroll-linked pinning — unchanged, and explicitly re-confirmed by D10 itself: native `scroll-snap-type` is not scroll-jacking (see Doctrine above). There is no wheel/touch listener, no delta threshold, no `preventDefault`, no synthetic jump, no custom scroll queue anywhere on the landing route, snap or no snap.
+No scroll-jacking, no scroll-linked pinning — **unchanged, and now unconditional**: with D22's removal of snap there is no paging mechanism on the route at all. Historical note, kept because it explains the token: native `scroll-snap-type` is not scroll-jacking (see Doctrine above). There is no wheel/touch listener, no delta threshold, no `preventDefault`, no synthetic jump, no custom scroll queue anywhere on the landing route, snap or no snap.
 
 **D6 clarification (2026-08-08), narrowed 2026-08-10 (D14):** the paragraph below described the calculator's step-3 density fix as internal native overflow. **That specific caller is retired** — `#calculator` now has five steps and no internal section scrollbar under any circumstance (ref 03/04). The general principle survives for other genuinely exceptional cases (documented: the menu overlay's short-height/200%-zoom accessible fallback, D17): this bans *hijacking* the page's scroll — wheel/touch input redirected to drive something other than native scroll position. It does **not** ban native internal overflow inside a single section where content genuinely exceeds the viewport in one of those documented exceptional cases — that's the `scroll-well` utility (ref 03 §Spacing & layout): ordinary `overflow-y: auto`, keyboard-reachable, `overscroll-behavior: contain`, with a mask-fade as the visible affordance that more content follows. The page's own scroll position is never touched; only that one well scrolls itself.
 
@@ -130,7 +134,7 @@ No scroll-jacking, no scroll-linked pinning — unchanged, and explicitly re-con
 
   **D7 bonus:** retiring the ASCII canvas + its JSON (§ASCII hero, D5) removes ~200KB gzip of asset fetch plus the playback JS from the hero path entirely. Recount actual budgets against the two numbers above once the supplied-artwork swap lands, and record the new measured figure here.
 - Calendly/intl-tel-input/us-cities lazy-load on interaction only (unchanged).
-- Fonts: ≤2 files per family, `display: swap`, subset; no CDN font requests.
+- Fonts: ≤2 files per family, `display: swap`, subset; no CDN font requests. **2026-08-17 (L3):** the families are Cormorant Garamond (normal + italic — the italic is load-bearing, it is `.display-tail`), Inter, and JetBrains Mono. Cormorant has no optical-size axis, so any `axes` declaration carried over from Fraunces is a build error, not a nicety.
 - No `useEffect`-driven layout thrash; measure once, animate transforms.
 
 **New gates, 2026-08-10 (Design Revisit 2):**

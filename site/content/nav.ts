@@ -11,27 +11,32 @@
  *    §4.3) — kills the conflicting second index ──────────────────────────
  * The old 8-item list ran its own standalone 01-08 order, independent of and
  * inconsistent with the numbered micro-label every section already carries
- * on its own `<SectionHeader index="…">` (verified against the built
- * sections themselves: ClosingsSection index="01", ListingsSection "02",
- * CalculatorSection "03", DoorsSection "05", MandatesSection "06",
- * TeamSection "07", FaqSection "08", BovSection defaults to "09" — "04" for
- * #method is implied by the sequence though that section's own header does
- * not yet render an index prop, which is that section's owner's concern,
- * not this file's). A number meant two different things depending on where
- * you saw it. `menuItems` now uses THOSE SAME numbers, in that same order:
+ * on its own `<SectionHeader index="…">`. A number meant two different things
+ * depending on where you saw it. `menuItems` uses THOSE SAME numbers, in that
+ * same order — and the two are re-synced together whenever the page order
+ * moves. Renumbering one without the other reintroduces that bug.
  *
- *   (unnumbered) The Group  → #hero      — the lead item, deliberately
- *                                           uncounted (it is the masthead,
- *                                           not a numbered chapter)
- *   01 Track Record          → #closings
- *   02 Listings              → #listings
- *   03 Valuation              → #calculator
- *   04 Method                 → #method
- *   05 Doors                  → #doors
- *   06 Mandates                → #mandates
- *   07 Team                    → #team
- *   08 FAQ                      → #faq
- *   09 Contact                   → #bov
+ * ── Re-sequenced for the launch order (2026-08-17,
+ *    docs/LAUNCH-IMPLEMENTATION.md §3.2, R5) ─────────────────────────────
+ * `app/page.tsx` now renders Dino's named order: `#faq` and `#bov` move up to
+ * sit directly after `#method`, and `#team` / `#doors` / `#mandates` follow the
+ * ask. Both lists below were reordered and renumbered with it — verified
+ * against the built sections themselves: ClosingsSection index="01",
+ * ListingsSection "02", CalculatorSection "03", MethodSection "04",
+ * FaqSection "05", BovSection defaults to "06", TeamSection "07",
+ * DoorsSection "08", MandatesSection "09":
+ *
+ *   (unnumbered) The Group → #hero  — the lead item, deliberately uncounted
+ *                                     (it is the masthead, not a chapter)
+ *   01 Track Record        → #closings
+ *   02 Listings            → #listings
+ *   03 Valuation           → #calculator
+ *   04 Method              → #method
+ *   05 FAQ                 → #faq
+ *   06 Contact             → #bov
+ *   07 Team                → #team
+ *   08 Doors               → #doors
+ *   09 Mandates            → #mandates
  *
  * #doors and #faq were previously ABSENT from the overlay entirely (the old
  * 8-item list skipped them) — both are included here so the sequence runs
@@ -55,20 +60,31 @@ import { A100_ARMS_SIGNUP_URL, CONTACT, anchor } from "./site";
 /*  Sticky bar                                                                 */
 /* -------------------------------------------------------------------------- */
 
-/** Centre links. Literal wayfinding — no cleverness, no invented section names. */
+/**
+ * Centre links. Literal wayfinding — no cleverness, no invented section names.
+ * Listed in RENDER order (`app/page.tsx`), which is also the order `SiteNav`'s
+ * scroll-spy tie-break assumes: #closings → #listings → #calculator → #method
+ * → #team. Same wording as the matching `menuItems` rows.
+ */
 export const navLinks = [
-  { label: "Listings", href: anchor("listings") },
   { label: "Track Record", href: anchor("closings") },
+  { label: "Listings", href: anchor("listings") },
   { label: "Valuation", href: anchor("calculator") },
   { label: "Method", href: anchor("method") },
   { label: "Team", href: anchor("team") },
 ] satisfies NavLink[];
 
 /**
- * The gold pill, right side of the bar. Lowercase "written" is deliberate — it
- * matches the hero CTA and ref 04. The source site was inconsistent
- * ("Request a Written BOV" in nav, "Request a written BOV" in hero); this is the
- * resolved form, used everywhere.
+ * The primary CTA, right side of the bar. Rendered through `ui/button.tsx`'s
+ * `primary` variant, which R2 (D-VOCAB, 2026-08-17) turned from a filled gold
+ * PILL into a hairline-OUTLINED gold BOX — transparent ground and an accent
+ * label at rest, gold ground only on hover/active. This entry carries the
+ * string and the anchor only; the treatment lives in the Button component, so
+ * nothing here needs to change again when the outline is retuned.
+ *
+ * Lowercase "written" is deliberate — it matches the hero CTA and ref 04. The
+ * source site was inconsistent ("Request a Written BOV" in nav, "Request a
+ * written BOV" in hero); this is the resolved form, used everywhere.
  */
 export const navCta = {
   label: "Request a written BOV",
@@ -91,11 +107,11 @@ export const menuItems = [
   { index: "02", label: "Listings", href: anchor("listings") },
   { index: "03", label: "Valuation", href: anchor("calculator") },
   { index: "04", label: "Method", href: anchor("method") },
-  { index: "05", label: "Doors", href: anchor("doors") },
-  { index: "06", label: "Mandates", href: anchor("mandates") },
+  { index: "05", label: "FAQ", href: anchor("faq") },
+  { index: "06", label: "Contact", href: anchor("bov") },
   { index: "07", label: "Team", href: anchor("team") },
-  { index: "08", label: "FAQ", href: anchor("faq") },
-  { index: "09", label: "Contact", href: anchor("bov") },
+  { index: "08", label: "Doors", href: anchor("doors") },
+  { index: "09", label: "Mandates", href: anchor("mandates") },
 ] satisfies MenuItem[];
 
 /* -------------------------------------------------------------------------- */

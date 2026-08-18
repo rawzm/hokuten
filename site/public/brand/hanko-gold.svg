@@ -1,11 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"
- fill="#B8902E" role="img" aria-label="Hokuten seal">
+ fill="#B08D3F" role="img" aria-label="Hokuten seal">
 <title>北天 — The Hokuten Group seal</title>
 <desc>A square carved seal. A worn stone border, broken in two places and chipped at one corner, encloses the characters 北天 (Hokuten, northern sky) stacked in a squared seal script.</desc>
 
-<!-- Theme G cut. Website gold #B8902E — the brand hex, unadjusted.
+<!-- Theme G cut. Website gold #B08D3F — the brand hex, unadjusted.
      Every on-page gold placement sits on a dark surface (footer, #method,
-     OG black panel), where it measures 5.99:1 on the dark surface and 7.07:1 on the black panel. -->
+     OG black panel), where it measures 5.47:1 on the dark surface and 6.73:1 on the black panel.
+     L2 (2026-08-17, Brand Design Guide v1.3) retuned this off the previous
+     Theme-G gold. That retired value survives only inside the KW kit RASTERS
+     (which bake #B8943D), never in a mark this repo draws itself. -->
 
 <!-- Border. Four carved edges, mitred, drawn as filled slabs so the wear is
      real geometry and not a filter: filters cost pixels and fall apart at

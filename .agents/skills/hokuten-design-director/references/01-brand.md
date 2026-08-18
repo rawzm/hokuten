@@ -12,7 +12,10 @@ Brand hierarchy on official assets reads: KW COMMERCIAL / THE HOKUTEN GROUP / HO
 On the website the hierarchy inverts: Hokuten first; KW Commercial is a footer compliance mark only (decision 2026-08-07).
 The spelling is HOKUTEN everywhere. "Hakuten" is a typo that survives only in the local folder name.
 
-## Dual-theme program (decision 2026-08-07)
+## Dual-theme program (decision 2026-08-07) — **Theme B PARKED 2026-08-17 (L1 / R12)**
+
+> **Read this before anything below in this section.** Theme G is the production theme and the only reachable one. **Theme B is parked in place, not deleted and not retuned:** its `[data-theme="blue"]` block, `THEME_PRESENTATION.blue` and every `IS_BLUE` branch stay in the tree, `DEFAULT_THEME` stays `"gold"`, no user-facing switch is added, and the `theme-blue` branch stops being fast-forwarded. Consequence that matters when reading this file: **every Theme B hex below is frozen at its 2026-08-07/08 value and was deliberately NOT retuned to Brand Design Guide v1.3.** Do not read the blue ramp, the cool paper, or the Theme B accessible tones as current brand law — they are a parked system kept so the decision is reversible. The two-variant *comparison* programme this section describes ("Phase 1 ships TWO complete theme variants… as two Vercel preview links for team comparison") is superseded for production; the mechanics paragraph — semantic tokens only, themes bind them, "gold is scarce" = "accent is scarce" — is unchanged and still governs. (Razim, 2026-08-17; docs/LAUNCH-IMPLEMENTATION.md §1 L1, §8 R12.)
+
 
 Phase 1 ships TWO complete theme variants — same content, same anatomy, massively different color key — as two Vercel preview links for team comparison:
 - **Theme G — "Kit Gold"**: the palette below as-is. Dark heritage hero (cover-panel black, gold/ivory ASCII). Production default on `main`.
@@ -24,17 +27,17 @@ Theme B branding: rebuild the THE HOKUTEN GROUP tracked-caps line, hanko seal, a
 
 | Role | Token | Hex | Use |
 |---|---|---|---|
-| Website gold | `--gold` | `#B8902E` | CTAs, accent words, badges, rules on dark. README mandate: "Website gold stays #B8902E" |
-| Kit gold | (none) | `#B8943D` | Exists only inside raster lockup/cover files. Never a CSS value. Never adjacent to `--gold` |
-| Gold dim | `--gold-dim` | `#C9A04A` | Hover/secondary gold moments on dark (carried from kwc tokens) |
+| Website gold | `--accent` (was `--gold`) | **`#B08D3F`** | CTAs, accent words, badges, rules on dark. **Superseded 2026-08-17 (L2 / R3)** — prior row, kept visible: ~~`#B8902E`, "README mandate: Website gold stays #B8902E"~~. The Brand Design Guide v1.3 (line 19) and Work Manual §13 (line 679) both print Hokuten Gold `#B08D3F`, and the guide governs design over the Brand-Addon README by its own precedence rule |
+| Kit gold | (none) | `#B8943D` | Exists only inside raster lockup/cover files. Never a CSS value. **Measured 2026-08-17: all eight lockup PNGs pixel-sample to exactly `#B8943D`**, so the "never adjacent" caution can no longer be honoured literally — a rendered lockup now sits beside a `#B08D3F` rule at a ~2-unit hue/value delta. Knowingly accepted (D14); Dino eyeballs it on production |
+| Gold dim | `--accent-dim` (was `--gold-dim`) | **`#C8A552`** | Hover/secondary gold moments on dark. **Superseded 2026-08-17 (L2 / R3)** — prior value, kept visible: ~~`#C9A04A`~~ (the kwc token, which Dino's live kwc site still runs). Guide v1.3 line 20 |
 | Ink | `--ink` | `#1A1C1F` | Primary text on light; matches brand charcoal |
 | Ink muted | `--ink-muted` | `#4A4D52` | Secondary text on light |
 | Meta | `--meta` | `#8B8680` | Tertiary/meta text, captions |
-| Paper | `--paper` | `#F7F4ED` | Page canvas (never pure white ground) |
-| Surface deep | `--surface-deep` | `#EFE9DA` | Alternate section bands, raised cards |
-| Ivory rule | `--rule` | `#E2DCCC` | Hairlines, borders; equals brand ivory background |
+| Paper | `--paper` | **`#FBF9F3`** | Page canvas (never pure white ground). **Superseded 2026-08-17 (L2)** — prior value, kept visible: ~~`#F7F4ED`~~. Guide v1.3 paper. The guide's ivory `#F4EFE3` and cream `#EDE7D8` bind `--surface-deep`/`--accent-chip` and `--rule`/`--accent-wash` respectively (rows below) |
+| Surface deep | `--surface-deep` | **`#F4EFE3`** (guide ivory) | Alternate section bands, raised cards. **Superseded 2026-08-17 (L2)** — prior value, kept visible: ~~`#EFE9DA`~~. Also binds `--accent-chip` |
+| Cream rule | `--rule` | **`#EDE7D8`** (guide cream) | Hairlines, borders, and `--accent-wash`. **Superseded 2026-08-17 (L2)** — prior value, kept visible: ~~`#E2DCCC`, "equals brand ivory background"~~. **Cream is a rule and wash colour, never a text ground**: `--accent-ink` measures 4.4957:1 on it, below the AA floor (`CONTRAST.md`) |
 | Card white | `--card` | `#FFFFFF` | Cards/inputs sitting on paper |
-| Dark | `--dark` | `#16181B` | Dark section surface |
+| Dark | `--dark` | **`#1A1C1F`** | Dark section surface. **Superseded 2026-08-17 (L2)** — prior value, kept visible: ~~`#16181B`~~. `#1A1C1F` is **pixel-sampled from the kit's `*_on_Charcoal.png` lockups**, which is why it wins over the Work Manual §13's `#2B2B2B` (a seventh value in the corpus, X4). `lib/theme.ts`'s `themeColor` moves with it |
 | Panel black | `--black` | `#000000` | Hero/cover panel only (matches cover assets) |
 | Brick | `--brick` | `#A33B2C` | Form errors only. Not a brand color |
 
@@ -50,11 +53,14 @@ Theme B branding: rebuild the THE HOKUTEN GROUP tracked-caps line, hanko seal, a
 | Cool paper | `--paper` (Theme B) | `#F7F8F5` | Canvas cools slightly; Theme G keeps `#F7F4ED` |
 | Indigo dark | `--dark` (Theme B) | `#12172B` | Dark sections shift indigo; hero panel may stay `#000` or use this |
 
-Theme G binds: `--accent = #B8902E`, `--accent-dim = #C9A04A`, `--accent-wash = #E2DCCC`, `--accent-chip = #EFE9DA`.
+Theme G binds (**updated 2026-08-17, L2**): `--accent = #B08D3F`, `--accent-dim = #C8A552`, plus the guide's paper/ivory/cream ramp and the recomputed AA-derived tokens. Prior binding, kept visible: ~~`--accent = #B8902E`, `--accent-dim = #C9A04A`, `--accent-wash = #E2DCCC`, `--accent-chip = #EFE9DA`~~. **The implementation of record is `site/app/globals.css`, and the measured matrix is `docs/design/CONTRAST.md`** — every derived tone (`--accent-ink`, `--accent-deep`, `--accent-on-dark`, the dark-field inks) was re-derived against the new anchors and re-run through `docs/design/contrast.mjs` to zero FAILs. The "Accessible tones" table below is the 2026-08-08 derivation against the OLD anchors and is retained as the method of record, not as current values.
 
 **Theme B artwork colour bias (Razim, 2026-08-08 — record beside this palette, not inside it).** The supplied 「北天」 glyph-mosaic artwork (see "Motif system" below, and [04-page-anatomy.md](04-page-anatomy.md) → Hero) is not required to match the Theme B UI ramp above — the art carries its own source-photo colours. Pieces Razim renders *for a Theme B placement* bias their img2img colour translation toward a different ramp: **Hokuten blue / dusty blue → pale ivory → warm sand → muted salmon → olive → deep navy/burgundy.** Sophisticated and editorial — never hacker/code-art, never a literal restatement of the UI accent ramp above (the art's job is mood, not token compliance). Per-theme artwork variants are therefore allowed: a placement may carry one shared piece used in both themes, or a gold-biased/blue-biased pair. First delivered piece in this bias: A3 (`Ref/artwork/`, full-service hotel block at sunset, dusty-blue/salmon/sand sky) — the Theme B hero candidate; full intake manifest and the delivered-batch table live in `docs/DESIGN-REVISIT.md` §3 and `content/artwork.ts`.
 
-## Accessible tones (added 2026-08-08 — measured, not chosen)
+## Accessible tones (added 2026-08-08 — measured, not chosen; **Theme G values re-derived 2026-08-17, L2**)
+
+> **2026-08-17 (L2 / R3).** The method below is unchanged and still the law: brand hexes are correct as brand values, but a tone that fails AA **as text** is re-derived (hue and saturation held, lightness moved) rather than shipped. What changed is the anchor — every Theme G derivation now runs off `#B08D3F`/`#FBF9F3`/`#1A1C1F`, not `#B8902E`/`#F7F4ED`/`#16181B`. Current Theme G values, measured and re-run through `docs/design/contrast.mjs` to zero FAILs: `--accent-ink #7E652D` (5.27 paper · 4.83 ivory · 5.55 card) · `--accent-deep #675325` (7.02 on paper) · `--accent-on-dark #B08D3F` (5.47 on `--dark` · 6.73 on `--black`) · `--on-accent #1A1C1F` (5.47 on an `--accent` fill — never light text on gold, that measures 2.96) · dark-field ink `#F5F1E8` / muted `#D0C9BC`. **The table below is the 2026-08-08 derivation against the retired anchors** — kept because it is the method and the reasoning of record, and because the Theme B half of it is still live for the parked theme. Read `site/app/globals.css` + `docs/design/CONTRAST.md` for what actually ships.
+
 
 The brand hexes above are correct as brand values but several fail WCAG AA as *text*. PHASE-1-EXECUTION §8.1 authorises exactly this remedy: "adjust tone, not the brand hex, where it fails at small sizes." These are the adjusted tones; contrast was computed, not estimated (`docs/design/CONTRAST.md` holds the script and the full matrix).
 
@@ -87,22 +93,40 @@ Implementation: `site/app/globals.css` binds all of these per theme, and the `.s
 Light mode is the site; dark is a section treatment (hero, process chapter, footer), not a theme toggle.
 Gold is scarce: CTAs, one accent word per headline, badges, thin rules. If gold exceeds ~5% of a viewport, it's wrong.
 
+### Two fields — and the recorded deviation (R1, 2026-08-17)
+
+The Brand Design Guide v1.3 (line 24) names two fields and only two: *"DARK field — near-black charcoal, ivory text, gold accents: the website and the offering memoranda… Nothing else in the company goes dark."* Dino's master website directive `V2` §1 line 8 says the same thing more specifically, naming **four routes** — home, marketplace, privacy, SMS terms — that should carry charcoal/black grounds with ivory text.
+
+**What ships is the paper-page / dark-hero / dark-chapter chassis, retuned to the guide's exact hexes — a recorded deviation, not a resolved conflict.** Both fields the guide names are present on the page (the hero and the dark chapters are the dark system; the connective tissue is paper); what the decision declines is inverting the connective tissue. Reasoning, stated against the stronger evidence rather than around it: Dino's objection on 2026-08-16 was to the *specific gold*, not to the field, and §Palette above delivers that correction exactly; three approved design revisits built and measured this chassis, including the one-screen panel budgets and the horizontal-overflow release gate; and a full field inversion re-opens every one of those measurements in launch week. **Not routed to Dino as an ask** — he reviews the production URL and iterates. Alternative B (full dark field) is sized as a post-launch revisit in docs/LAUNCH-IMPLEMENTATION.md §1.1: it inverts every `.surface-*` binding, re-derives ~40 contrast pairs, regenerates every paper-ground raster, and re-checks the franchise-chip rail, which is pinned to a light band by a measured constraint (the supplied chips carry baked shadows, D25).
+
+### Guide vocabulary — adopted with three named carve-outs (R2, 2026-08-17)
+
+Guide lines 27–32: *"Hairline rules and outlined boxes — never filled buttons, never rounded card grids, never drop shadows."* Adopted, with the three collisions against approved component law resolved explicitly rather than silently:
+- **Primary CTAs become hairline-outlined gold** — 1px `--accent` border, transparent ground, `--accent-text` label, gold ground only on hover/active. This is the guide's own outlined-box language; the filled gold pill is retired.
+- **Ticket resting shadow → 1px hairline.** D4's documented drop-shadow exception (2026-08-08) is superseded; hover/focus elevation becomes a hairline colour shift, not a shadow. **The perforation/notch geometry stays** — that is what makes a ticket read as a ticket, and it is untouched.
+- **Radii minimised toward 0**, keeping only the ≤2px the ticket notch geometry needs to render cleanly.
+Adopted unchanged from the guide: gold mono kicker + thin gold rule above a Cormorant headline; the italic gold display tail; stat tiles as thin-gold-rule-over-mono-caps-label-over-Cormorant-numeral; two-digit gold step numerals; one idea per screen with wide margins and left alignment (already true of the twelve-screen chassis).
+
 ## Typography
+
+**Superseded 2026-08-17 (L3 / R13, Razim).** Prior program, kept visible — do not rebuild it: ~~Display = **Fraunces** (72pt optical, Light–Regular, `axes: ["opsz"]`); Data = **IBM Plex Mono**~~ (approved 2026-08-10, Design Revisit 2, and carried as a design-skill non-negotiable in `SKILL.md`). Replaced by Dino's Brand Design Guide v1.3 lines 10–16, **corroborated by the kwc port source**, whose `index.html` declares `--serif: 'Cormorant Garamond'`, `--sans: 'Inter'`, `--mono: 'JetBrains Mono'` — the same three faces, so this is the kwc lineage the guide describes, not a new system. Inter is unchanged.
 
 | Voice | Font | Fallback | Use |
 |---|---|---|---|
-| Display | Fraunces (72pt optical, Light–Regular) | Georgia, serif | H1/H2, menu index, stat numerals. Sentence case with *one italic accent word* |
+| Display | **Cormorant Garamond** (Light 300 default; ≤500) | Georgia, serif | H1/H2, menu index, stat numerals. Sentence case with *one italic accent word*; the italic is load-bearing — it is the guide's gold display tail (`.display-tail`) |
 | UI/Body | Inter | Arial, Helvetica, sans-serif | Body, nav, buttons, forms |
-| Data | IBM Plex Mono | ui-monospace | Prices, keys, cap rates, dates, micro-labels, ticker |
+| Data | **JetBrains Mono** | ui-monospace | Prices, keys, cap rates, dates, micro-labels, ticker |
+
+**Ramp consequences of the face swap (measured, not assumed).** Cormorant Garamond has a smaller x-height, a narrower set-width and a lighter colour than Fraunces, so at display sizes the ramp **goes up and the leading loosens** — a like-for-like size substitution reads under-scaled and the whole page loses its top note. Mono labels are uppercase, tracked **0.18–0.32em** (no label below 0.18em). Two font files per family, `display: swap`, no CDN request. Exact steps: [03-visual-system.md](03-visual-system.md) → Type ramp; implementation of record `site/app/layout.tsx` + `site/app/globals.css`.
 
 All self-hosted via `next/font`. No Google Fonts CDN at runtime.
 Tracked-caps brand line (`THE HOKUTEN GROUP` set in text): Inter or Arial-stack, uppercase, `letter-spacing: 0.35em`, gold — mirrors the Liberation Sans lockup treatment.
 Micro-label device: mono, uppercase, bracketed index — `[ 01 — TRACK RECORD ]`.
-Upgrade path: if Canela is ever licensed, it replaces Fraunces at the display voice only; tokens don't change.
+Upgrade path: if Canela is ever licensed, it replaces **Cormorant Garamond** at the display voice only; tokens don't change. (2026-08-17: the sentence read "replaces Fraunces" — same rule, new incumbent.)
 
 ## Lockups & usage
 
-Assets live in `The_Hokuten_Group_Brand_Addon_2/` (masters; copy exports into `site/public/brand/`).
+Assets live in `The_Hokuten_Group_Brand_Addon_2/` (tracked masters — 8 PNGs + 2 SVGs in `01_Logo_Lockups/`; copy exports into `site/public/brand/`). **Path note, 2026-08-17 (R17):** the two lockup PNGs the prep scripts consume are also copied into tracked `Ref/brand-kit/`, so `scripts/identity-prep.ts` reads from `Ref/` per convention rather than from the gitignored `full-brand-toolkit/`. **The two `.svg` lockups are raster-embed wrappers** — a base64 PNG inside an `<svg>` shell, zero `fill=`/`stop-color=` attributes. **There is no vector logo anywhere in the corpus.** Treat them as PNGs; never attempt to recolour them.
 
 **Header — superseded 2026-08-08 (D1, Razim, live review of both theme URLs).** Original rule (2026-08-07): "no KW lockup — Hokuten wordmark/hanko only." **The header now carries the theme-matched KW/Hokuten lockup**: the blue lockup (`Ref/site/logo-blue.PNG`, Fuji + north-star panel art) on Theme B, the gold lockup (`Ref/site/logo-yellow.jpg`, classic KW gold) on Theme G. This kills the 2026-08-07 "no KW lockup in the header / Hokuten-first" P0 outright — remove that gate from any audit checklist still carrying it (ref 07 is owned elsewhere this round; flag it there). `Ref/site/` is production-approved by exception for this reason (masters stay in `Ref/site/`; prepared copies export to `site/public/brand/` and `site/public/awards/`) — the rest of `Ref/` remains source-material-only, never imported, unchanged.
 Asset prep: trim to content bounds, knock out the white background (or mount on a deliberate light chip that reads over both nav states). Header render height ~40–48px. Full placement anatomy: [04-page-anatomy.md](04-page-anatomy.md) → Nav.
@@ -114,7 +138,8 @@ Asset prep: trim to content bounds, knock out the white background (or mount on 
 
 **Names baked into images stay the Sarhan anti-pattern** — a raster lockup satisfies the co-brand requirement, not the brand-legibility one. A real-text `THE HOKUTEN GROUP` tracked-caps brand line sits adjacent to the lockup in the header (visually or, where the composition has no room, as a visually-hidden equivalent for AT/SEO) — this is precisely why the OG cover recipe below already insists THE HOKUTEN GROUP render as real, large lettering rather than living only inside a raster mark. **D18 adds:** at widths where the lockup and nav controls would collide, the adjacent real-text brand line may become visually-hidden — it is never removed from the DOM, only from the visible layout.
 Footer: `Stacked_..._Gold_Transparent.png` over `--dark`, small, beside the compliance line. With the theme lockup now also in the header (D1), the footer needs only **ONE** KW-compliance-mark instance total on the page — if a build renders it twice, that is a defect to fix (component-level, tracked in `docs/DESIGN-REVISIT.md` §4.10), not a second intentional placement.
-Known-defective asset: `Linear_..._Gold_on_Charcoal.png` — the charcoal COMMERCIAL wordmark vanishes on charcoal. Never use the linear lockup on dark.
+**Superseded 2026-08-17 (L4 / R14, Razim).** Prior rule, kept visible: ~~"Known-defective asset: `Linear_..._Gold_on_Charcoal.png` — the charcoal COMMERCIAL wordmark vanishes on charcoal. Never use the linear lockup on dark."~~ That judgement was made against the *transparent* linear master composited onto a dark ground; the kit's purpose-built `KW_Commercial_Linear_TheHokutenGroup_Gold_on_Charcoal.png` (3762×1184) is the cut authored **for** a charcoal ground and is now the source of the header derivative (`public/brand/lockup-linear-header.{png,avif}` + `@2x`, prepared in the raster portion). **Two constraints ride with the reversal, both binding:** (1) the derivative must be verified legible at the ~40–52px render height on the actual dark nav — if the COMMERCIAL wordmark does not read, the old finding stands and the header falls back to the stacked mark; (2) this authorises the **on-charcoal cut on the dark nav only** — it does not relicense the transparent linear master on arbitrary dark surfaces.
+**Nav surface — recorded deviation (R14).** Dino's master directive `V2` §1 line 8 orders a **white** nav bar precisely because the linear lockup carries dark lettering. The site keeps its **dark** bar and solves that problem with the on-charcoal cut instead. This is logged as a deviation from a named directive, not a resolved conflict — Dino sees it on the production deployment and iterates. Same posture as the chassis deviation recorded under "Two fields" below.
 OG image (1200×630): rebuild per the cover recipe — black panel, centered stack, thin gold rule, THE HOKUTEN GROUP as the only large lettering; adapt from `Facebook_Cover_1640x624_HOKUTEN` proportions.
 
 ## Motif system

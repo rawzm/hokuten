@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -65,14 +65,34 @@ const LOADER_GATE_SCRIPT = `(function () {
 })();`;
 
 /* Three voices, no more (ref 01). Self-hosted by next/font at build time —
-   zero runtime CDN font requests. ≤2 files per family (ref 05 perf gate). */
+   zero runtime CDN font requests. ≤2 files per family (ref 05 perf gate).
 
-const fraunces = Fraunces({
+   L3 (2026-08-17, LAUNCH-IMPLEMENTATION §2.2): Fraunces → Cormorant Garamond
+   and IBM Plex Mono → JetBrains Mono, per Dino's Brand Design Guide v1.3.
+   Inter is unchanged. This supersedes the 2026-08-10 Fraunces/IBM Plex Mono
+   decision in PROJECT-MEMORY.
+
+   VERIFIED against this repo's installed next@16.3.0, not from memory
+   (node_modules/next/dist/compiled/@next/font/dist/google/font-data.json and
+   the generated index.d.ts overloads):
+     Cormorant Garamond — weights 300–700 + variable · styles normal, italic ·
+       axes: `wght` ONLY. There is no `opsz` axis, and the generated option
+       type has no `axes` key at all, so Fraunces' `axes: ["opsz"]` line is
+       deleted rather than carried over — passing it is a type error and a
+       build failure.
+     JetBrains Mono — weights 100–800 + variable · styles normal, italic ·
+       axis `wght` only.
+
+   `weight` is omitted on both so next/font serves the VARIABLE cut: two files
+   for Cormorant (normal + italic — the italic is load-bearing, it is the gold
+   `.display-tail`) and one for JetBrains. That is the ref-05 budget met with
+   room to spare, and it is why neither family pins a weight list. */
+
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  axes: ["opsz"],
   style: ["normal", "italic"],
   display: "swap",
-  variable: "--font-fraunces",
+  variable: "--font-cormorant",
 });
 
 const inter = Inter({
@@ -81,21 +101,26 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const plexMono = IBM_Plex_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
   display: "swap",
-  variable: "--font-plex-mono",
+  variable: "--font-jetbrains",
 });
 
 /* ---------------------------------------------------------------------------
    Metadata description.
 
-   The figures are READ FROM content/stats.ts, never retyped. This file used to
-   hardcode "$200M+ closed across 12 hospitality transactions", which is a
-   second, unowned copy of two register-backed numbers — the day stats.ts is
-   corrected, a stale claim keeps shipping in the document head where nobody
-   looks. Composition is byte-identical to the string that was hardcoded here.
+   The figures are READ FROM content/stats.ts, never retyped, so a correction in
+   that file cannot leave a stale claim shipping in the document head.
+
+   AMENDED 2026-08-17 (LAUNCH-IMPLEMENTATION §3.13, row "Root description"): the
+   connecting words used to read "<volume> closed across <n> hospitality
+   transactions", which edges toward the compression §3.3 forbids — it reads as
+   n sales personally closed. The plan supplies the replacement verbatim,
+   "$200M+ in aggregate transaction volume across 12 hotel and hospitality
+   transactions", and it is the same phrasing as the locked hedge in
+   Appendix B2 / `content/stats.ts` `statsHedge`. Do not revert the wording; the
+   figures still come from the two label keys and nothing else.
 
    `statValue` throws rather than falling back. A silent fallback is how the
    drift being fixed got in; if a label is renamed in stats.ts the build should
@@ -120,9 +145,9 @@ function statValue(label: string): string {
 
 const METADATA_DESCRIPTION = `Hospitality investment sales, nationwide. ${statValue(
   "Aggregate volume",
-)} closed across ${statValue(
+)} in aggregate transaction volume across ${statValue(
   "Closed transactions",
-)} hospitality transactions. Written BOV in 48 hours on receipt of T-12, STR, and PIP.`;
+)} hotel and hospitality transactions. Written BOV in 48 hours on receipt of T-12, STR, and PIP.`;
 
 /* `SITE_NAME` is imported from content/site.ts, not redeclared — the local copy
    was byte-identical to the export and there is only ever one site name.
@@ -174,7 +199,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       data-theme={THEME}
-      className={`${fraunces.variable} ${inter.variable} ${plexMono.variable} h-full`}
+      className={`${cormorant.variable} ${inter.variable} ${jetbrainsMono.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="min-h-full">

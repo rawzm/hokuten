@@ -94,9 +94,9 @@ function DoorPanel({ door, primary }: { door: Door; primary: boolean }) {
       {/* Word-only, deliberately. `door.index` ("01" / "02") is a LOCAL
           enumeration of the two panels, but the bracketed device is the
           page's ONE numbered chapter run — rendering `[ 01 — THE OWNER ]`
-          three sections below `[ 01 — TRACK RECORD ]` reset the count
+          further down the page than `[ 01 — TRACK RECORD ]` reset the count
           mid-page and made the whole index read as decoration. The section's
-          own header carries `05`; the panels carry names. `door.index` stays
+          own header carries `08`; the panels carry names. `door.index` stays
           in content/doors.ts for a future standalone route. */}
       <MicroLabel as="p" className="mt-6">
         {door.label}
@@ -146,7 +146,7 @@ export function DoorsSection() {
         <Reveal>
           <SectionHeader
             id="doors-heading"
-            index="05"
+            index="08"
             label="The Owner / The Investor"
             headline="Two doors, one *house*."
           />
