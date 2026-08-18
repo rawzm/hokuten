@@ -164,6 +164,9 @@ export const A100_ARMS_URL = "https://a100arms.com";
  * The invite / signup destination behind every "Private access" and off-market
  * CTA on the site. Verbatim from index.html:1225, :1246, :1868 (`SIGNUP_URL`).
  * Opens in a new tab with `rel="noopener"`.
+ *
+ * Deployment note (2026-08-18): this file changed intentionally to trigger the
+ * Vercel auto-deploy path from GitHub integration.
  */
 export const A100_ARMS_SIGNUP_URL = "https://a100arms.com/signup";
 

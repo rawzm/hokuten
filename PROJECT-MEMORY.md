@@ -44,6 +44,10 @@
 
 ## 4. Log
 
+### 2026-08-18 — Post GitHub-link deploy-trigger change committed to `main`
+
+- Made a minimal source-level update and pushed `main` so the Vercel GitHub integration can auto deploy.
+
 ### 2026-08-18 — Main-branch deploy handoff completed for Vercel auto-deploy
 
 - Pushed current `main` branch code changes in `site/components/cards/ListingCard.tsx`, `site/components/legal/LegalPage.tsx`, and `site/content/listings.ts` through the GitHub → Vercel auto-deploy path.
