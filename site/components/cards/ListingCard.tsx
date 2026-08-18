@@ -205,8 +205,18 @@ export function ListingCard({ listing, index, className }: ListingCardProps) {
         reveal={!isFlatFallback}
         imageClassName={media.focalPoint ? FOCAL_IMAGE_CLASS[media.focalPoint] : undefined}
       />
+      {/* Exclusivity publish gate (C2, 2026-08-17). `exclusivityStatus:
+          "unevidenced"` means a human looked and found no `verified-current`
+          evidence for our exclusivity on that row, so no chip renders — the
+          `status` value itself stays truthful (`listed`) and no new status
+          label was invented. Absent or `"verified"` is the unchanged path, so
+          every a100 feed row (a plain `Listing`, which has no such field) and
+          the ported Pocono row are untouched. Reader spec: content/listings.ts
+          header, "THE GATE". */}
       <div className="absolute left-3 top-3 z-1">
-        <Badge status={listing.status} className="bg-paper" />
+        {listing.exclusivityStatus === "unevidenced" ? null : (
+          <Badge status={listing.status} className="bg-paper" />
+        )}
       </div>
     </>
   );

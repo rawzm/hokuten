@@ -44,6 +44,10 @@
 
 ## 4. Log
 
+### 2026-08-18 — Main-branch deploy handoff completed for Vercel auto-deploy
+
+- Pushed current `main` branch code changes in `site/components/cards/ListingCard.tsx`, `site/components/legal/LegalPage.tsx`, and `site/content/listings.ts` through the GitHub → Vercel auto-deploy path.
+
 ### 2026-08-17 — Dino's launch package received; Theme G locked to the brand kit; launch implementation doc written (provisional)
 
 Dino delivered the full pre-launch package on 2026-08-16/17 (Brand Design Guide v1.3, Website & Launch

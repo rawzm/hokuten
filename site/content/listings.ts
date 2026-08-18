@@ -73,16 +73,14 @@
  *   cannot simply be omitted: `Listing` requires it, and `ListingCard` hands
  *   the same object to `getListingMedia(listing: Listing)`, so widening it
  *   here fails typecheck inside `components/cards/ListingCard.tsx`.
- *   THE GATE, and the one line still missing. `exclusivityStatus` below is the
- *   publish gate, set to `"unevidenced"` on both new mandates. It is modelled
- *   on the `streetStatus` gate and needs its reader — ONE line in
- *   `components/cards/ListingCard.tsx`, which this file's owner does not hold
- *   (it was being rewritten by another agent in the same wave):
+ *   THE GATE. `exclusivityStatus` below is the publish gate, set to
+ *   `"unevidenced"` on both new mandates. It is modelled on the `streetStatus`
+ *   gate, and its reader LANDED 2026-08-17 in
+ *   `components/cards/ListingCard.tsx`:
  *       {listing.exclusivityStatus === "unevidenced" ? null : (
  *         <Badge status={listing.status} className="bg-paper" />
  *       )}
- *   UNTIL THAT LANDS THE BADGE STILL RENDERS on both new cards — treat it as
- *   an open P1, not a closed one.
+ *   Neither new mandate renders an EXCLUSIVE chip today.
  *   ONE-TOKEN RESTORE, per row: delete `exclusivityStatus` (or set it to
  *   `"verified"`) the moment Dino confirms that mandate is exclusive.
  *   POCONO IS NOT GATED: it is the byte-verified kwc port, carrying our own

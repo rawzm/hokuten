@@ -48,6 +48,7 @@ import { Fragment, type ReactNode } from "react";
 import { AccentRule } from "@/components/atoms/AccentRule";
 import { MicroLabel } from "@/components/atoms/MicroLabel";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { Button } from "@/components/ui/button";
 import { BROKERAGE_DISCLOSURE, KW_COMMERCIAL_MARK } from "@/content/compliance";
 import { navCta, navLinks } from "@/content/nav";
 import {
@@ -107,12 +108,15 @@ function LegalChrome() {
             ))}
           </ul>
 
-          <Link
-            href={`/${navCta.href}`}
-            className={`${TAP_TARGET} rounded-pill bg-accent px-5 text-data font-sans font-semibold text-on-accent`}
-          >
-            {navCta.label}
-          </Link>
+          {/* D-VOCAB / R2 (2026-08-17): this was a hand-rolled FILLED gold pill
+              (`rounded-pill bg-accent … text-on-accent`) that bypassed the CTA
+              primitive, so the outlined-box swap in ui/button.tsx never reached
+              the legal routes. It now goes through `Button` exactly as the
+              landing nav does (SiteNav.tsx), which is also why the recipe can
+              never diverge again. Guide v1.3 line 29: never filled buttons. */}
+          <Button asChild variant="primary" size="md">
+            <Link href={`/${navCta.href}`}>{navCta.label}</Link>
+          </Button>
         </nav>
       </div>
     </header>
